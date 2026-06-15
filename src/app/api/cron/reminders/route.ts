@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma"
 import { sendSMS } from "@/lib/notifications"
 
 export async function GET(req: Request) {
-    // secure cron endpoint (optional: check for secret header)
+
     const authHeader = req.headers.get("authorization")
     if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
         return new NextResponse("Unauthorized", { status: 401 })
@@ -16,7 +16,7 @@ export async function GET(req: Request) {
     const tomorrowEnd = new Date(tomorrowStart)
     tomorrowEnd.setHours(23, 59, 59, 999)
 
-    // Find appointments scheduled for tomorrow that haven't been cancelled
+
     const appointments = await prisma.appointment.findMany({
         where: {
             scheduledAt: {
@@ -39,7 +39,7 @@ export async function GET(req: Request) {
 
         const message = `Reminder: You have an appointment with Dr. ${appt.doctor.lastName} tomorrow at ${appt.scheduledAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.`
 
-        // Log notification
+
         const notification = await prisma.notification.create({
             data: {
                 type: "SMS",
@@ -52,10 +52,19 @@ export async function GET(req: Request) {
             }
         })
 
-        // Send SMS
-        const res = await sendSMS({ to: appt.patient.phone, body: message })
 
-        // Update status
+        const res = await sendSMS({
+            to: appt.patient.phone,
+            body: message,
+            variables: {
+                VAR1: appt.patient.firstName,
+                VAR2: appt.type || "consultation",
+                VAR3: appt.clinic.name || "our clinic",
+                VAR4: "tomorrow at " + appt.scheduledAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            }
+        })
+
+
         await prisma.notification.update({
             where: { id: notification.id },
             data: {

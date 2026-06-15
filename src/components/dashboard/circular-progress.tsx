@@ -17,13 +17,13 @@ export function CircularProgressStatCard({ title, value, progressValue, label, d
     const strokeDashoffset = circumference - (progressValue / 100) * circumference
 
     return (
-        <Card className="flex items-center justify-between p-4 bg-white/70 backdrop-blur-2xl border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.02)] rounded-[20px]">
-            <div className="flex flex-col gap-1">
-                <span className="text-[13px] font-semibold text-gray-500 uppercase tracking-wide">{title}</span>
-                <span className="text-[28px] font-bold text-gray-900 leading-none mt-1">{value}</span>
-                <span className="text-[12px] text-gray-400 font-medium">{description || "Analysis"}</span>
+        <Card className="flex flex-col min-[380px]:flex-row min-[380px]:items-center justify-between p-3.5 sm:p-4 bg-white/70 backdrop-blur-2xl border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.02)] rounded-[20px] gap-3">
+            <div className="flex flex-col gap-1 min-w-0 flex-1">
+                <span className="text-[11px] min-[380px]:text-[13px] font-semibold text-gray-500 uppercase tracking-wide truncate">{title}</span>
+                <span className="text-[20px] min-[380px]:text-[24px] sm:text-[28px] font-bold text-gray-900 leading-none mt-1 truncate">{value}</span>
+                <span className="text-[11px] min-[380px]:text-[12px] text-gray-400 font-medium truncate">{description || "Analysis"}</span>
             </div>
-            
+
             <div className="relative flex items-center justify-center w-16 h-16">
                 {/* Background Track */}
                 <svg className="absolute w-full h-full transform -rotate-90">

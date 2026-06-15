@@ -187,18 +187,19 @@ export function InvoiceDetailClient({ invoice, clinicId }: InvoiceDetailClientPr
     }
 
     return (
-        <div className="flex flex-col h-full space-y-6">
+        <div className="flex flex-col w-full min-w-0 h-full space-y-6">
             <Header
                 title={`Invoice ${invoice.invoiceNumber}`}
                 description={`Created on ${safeFormat(invoice.createdAt, "PPP")}`}
                 action={{
                     label: "Back to Billing",
                     onClick: () => router.back(),
-                    variant: "outline"
+                    variant: "outline",
+                    icon: ArrowLeft
                 }}
             />
 
-            <div className="flex-1 overflow-auto p-6">
+            <div className="flex-1 p-4 md:p-6 overflow-auto">
                 <div className="flex justify-between items-start mb-6">
                     <div>
                         <Badge variant={invoice.status.toLowerCase() as any}>{invoice.status}</Badge>
@@ -206,9 +207,9 @@ export function InvoiceDetailClient({ invoice, clinicId }: InvoiceDetailClientPr
                     <div className="flex gap-2">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="outline">
-                                    <MoreVertical className="h-4 w-4 mr-2" />
-                                    Actions
+                                <Button variant="outline" className="px-3 sm:px-4">
+                                    <MoreVertical className="h-4 w-4 sm:mr-2" />
+                                    <span className="hidden sm:inline">Actions</span>
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
@@ -238,16 +239,16 @@ export function InvoiceDetailClient({ invoice, clinicId }: InvoiceDetailClientPr
                             >
                                 {/* @ts-ignore */}
                                 {({ loading }) => (
-                                    <Button variant="outline" disabled={loading}>
-                                        <Download className="mr-2 h-4 w-4" />
-                                        Download PDF
+                                    <Button variant="outline" disabled={loading} className="px-3 sm:px-4">
+                                        <Download className="h-4 w-4 sm:mr-2" />
+                                        <span className="hidden sm:inline">Download PDF</span>
                                     </Button>
                                 )}
                             </PDFDownloadLink>
                         ) : (
-                            <Button variant="outline" disabled>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Loading PDF...
+                            <Button variant="outline" disabled className="px-3 sm:px-4">
+                                <Loader2 className="h-4 w-4 animate-spin sm:mr-2" />
+                                <span className="hidden sm:inline">Loading PDF...</span>
                             </Button>
                         )}
                     </div>
@@ -297,30 +298,50 @@ export function InvoiceDetailClient({ invoice, clinicId }: InvoiceDetailClientPr
 
                 {/* Items Table */}
                 <Card className="mt-6">
-                    <CardHeader>
-                        <CardTitle>Line Items</CardTitle>
+                    <CardHeader className="p-4 sm:p-6 pb-4">
+                        <CardTitle className="text-[17px] font-bold text-gray-900">Line Items</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <table className="w-full">
-                            <thead>
-                                <tr className="border-b text-sm text-muted-foreground">
-                                    <th className="py-2 text-left">Description</th>
-                                    <th className="py-2 text-right">Qty</th>
-                                    <th className="py-2 text-right">Unit Price</th>
-                                    <th className="py-2 text-right">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y">
-                                {invoice.items.map((item: any) => (
-                                    <tr key={item.id}>
-                                        <td className="py-3 text-sm">{item.description}</td>
-                                        <td className="py-3 text-sm text-right">{item.quantity}</td>
-                                        <td className="py-3 text-sm text-right">{formatCurrency(item.unitPrice)}</td>
-                                        <td className="py-3 text-sm text-right font-medium">{formatCurrency(item.total)}</td>
+                    <CardContent className="p-4 sm:p-6 pt-0">
+                        {/* Desktop View */}
+                        <div className="hidden md:block overflow-x-auto w-full">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="border-b text-sm text-muted-foreground">
+                                        <th className="py-2 text-left">Description</th>
+                                        <th className="py-2 text-right">Qty</th>
+                                        <th className="py-2 text-right">Unit Price</th>
+                                        <th className="py-2 text-right">Total</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y">
+                                    {invoice.items.map((item: any) => (
+                                        <tr key={item.id}>
+                                            <td className="py-3 text-sm">{item.description}</td>
+                                            <td className="py-3 text-sm text-right">{item.quantity}</td>
+                                            <td className="py-3 text-sm text-right">{formatCurrency(item.unitPrice)}</td>
+                                            <td className="py-3 text-sm text-right font-medium">{formatCurrency(item.total)}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Mobile View */}
+                        <div className="md:hidden space-y-3">
+                            {invoice.items.map((item: any) => (
+                                <div key={item.id} className="p-4 border border-gray-100 rounded-xl bg-gray-50/50 flex justify-between items-center">
+                                    <div className="min-w-0 pr-3">
+                                        <p className="font-bold text-[14px] text-gray-900 truncate">{item.description}</p>
+                                        <p className="text-[12px] text-gray-500 font-medium mt-1">
+                                            Qty: {item.quantity} • {formatCurrency(item.unitPrice)}
+                                        </p>
+                                    </div>
+                                    <p className="font-bold text-[14px] text-gray-900 shrink-0">
+                                        {formatCurrency(item.total)}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
 
                         <Separator className="my-4" />
 
@@ -362,30 +383,61 @@ export function InvoiceDetailClient({ invoice, clinicId }: InvoiceDetailClientPr
                 {/* Payments */}
                 {invoice.payments && invoice.payments.length > 0 && (
                     <Card className="mt-6">
-                        <CardHeader>
-                            <CardTitle>Payment History</CardTitle>
+                        <CardHeader className="p-4 sm:p-6 pb-4">
+                            <CardTitle className="text-[17px] font-bold text-gray-900">Payment History</CardTitle>
                         </CardHeader>
-                        <CardContent>
-                            <table className="w-full">
-                                <thead>
-                                    <tr className="border-b text-sm text-muted-foreground">
-                                        <th className="py-2 text-left">Date</th>
-                                        <th className="py-2 text-left">Method</th>
-                                        <th className="py-2 text-left">Reference</th>
-                                        <th className="py-2 text-right">Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y">
-                                    {invoice.payments.map((payment: any) => (
-                                        <tr key={payment.id}>
-                                            <td className="py-3 text-sm">{safeFormat(payment.paidAt, "dd MMM yyyy HH:mm")}</td>
-                                            <td className="py-3 text-sm capitalize">{payment.method.toLowerCase().replace("_", " ")}</td>
-                                            <td className="py-3 text-sm text-muted-foreground">{payment.reference || "-"}</td>
-                                            <td className="py-3 text-sm text-right font-medium">{formatCurrency(payment.amount)}</td>
+                        <CardContent className="p-4 sm:p-6 pt-0">
+                            {/* Desktop View */}
+                            <div className="hidden md:block overflow-x-auto w-full">
+                                <table className="w-full">
+                                    <thead>
+                                        <tr className="border-b text-sm text-muted-foreground">
+                                            <th className="py-2 text-left">Date</th>
+                                            <th className="py-2 text-left">Method</th>
+                                            <th className="py-2 text-left">Reference</th>
+                                            <th className="py-2 text-right">Amount</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody className="divide-y">
+                                        {invoice.payments.map((payment: any) => (
+                                            <tr key={payment.id}>
+                                                <td className="py-3 text-sm">{safeFormat(payment.paidAt, "dd MMM yyyy HH:mm")}</td>
+                                                <td className="py-3 text-sm capitalize">{payment.method.toLowerCase().replace("_", " ")}</td>
+                                                <td className="py-3 text-sm text-muted-foreground">{payment.reference || "-"}</td>
+                                                <td className="py-3 text-sm text-right font-medium">{formatCurrency(payment.amount)}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* Mobile View */}
+                            <div className="md:hidden space-y-3">
+                                {invoice.payments.map((payment: any) => (
+                                    <div key={payment.id} className="p-4 border border-gray-100 rounded-xl bg-gray-50/50 flex flex-col gap-2">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">Date</span>
+                                            <span className="text-[13px] text-gray-900 font-semibold">{safeFormat(payment.paidAt, "dd MMM yyyy HH:mm")}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">Method</span>
+                                            <span className="text-[13px] text-gray-900 font-semibold capitalize bg-white border border-gray-200 px-2 py-0.5 rounded-md shadow-sm">
+                                                {payment.method.toLowerCase().replace("_", " ")}
+                                            </span>
+                                        </div>
+                                        {payment.reference && (
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">Reference</span>
+                                                <span className="text-[13px] text-gray-500 font-medium">{payment.reference}</span>
+                                            </div>
+                                        )}
+                                        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                                            <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">Amount</span>
+                                            <span className="text-[14px] font-bold text-emerald-600">{formatCurrency(payment.amount)}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </CardContent>
                     </Card>
                 )}
@@ -416,7 +468,7 @@ export function InvoiceDetailClient({ invoice, clinicId }: InvoiceDetailClientPr
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label>Discount (%)</Label>
                                 <Input

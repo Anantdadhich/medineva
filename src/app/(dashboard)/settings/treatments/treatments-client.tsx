@@ -130,7 +130,7 @@ export function TreatmentsClient({ initialTreatments, clinicId }: TreatmentsClie
     }
 
     return (
-        <div className="mx-auto flex min-h-0 max-w-4xl flex-col space-y-6">
+        <div className="mx-auto flex min-h-0 w-full min-w-0 max-w-4xl flex-col space-y-6">
             <Header
                 title="Treatment catalog"
                 description="Services, standard fees, and durations for scheduling and billing."
@@ -162,7 +162,7 @@ export function TreatmentsClient({ initialTreatments, clinicId }: TreatmentsClie
                         key={category}
                         className="overflow-hidden rounded-[20px] border border-white/60 bg-white/70 shadow-[0_4px_24px_rgba(0,0,0,0.02)] backdrop-blur-2xl"
                     >
-                        <CardHeader className="flex flex-row items-center justify-between border-b border-gray-100/50 py-4">
+                        <CardHeader className="p-4 sm:p-6 flex flex-row items-center justify-between border-b border-gray-100/50 py-4 sm:py-4">
                             <CardTitle className="text-[17px] font-bold text-gray-800">{category}</CardTitle>
                             <Badge
                                 variant="secondary"
@@ -177,7 +177,7 @@ export function TreatmentsClient({ initialTreatments, clinicId }: TreatmentsClie
                                 {categoryTreatments.map((treatment) => (
                                     <div
                                         key={treatment.id}
-                                        className="flex flex-col gap-3 px-5 py-4 transition-colors hover:bg-gray-50/50 sm:flex-row sm:items-center sm:justify-between"
+                                        className="flex flex-col gap-3 px-4 sm:px-6 py-4 transition-colors hover:bg-gray-50/50 sm:flex-row sm:items-center sm:justify-between"
                                     >
                                         <div className="min-w-0 flex-1">
                                             <div className="flex flex-wrap items-center gap-2">
@@ -195,17 +195,33 @@ export function TreatmentsClient({ initialTreatments, clinicId }: TreatmentsClie
                                                     {treatment.description}
                                                 </p>
                                             )}
-                                        </div>
-                                        <div className="flex shrink-0 items-center gap-3 sm:gap-4">
-                                            {treatment.duration != null && treatment.duration > 0 && (
-                                                <span className="text-[13px] font-medium text-gray-500 tabular-nums">
-                                                    {treatment.duration} min
+                                            {/* Mobile Duration and Cost badges */}
+                                            <div className="flex items-center gap-3 mt-2 sm:hidden text-[13px] font-medium text-gray-500">
+                                                {treatment.duration != null && treatment.duration > 0 && (
+                                                    <span className="tabular-nums">
+                                                        {treatment.duration} min
+                                                    </span>
+                                                )}
+                                                {treatment.duration != null && treatment.duration > 0 && (
+                                                    <span className="text-gray-300">•</span>
+                                                )}
+                                                <span className="font-bold tabular-nums text-gray-900">
+                                                    {formatCurrency(treatment.standardCost)}
                                                 </span>
-                                            )}
-                                            <span className="text-[15px] font-bold tabular-nums text-gray-900">
-                                                {formatCurrency(treatment.standardCost)}
-                                            </span>
-                                            <div className="flex items-center gap-0.5">
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 mt-1 sm:mt-0 pt-2.5 sm:pt-0 border-t border-gray-100/50 sm:border-0 shrink-0">
+                                            <div className="hidden sm:flex items-center gap-3 sm:gap-4">
+                                                {treatment.duration != null && treatment.duration > 0 && (
+                                                    <span className="text-[13px] font-medium text-gray-500 tabular-nums">
+                                                        {treatment.duration} min
+                                                    </span>
+                                                )}
+                                                <span className="text-[15px] font-bold tabular-nums text-gray-900">
+                                                    {formatCurrency(treatment.standardCost)}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-0.5 ml-auto">
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"

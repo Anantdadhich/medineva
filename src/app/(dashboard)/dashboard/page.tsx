@@ -74,7 +74,7 @@ export default async function DashboardPage() {
     ])
 
     return (
-        <div className="flex min-h-0 flex-1 flex-col gap-6">
+        <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col gap-6">
             <Header
                 title="Dashboard Overview"
                 description={`Welcome back, Dr ${user.firstName}. Detailed information about your clinic's health.`}
@@ -112,50 +112,85 @@ export default async function DashboardPage() {
                                 </Link>
                             </CardHeader>
                             <CardContent className="p-0">
-                                <div className="min-w-full inline-block align-middle">
-                                    <table className="min-w-full px-2">
-                                        <thead className="bg-gray-50/50 border-b border-gray-100/50">
-                                            <tr>
-                                                <th className="px-5 py-3 text-left text-[12px] font-bold text-gray-400 uppercase tracking-wider">Doctor Name</th>
-                                                <th className="px-5 py-3 text-left text-[12px] font-bold text-gray-400 uppercase tracking-wider">Treatment</th>
-                                                <th className="px-5 py-3 text-left text-[12px] font-bold text-gray-400 uppercase tracking-wider">Status</th>
-                                                <th className="px-5 py-3 text-left text-[12px] font-bold text-gray-400 uppercase tracking-wider">Date</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-50/50">
-                                            {upcomingAppointments.length === 0 ? (
-                                                <tr><td colSpan={4} className="text-center py-6 text-gray-400 text-sm">No scheduled appointments</td></tr>
-                                            ) : upcomingAppointments.map((apt: any) => (
-                                                <tr key={apt.id} className="hover:bg-gray-50/50 transition-colors">
-                                                    <td className="px-5 py-4 whitespace-nowrap">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="h-8 w-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-[13px]">
-                                                                {apt.doctor?.firstName?.[0] || 'D'}{apt.doctor?.lastName?.[0] || 'R'}
-                                                            </div>
-                                                            <div>
-                                                                <div className="text-[14px] font-bold text-gray-900">
-                                                                    Dr. {apt.doctor?.firstName ? `${apt.doctor.firstName} ${apt.doctor.lastName || ''}`.trim() : 'Assigned'}
-                                                                </div>
-                                                                <div className="text-[11px] text-gray-400 font-medium">{apt.patient.firstName} {apt.patient.lastName}</div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-5 py-4 whitespace-nowrap">
-                                                        <div className="text-[14px] font-semibold text-gray-800">{apt.type}</div>
-                                                    </td>
-                                                    <td className="px-5 py-4 whitespace-nowrap">
-                                                        <Badge variant={apt.status.toLowerCase() as any} className="shadow-none px-2.5 py-0.5 rounded-full text-[11px] font-semibold">
-                                                            {apt.status}
-                                                        </Badge>
-                                                    </td>
-                                                    <td className="px-5 py-4 whitespace-nowrap text-[13px] font-medium text-gray-500">
-                                                        {format(new Date(apt.scheduledAt), "MMM dd, yyyy")} <br />
-                                                        <span className="text-[11px] text-gray-400">{format(new Date(apt.scheduledAt), "HH:mm")}</span>
-                                                    </td>
+                                {/* Desktop Table View */}
+                                <div className="w-full overflow-x-auto hidden md:block">
+                                    <div className="min-w-full inline-block align-middle">
+                                        <table className="min-w-full px-2">
+                                            <thead className="bg-gray-50/50 border-b border-gray-100/50">
+                                                <tr>
+                                                    <th className="px-5 py-3 text-left text-[12px] font-bold text-gray-400 uppercase tracking-wider">Doctor Name</th>
+                                                    <th className="px-5 py-3 text-left text-[12px] font-bold text-gray-400 uppercase tracking-wider">Treatment</th>
+                                                    <th className="px-5 py-3 text-left text-[12px] font-bold text-gray-400 uppercase tracking-wider">Status</th>
+                                                    <th className="px-5 py-3 text-left text-[12px] font-bold text-gray-400 uppercase tracking-wider">Date</th>
                                                 </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-50/50">
+                                                {upcomingAppointments.length === 0 ? (
+                                                    <tr><td colSpan={4} className="text-center py-6 text-gray-400 text-sm">No scheduled appointments</td></tr>
+                                                ) : upcomingAppointments.map((apt: any) => (
+                                                    <tr key={apt.id} className="hover:bg-gray-50/50 transition-colors">
+                                                        <td className="px-5 py-4 whitespace-nowrap">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="h-8 w-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-[13px]">
+                                                                    {apt.doctor?.firstName?.[0] || 'D'}{apt.doctor?.lastName?.[0] || 'R'}
+                                                                </div>
+                                                                <div>
+                                                                    <div className="text-[14px] font-bold text-gray-900">
+                                                                        Dr. {apt.doctor?.firstName ? `${apt.doctor.firstName} ${apt.doctor.lastName || ''}`.trim() : 'Assigned'}
+                                                                    </div>
+                                                                    <div className="text-[11px] text-gray-400 font-medium">{apt.patient.firstName} {apt.patient.lastName}</div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-5 py-4 whitespace-nowrap">
+                                                            <div className="text-[14px] font-semibold text-gray-800">{apt.type}</div>
+                                                        </td>
+                                                        <td className="px-5 py-4 whitespace-nowrap">
+                                                            <Badge variant={apt.status.toLowerCase() as any} className="shadow-none px-2.5 py-0.5 rounded-full text-[11px] font-semibold">
+                                                                {apt.status}
+                                                            </Badge>
+                                                        </td>
+                                                        <td className="px-5 py-4 whitespace-nowrap text-[13px] font-medium text-gray-500">
+                                                            {format(new Date(apt.scheduledAt), "MMM dd, yyyy")} <br />
+                                                            <span className="text-[11px] text-gray-400">{format(new Date(apt.scheduledAt), "HH:mm")}</span>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                {/* Mobile Card List View */}
+                                <div className="md:hidden divide-y divide-gray-100/50">
+                                    {upcomingAppointments.length === 0 ? (
+                                        <div className="text-center py-8 text-gray-400 text-sm">No scheduled appointments</div>
+                                    ) : upcomingAppointments.map((apt: any) => (
+                                        <div key={apt.id} className="p-4 flex flex-col gap-3">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="h-8 w-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-[13px]">
+                                                        {apt.doctor?.firstName?.[0] || 'D'}{apt.doctor?.lastName?.[0] || 'R'}
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-[14px] font-bold text-gray-900 leading-tight">
+                                                            Dr. {apt.doctor?.firstName ? `${apt.doctor.firstName} ${apt.doctor.lastName || ''}`.trim() : 'Assigned'}
+                                                        </div>
+                                                        <div className="text-[11px] text-gray-400 font-medium">Patient: {apt.patient.firstName} {apt.patient.lastName}</div>
+                                                    </div>
+                                                </div>
+                                                <Badge variant={apt.status.toLowerCase() as any} className="shadow-none px-2 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider">
+                                                    {apt.status}
+                                                </Badge>
+                                            </div>
+                                            <div className="flex items-center justify-between text-[13px] text-gray-600">
+                                                <span className="font-semibold text-gray-800">{apt.type}</span>
+                                                <span className="text-gray-400 font-medium text-[11px]">
+                                                    {format(new Date(apt.scheduledAt), "MMM dd · HH:mm")}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </CardContent>
                         </Card>
@@ -184,7 +219,7 @@ export default async function DashboardPage() {
                                         <div className="text-center text-gray-400 text-sm py-4 relative z-10 bg-white/70">No activity today</div>
                                     ) : recentActivity.map((activity: any, index: number) => (
                                         <div key={activity.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                                            <div className="flex items-center justify-center w-8 h-8 rounded-full border border-white bg-slate-100 text-slate-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 absolute left-0 md:left-1/2 -translate-x-1/2 z-10">
+                                            <div className="flex items-center justify-center w-8 h-8 rounded-full border border-white bg-slate-100 text-slate-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 absolute left-5 md:left-1/2 -translate-x-1/2 z-10">
                                                 <div className={`w-2.5 h-2.5 rounded-full ${activity.action === 'completed' ? 'bg-emerald-400' : 'bg-amber-400'}`} />
                                             </div>
                                             <div className="w-[calc(100%-3rem)] md:w-[calc(50%-2rem)] ml-10 md:ml-0 p-3.5 rounded-[14px] border border-gray-100/50 bg-white/50 shadow-sm transition-all hover:bg-white text-left">

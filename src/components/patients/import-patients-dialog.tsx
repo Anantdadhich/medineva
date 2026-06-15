@@ -49,16 +49,15 @@ export function ImportPatientsDialog({ clinicId, onSuccess }: ImportPatientsDial
             const lines = text.split('\n')
             const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''))
 
-            // Expected headers: firstName, lastName, phone, dateOfBirth...
-            // We map strict index or match names
+
 
             const data = []
 
-            // Start from 1 to skip header
+
             for (let i = 1; i < lines.length; i++) {
                 if (!lines[i].trim()) continue
 
-                // Simple split by comma (doesn't handle commas in quotes perfectly but robust enough for simple CSVs)
+
                 const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''))
 
                 if (values.length < 3) continue // Skip incomplete
@@ -142,9 +141,9 @@ export function ImportPatientsDialog({ clinicId, onSuccess }: ImportPatientsDial
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline">
-                    <Upload className="mr-2 h-4 w-4" />
-                    Import CSV
+                <Button variant="outline" className="px-3 sm:px-4">
+                    <Upload className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Import CSV</span>
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px]">

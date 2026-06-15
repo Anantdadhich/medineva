@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { ImportPatientsDialog } from "@/components/patients/import-patients-dialog"
 import { ExportPatientsDialog } from "@/components/patients/export-patients-dialog"
 import { useToast } from "@/hooks/use-toast"
-import { Search, Filter, X } from "lucide-react"
+import { Search, Filter, X, Users, Activity, Sparkles, AlertTriangle } from "lucide-react"
 import {
     Select,
     SelectContent,
@@ -42,6 +42,39 @@ export function PatientsClient({ initialPatients, clinicId }: PatientsClientProp
     useEffect(() => {
         setPatients(initialPatients)
     }, [initialPatients])
+
+    // Calculate metrics/stats from total patients list
+    const stats = useMemo(() => {
+        const total = patients.length
+        
+        // Active patients: last visit date is within the last 30 days
+        const thirtyDaysAgo = new Date()
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+        
+        const active = patients.filter(p => {
+            if (!p.lastVisitDate) return false
+            return new Date(p.lastVisitDate) >= thirtyDaysAgo
+        }).length
+        
+        const activePercentage = total > 0 ? Math.round((active / total) * 100) : 0
+
+        // New patients in last 30 days
+        const newPatientsCount = patients.filter(p => {
+            if (!p.createdAt) return false
+            return new Date(p.createdAt) >= thirtyDaysAgo
+        }).length
+
+        // Patients with allergies recorded
+        const withAllergies = patients.filter(p => p.allergies && p.allergies.length > 0).length
+
+        return {
+            total,
+            active,
+            activePercentage,
+            newPatients: newPatientsCount,
+            withAllergies,
+        }
+    }, [patients])
 
     const handleSheetSubmit = async (data: PatientFormValues) => {
         try {
@@ -152,7 +185,7 @@ export function PatientsClient({ initialPatients, clinicId }: PatientsClientProp
     }, [patients, searchQuery, statusFilter, sortBy])
 
     return (
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col w-full min-w-0 h-full">
             <Header
                 title="Patients"
                 description="Manage your patient records"
@@ -167,8 +200,59 @@ export function PatientsClient({ initialPatients, clinicId }: PatientsClientProp
                 </div>
             </Header>
 
+            {/* Stats Cards Section */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-4 md:px-6 mt-6">
+                {/* Total Patients Card */}
+                <div className="bg-white/60 backdrop-blur-2xl border border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.02)] rounded-[24px] p-6 hover:-translate-y-0.5 transition-all duration-200">
+                    <div className="space-y-1.5">
+                        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Total Patients</p>
+                        <h3 className="text-3xl font-black text-gray-900 tracking-tight leading-none">{stats.total}</h3>
+                        <p className="text-[11px] text-gray-400 font-semibold pt-1">Registered in system</p>
+                    </div>
+                </div>
+
+                {/* Active Patients Card */}
+                <div className="bg-white/60 backdrop-blur-2xl border border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.02)] rounded-[24px] p-6 hover:-translate-y-0.5 transition-all duration-200">
+                    <div className="space-y-1.5">
+                        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Active Patients</p>
+                        <div className="flex items-baseline gap-2">
+                            <h3 className="text-3xl font-black text-gray-900 tracking-tight leading-none">{stats.active}</h3>
+                            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50/60 border border-emerald-100/50 px-1.5 py-0.5 rounded-md">
+                                {stats.activePercentage}% active
+                            </span>
+                        </div>
+                        <p className="text-[11px] text-gray-400 font-semibold pt-1">Visited in last 30d</p>
+                    </div>
+                </div>
+
+                {/* New Patients Card */}
+                <div className="bg-white/60 backdrop-blur-2xl border border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.02)] rounded-[24px] p-6 hover:-translate-y-0.5 transition-all duration-200">
+                    <div className="space-y-1.5">
+                        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">New Patients</p>
+                        <h3 className="text-3xl font-black text-gray-900 tracking-tight leading-none">{stats.newPatients}</h3>
+                        <p className="text-[11px] text-gray-400 font-semibold pt-1">Registered last 30d</p>
+                    </div>
+                </div>
+
+                {/* Allergies Card */}
+                <div className="bg-white/60 backdrop-blur-2xl border border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.02)] rounded-[24px] p-6 hover:-translate-y-0.5 transition-all duration-200">
+                    <div className="space-y-1.5">
+                        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Allergies</p>
+                        <div className="flex items-baseline gap-2">
+                            <h3 className="text-3xl font-black text-gray-900 tracking-tight leading-none">{stats.withAllergies}</h3>
+                            {stats.withAllergies > 0 && (
+                                <span className="text-[10px] font-bold text-amber-700 bg-amber-50/60 border border-amber-100/50 px-1.5 py-0.5 rounded-md">
+                                    Alerts active
+                                </span>
+                            )}
+                        </div>
+                        <p className="text-[11px] text-gray-400 font-semibold pt-1">Patients with alerts</p>
+                    </div>
+                </div>
+            </div>
+
             {/* Search and Filter Bar - Glassmorphic Toolbar */}
-            <div className="px-6 mb-6">
+            <div className="px-4 md:px-6 my-6 mb-3">
                 <div className="bg-white/60 backdrop-blur-2xl border border-white shadow-[0_4px_24px_rgba(0,0,0,0.02)] rounded-[20px] p-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     {/* Search */}
                     <div className="relative flex-1 max-w-sm">
@@ -190,7 +274,7 @@ export function PatientsClient({ initialPatients, clinicId }: PatientsClientProp
                     </div>
 
                     {/* Filters */}
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
                         <Select value={statusFilter} onValueChange={setStatusFilter}>
                             <SelectTrigger className="w-[140px] h-10 rounded-xl border-gray-100 bg-white/50 hover:bg-white transition-all shadow-sm">
                                 <SelectValue placeholder="Status" />
@@ -220,7 +304,48 @@ export function PatientsClient({ initialPatients, clinicId }: PatientsClientProp
                 </div>
             </div>
 
-            <div className="flex-1 p-6 overflow-auto">
+            {/* Active Filters indicator */}
+            {(searchQuery || statusFilter !== "all" || sortBy !== "recent") && (
+                <div className="px-4 md:px-6 mb-4 flex flex-wrap gap-2 items-center animate-fadeIn">
+                    <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mr-1">Active Filters:</span>
+                    {searchQuery && (
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/80 border border-gray-100/60 shadow-sm text-xs font-semibold text-gray-700">
+                            Search: "{searchQuery}"
+                            <button onClick={() => setSearchQuery("")} className="text-gray-400 hover:text-gray-900 transition-colors">
+                                <X className="h-3.5 w-3.5" />
+                            </button>
+                        </div>
+                    )}
+                    {statusFilter !== "all" && (
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/80 border border-gray-100/60 shadow-sm text-xs font-semibold text-gray-700">
+                            Status: {statusFilter === "active" ? "Active (30d)" : "Inactive"}
+                            <button onClick={() => setStatusFilter("all")} className="text-gray-400 hover:text-gray-900 transition-colors">
+                                <X className="h-3.5 w-3.5" />
+                            </button>
+                        </div>
+                    )}
+                    {sortBy !== "recent" && (
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/80 border border-gray-100/60 shadow-sm text-xs font-semibold text-gray-700">
+                            Sort: {sortBy === "name" ? "Name (A-Z)" : sortBy === "lastVisit" ? "Last Visit" : sortBy}
+                            <button onClick={() => setSortBy("recent")} className="text-gray-400 hover:text-gray-900 transition-colors">
+                                <X className="h-3.5 w-3.5" />
+                            </button>
+                        </div>
+                    )}
+                    <button 
+                        onClick={() => {
+                            setSearchQuery("")
+                            setStatusFilter("all")
+                            setSortBy("recent")
+                        }} 
+                        className="text-[12px] font-bold text-cyan-600 hover:text-cyan-800 transition-colors ml-1"
+                    >
+                        Clear All
+                    </button>
+                </div>
+            )}
+
+            <div className="flex-1 p-4 md:p-6 pt-0 overflow-auto">
                 {filteredPatients.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-center">
                         <Search className="h-12 w-12 text-muted-foreground mb-4" />

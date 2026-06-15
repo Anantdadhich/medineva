@@ -34,7 +34,7 @@ export function RevenueChart({ weeklyData, monthlyData }: RevenueChartProps) {
 
     return (
         <Card className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-[20px] border border-white/60 bg-white/70 shadow-[0_4px_24px_rgba(0,0,0,0.02)] backdrop-blur-2xl">
-            <CardHeader className="shrink-0 flex-row flex-wrap items-start justify-between gap-3 border-b border-gray-100/50 pb-4">
+            <CardHeader className="shrink-0 flex-row flex-wrap items-start justify-between gap-3 border-b border-gray-100/50 p-4 sm:p-6 pb-4 sm:pb-4">
                 <div className="space-y-1">
                     <CardTitle className="text-[17px] font-bold text-gray-900">Revenue overview</CardTitle>
                     <CardDescription className="text-[14px] text-gray-500">
@@ -54,7 +54,7 @@ export function RevenueChart({ weeklyData, monthlyData }: RevenueChartProps) {
                     </Select>
                 </div>
             </CardHeader>
-            <CardContent className="min-h-0 w-full min-w-0 flex-1 pt-6">
+            <CardContent className="min-h-0 w-full min-w-0 flex-1 p-3 sm:p-6 pt-6 sm:pt-6">
                 {!chartData.length ? (
                     <div className="flex items-center justify-center text-[14px] text-gray-400" style={{ height: CHART_H }}>
                         No payments recorded in this range yet.
@@ -76,7 +76,7 @@ export function RevenueChart({ weeklyData, monthlyData }: RevenueChartProps) {
                                     axisLine={false}
                                     tickLine={false}
                                     tickMargin={10}
-                                    interval={0}
+                                    interval="preserveStartEnd"
                                 />
                                 <YAxis
                                     tick={{ fill: "#6b7280", fontSize: 11 }}

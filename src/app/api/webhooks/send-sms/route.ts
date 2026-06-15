@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     }
 
     const payload = JSON.parse(bodyText)
-    const { jobId, phone, message, clinicId, patientId, appointmentId } = payload
+    const { jobId, phone, message, clinicId, patientId, appointmentId, variables } = payload
 
     if (!jobId || !phone || !message || !clinicId || !patientId) {
       return NextResponse.json({ error: 'Missing required payload fields' }, { status: 400 })
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
     }
 
 
-    const res = await sendSMS({ to: phone, body: message })
+    const res = await sendSMS({ to: phone, body: message, variables })
 
 
     const notification = await prisma.notification.create({

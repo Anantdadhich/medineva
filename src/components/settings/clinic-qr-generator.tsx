@@ -165,14 +165,14 @@ export function ClinicQrGenerator({ clinicId }: { clinicId: string }) {
             {/* Section 1: Reception QR */}
             <Card className="relative overflow-hidden rounded-[20px] border border-white/60 bg-white/70 shadow-[0_4px_24px_rgba(0,0,0,0.02)] backdrop-blur-2xl">
                 <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-cyan-200/25 blur-3xl" />
-                <CardHeader className="space-y-1 border-b border-gray-100/50 pb-4">
+                <CardHeader className="p-4 sm:p-6 space-y-1 border-b border-gray-100/50 pb-4">
                     <CardTitle className="text-[17px] font-bold text-gray-900">Reception QR code</CardTitle>
                     <CardDescription className="text-[14px] leading-relaxed text-gray-500">
                         Display this code at the front desk. It opens your clinic&apos;s public registration page on the
                         patient&apos;s phone.
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="pt-6">
+                <CardContent className="p-4 sm:p-6 pt-6 sm:pt-6">
                     <div className="flex flex-col items-center gap-8 md:flex-row md:items-start md:justify-center">
                         <div className="rounded-2xl border border-gray-200/80 bg-white p-5 shadow-inner">
                             {intakeUrl ? (
@@ -213,14 +213,14 @@ export function ClinicQrGenerator({ clinicId }: { clinicId: string }) {
             {/* Section 2: Link & file downloads */}
             <Card className="relative overflow-hidden rounded-[20px] border border-white/60 bg-white/70 shadow-[0_4px_24px_rgba(0,0,0,0.02)] backdrop-blur-2xl">
                 <div className="pointer-events-none absolute -left-12 -bottom-12 h-40 w-40 rounded-full bg-slate-200/40 blur-3xl" />
-                <CardHeader className="space-y-1 border-b border-gray-100/50 pb-4">
+                <CardHeader className="p-4 sm:p-6 space-y-1 border-b border-gray-100/50 pb-4">
                     <CardTitle className="text-[17px] font-bold text-gray-900">Link &amp; downloads</CardTitle>
                     <CardDescription className="text-[14px] leading-relaxed text-gray-500">
                         Copy the registration URL for email or SMS, or download the QR as a vector (SVG) or image
                         (PNG) for posters and documents.
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-5 pt-6">
+                <CardContent className="p-4 sm:p-6 space-y-5 pt-6 sm:pt-6">
                     <div>
                         <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-gray-400">
                             Registration URL

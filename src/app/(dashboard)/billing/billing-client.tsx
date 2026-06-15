@@ -16,6 +16,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
+import { Separator } from "@/components/ui/separator"
 import {
     DollarSign,
     Receipt,
@@ -114,8 +115,11 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
 
     const filteredInvoices = invoices.filter((invoice) => {
         const matchesFilter = filter === "all" || invoice.status === filter.toUpperCase()
+        const patientName = invoice.patient
+            ? `${invoice.patient.firstName} ${invoice.patient.lastName}`.toLowerCase()
+            : ""
         const matchesSearch =
-            (invoice.patient?.firstName + " " + invoice.patient?.lastName).toLowerCase().includes(searchQuery.toLowerCase()) ||
+            patientName.includes(searchQuery.toLowerCase()) ||
             invoice.invoiceNumber?.toLowerCase().includes(searchQuery.toLowerCase())
         return matchesFilter && matchesSearch
     })
@@ -159,7 +163,7 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
     }
 
     return (
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col w-full min-w-0 h-full">
             <Header
                 title="Billing"
                 description="Manage invoices and payments"
@@ -169,9 +173,9 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
                 }}
             />
 
-            <div className="flex-1 overflow-auto p-6 space-y-6">
+            <div className="flex-1 p-4 md:p-6 overflow-auto space-y-6">
                 {/* Stats Grid */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-4 sm:grid-cols-3">
                     {stats.map((stat) => (
                         <Card key={stat.title}>
                             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -195,21 +199,25 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
                     <CardHeader>
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                             <CardTitle>Recent Invoices</CardTitle>
-                            <div className="flex gap-2">
+                            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                                 <Input
                                     placeholder="Search invoices..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-64"
+                                    className="w-full sm:w-64"
                                 />
-                                <div className="flex gap-1 rounded-lg border p-1">
+                                <div className="flex gap-1 rounded-xl border border-gray-100/50 bg-gray-50/50 p-1 overflow-x-auto max-w-full">
                                     {["all", "pending", "partial", "paid"].map((status) => (
                                         <Button
                                             key={status}
-                                            variant={filter === status ? "default" : "ghost"}
+                                            variant="ghost"
                                             size="sm"
                                             onClick={() => setFilter(status)}
-                                            className="capitalize"
+                                            className={`capitalize rounded-lg px-4 font-semibold text-[13px] transition-all cursor-pointer ${
+                                                filter === status 
+                                                    ? "bg-white text-cyan-700 shadow-sm border border-gray-100/50" 
+                                                    : "text-gray-500 hover:text-gray-900 hover:bg-gray-100/30"
+                                            }`}
                                         >
                                             {status}
                                         </Button>
@@ -219,7 +227,8 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="rounded-lg border">
+                        {/* Desktop View */}
+                        <div className="hidden md:block rounded-lg border overflow-x-auto w-full">
                             <table className="w-full">
                                 <thead>
                                     <tr className="border-b bg-muted/50">
@@ -319,54 +328,177 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
                                 </tbody>
                             </table>
                         </div>
+
+                        {/* Mobile List View */}
+                        <div className="md:hidden space-y-4">
+                            {filteredInvoices.map((invoice) => {
+                                const balance = invoice.total - invoice.amountPaid
+                                return (
+                                    <div
+                                        key={invoice.id}
+                                        className="rounded-xl border border-gray-200/60 bg-white/50 p-4 space-y-3 shadow-sm transition-all hover:bg-white"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span className="font-mono text-sm font-bold text-gray-900">
+                                                {invoice.invoiceNumber || invoice.number}
+                                            </span>
+                                            <Badge variant={invoice.status.toLowerCase() as any}>
+                                                {invoice.status}
+                                            </Badge>
+                                        </div>
+
+                                        <div className="space-y-0.5">
+                                            <p className="text-[14px] font-bold text-gray-900">
+                                                {invoice.patient ? `${invoice.patient.firstName} ${invoice.patient.lastName}` : invoice.patientName}
+                                            </p>
+                                            <p className="text-xs text-gray-400 font-medium">
+                                                {invoice.createdAt ? format(new Date(invoice.createdAt), "dd MMM yyyy") : format(invoice.date, "dd MMM yyyy")}
+                                            </p>
+                                        </div>
+
+                                        <div className="grid grid-cols-3 gap-2 py-2 px-3 rounded-xl bg-gray-50/50 border border-gray-100/40 text-center">
+                                            <div>
+                                                <p className="text-[9px] uppercase font-bold text-gray-400">Total</p>
+                                                <p className="text-[12px] font-bold text-gray-900 mt-0.5">
+                                                    {formatCurrency(invoice.total)}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[9px] uppercase font-bold text-emerald-500">Paid</p>
+                                                <p className="text-[12px] font-bold text-emerald-600 mt-0.5">
+                                                    {formatCurrency(invoice.amountPaid)}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[9px] uppercase font-bold text-amber-500">Balance</p>
+                                                <p className="text-[12px] font-bold text-amber-600 mt-0.5">
+                                                    {balance > 0 ? formatCurrency(balance) : "—"}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex gap-2 pt-1.5">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="flex-1 rounded-xl h-9 text-[13px] font-bold border-gray-200 bg-white shadow-sm hover:bg-gray-50 text-gray-750 hover:text-gray-900 cursor-pointer"
+                                                onClick={() => router.push(`/billing/${invoice.id}`)}
+                                            >
+                                                <Eye className="mr-1.5 h-3.5 w-3.5 text-cyan-600" />
+                                                View
+                                            </Button>
+
+                                            <PDFDownloadLink
+                                                document={
+                                                    <InvoicePDF
+                                                        invoice={{
+                                                            ...invoice,
+                                                            number: invoice.invoiceNumber,
+                                                            date: invoice.createdAt || invoice.date,
+                                                            dueDate: invoice.dueDate,
+                                                            patientName: invoice.patient ? `${invoice.patient.firstName} ${invoice.patient.lastName}` : invoice.patientName,
+                                                            items: invoice.items?.map((i: any) => ({
+                                                                description: i.description,
+                                                                quantity: i.quantity,
+                                                                unitPrice: i.unitPrice,
+                                                                total: i.total
+                                                            })) || [],
+                                                            patient: invoice.patient ? {
+                                                                firstName: invoice.patient.firstName,
+                                                                lastName: invoice.patient.lastName,
+                                                                email: invoice.patient.email || "",
+                                                                phone: invoice.patient.phone
+                                                            } : { firstName: "", lastName: "", email: "", phone: "" }
+                                                        }}
+                                                        clinicName={invoice.clinic?.name}
+                                                        clinicAddress={invoice.clinic?.address}
+                                                        clinicPhone={invoice.clinic?.phone}
+                                                        clinicEmail={invoice.clinic?.email}
+                                                    />
+                                                }
+                                                fileName={`${invoice.invoiceNumber || invoice.id}.pdf`}
+                                                style={{ display: "inline-flex", flex: 1 }}
+                                            >
+                                                {/* @ts-ignore */}
+                                                {({ loading }) => (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="w-full rounded-xl h-9 text-[13px] font-bold border-gray-200 bg-white shadow-sm hover:bg-gray-50 text-gray-750 hover:text-gray-900 cursor-pointer"
+                                                        disabled={loading}
+                                                    >
+                                                        {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="mr-1.5 h-3.5 w-3.5 text-cyan-600" />}
+                                                        PDF
+                                                    </Button>
+                                                )}
+                                            </PDFDownloadLink>
+
+                                            {invoice.status !== "PAID" && invoice.status !== "paid" && (
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="flex-1 rounded-xl h-9 text-[13px] font-bold border-cyan-100 bg-cyan-50/20 text-cyan-650 hover:text-cyan-700 hover:bg-cyan-50 shadow-xs cursor-pointer"
+                                                    onClick={() => handleRecordPayment(invoice)}
+                                                >
+                                                    <CreditCard className="mr-1.5 h-3.5 w-3.5" />
+                                                    Pay
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Payment Dialog */}
             <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Record Payment</DialogTitle>
-                        <DialogDescription>
-                            Record a payment for invoice {selectedInvoice?.invoiceNumber || selectedInvoice?.number}
-                        </DialogDescription>
-                    </DialogHeader>
+                <DialogContent className="max-w-md bg-white/80 backdrop-blur-3xl border-white/60 shadow-2xl rounded-[24px] p-0 overflow-hidden">
+                    <div className="p-6 border-b border-gray-100/50 bg-white/40">
+                        <DialogHeader>
+                            <DialogTitle className="text-xl font-bold text-gray-900">Record Payment</DialogTitle>
+                            <DialogDescription className="text-gray-500 font-medium">
+                                Record a payment for invoice {selectedInvoice?.invoiceNumber || selectedInvoice?.number}
+                            </DialogDescription>
+                        </DialogHeader>
+                    </div>
 
                     {selectedInvoice && (
-                        <div className="space-y-4">
-                            <div className="rounded-lg bg-muted p-4">
+                        <div className="space-y-5 p-6">
+                            <div className="rounded-2xl bg-gray-50/50 border border-gray-100/40 p-4 space-y-2">
                                 <div className="flex justify-between text-sm">
-                                    <span>Invoice Total</span>
-                                    <span className="font-medium">{formatCurrency(selectedInvoice.total)}</span>
+                                    <span className="text-gray-500 font-medium">Invoice Total</span>
+                                    <span className="font-bold text-gray-950">{formatCurrency(selectedInvoice.total)}</span>
                                 </div>
-                                <div className="flex justify-between text-sm mt-1">
-                                    <span>Already Paid</span>
-                                    <span className="text-success">{formatCurrency(selectedInvoice.amountPaid)}</span>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500 font-medium">Already Paid</span>
+                                    <span className="text-emerald-600 font-bold">{formatCurrency(selectedInvoice.amountPaid)}</span>
                                 </div>
-                                <div className="flex justify-between text-sm mt-1 font-medium">
-                                    <span>Balance Due</span>
-                                    <span className="text-warning">
-                                        {formatCurrency(selectedInvoice.total - selectedInvoice.amountPaid)}
-                                    </span>
+                                <Separator className="my-1" />
+                                <div className="flex justify-between text-sm font-bold">
+                                    <span className="text-gray-900">Balance Due</span>
+                                    <span className="text-amber-600">{formatCurrency(selectedInvoice.total - selectedInvoice.amountPaid)}</span>
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="amount">Payment Amount (₹)</Label>
+                                <Label htmlFor="amount" className="text-gray-700 font-semibold text-[13px]">Payment Amount (₹)</Label>
                                 <Input
                                     id="amount"
                                     type="number"
                                     value={paymentAmount}
                                     onChange={(e) => setPaymentAmount(e.target.value)}
+                                    className="h-11 rounded-xl bg-white/60 border-gray-200/60 focus:bg-white transition-all shadow-sm focus-visible:ring-cyan-500/20 px-4"
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="method">Payment Method</Label>
+                                <Label htmlFor="method" className="text-gray-700 font-semibold text-[13px]">Payment Method</Label>
                                 <select
                                     id="method"
-                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                    className="flex h-11 w-full rounded-xl border border-gray-200/60 bg-white/60 focus:bg-white px-3 py-2 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
                                     value={paymentMethod}
                                     onChange={(e) => setPaymentMethod(e.target.value)}
                                 >
@@ -377,18 +509,22 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
                                     ))}
                                 </select>
                             </div>
-
-                            <DialogFooter>
-                                <Button variant="outline" onClick={() => setIsPaymentDialogOpen(false)}>
-                                    Cancel
-                                </Button>
-                                <Button onClick={handleSubmitPayment} disabled={isLoading}>
-                                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                    Record Payment
-                                </Button>
-                            </DialogFooter>
                         </div>
                     )}
+
+                    <div className="p-6 bg-gray-50/50 border-t border-gray-100/50 flex justify-end gap-3 rounded-b-[24px]">
+                        <Button variant="outline" onClick={() => setIsPaymentDialogOpen(false)} className="rounded-xl px-5 h-11 font-bold border-gray-200/60 bg-white shadow-sm hover:bg-gray-50">
+                            Cancel
+                        </Button>
+                        <Button onClick={handleSubmitPayment} disabled={isLoading} className="rounded-xl px-6 h-11 font-bold bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white shadow-md transition-all border border-gray-800/50 cursor-pointer">
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Recording...
+                                </>
+                            ) : "Record Payment"}
+                        </Button>
+                    </div>
                 </DialogContent>
             </Dialog>
 

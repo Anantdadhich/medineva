@@ -38,7 +38,7 @@ function SectionIntro({
     description: string
 }) {
     return (
-        <div className="flex gap-4 border-b border-gray-100/50 p-6 md:p-8 md:pb-6">
+        <div className="flex gap-4 border-b border-gray-100/50 p-4 sm:p-6 md:p-8 md:pb-6">
             <div
                 className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${iconClassName}`}
             >
@@ -77,7 +77,7 @@ export function SettingsClient({ clinicId, userId, initialSettings }: SettingsCl
     }
 
     return (
-        <div className="mx-auto flex min-h-0 max-w-4xl flex-col gap-8">
+        <div className="mx-auto flex min-h-0 w-full min-w-0 max-w-4xl flex-col gap-8">
             <Header
                 title="General"
                 description="Practice profile, time zone, money format, and default visit length."
@@ -93,7 +93,7 @@ export function SettingsClient({ clinicId, userId, initialSettings }: SettingsCl
                         title="Clinic information"
                         description="Shown on invoices, reminders, and your public intake page."
                     />
-                    <div className="space-y-6 p-6 md:p-8 md:pt-2">
+                    <div className="space-y-6 p-4 sm:p-6 md:p-8 md:pt-2">
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <div className="space-y-2">
                                 <Label
@@ -199,7 +199,7 @@ export function SettingsClient({ clinicId, userId, initialSettings }: SettingsCl
                         title="Regional & scheduling"
                         description="Time zone, currency, default visit length, and invoice numbering."
                     />
-                    <div className="space-y-6 p-6 md:p-8 md:pt-2">
+                    <div className="space-y-6 p-4 sm:p-6 md:p-8 md:pt-2">
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <div className="space-y-2">
                                 <Label className="text-[12px] font-bold uppercase tracking-wider text-gray-600">

@@ -129,7 +129,16 @@ export async function createAppointment(
         })
 
 
-        sendSMS({ to: patientPhone, body: message }).then(async (res) => {
+        sendSMS({
+            to: patientPhone,
+            body: message,
+            variables: {
+                VAR1: appointment.patient.firstName,
+                VAR2: serviceName,
+                VAR3: clinicName,
+                VAR4: prettyDateTime
+            }
+        }).then(async (res) => {
             await prisma.notification.update({
                 where: { id: notification.id },
                 data: {
@@ -178,6 +187,12 @@ export async function createAppointment(
                         jobId: job.id,
                         phone: patientPhone,
                         message: reminderMessage,
+                        variables: {
+                            VAR1: appointment.patient.firstName,
+                            VAR2: serviceName,
+                            VAR3: clinicName,
+                            VAR4: "tomorrow at " + prettyTime
+                        },
                         clinicId,
                         patientId: validated.patientId,
                         appointmentId: appointment.id
@@ -198,7 +213,7 @@ export async function createAppointment(
     }
 
     revalidatePath("/schedule")
-    revalidatePath("/dashboard") // Dashboard
+    revalidatePath("/dashboard")
     return appointment
 }
 
@@ -356,7 +371,16 @@ export async function sendManualReminder(appointmentId: string) {
     })
 
 
-    const res = await sendSMS({ to: appointment.patient.phone, body: message })
+    const res = await sendSMS({
+        to: appointment.patient.phone,
+        body: message,
+        variables: {
+            VAR1: appointment.patient.firstName,
+            VAR2: appointment.type || "consultation",
+            VAR3: clinicName,
+            VAR4: prettyDateTime
+        }
+    })
 
 
     await prisma.notification.update({

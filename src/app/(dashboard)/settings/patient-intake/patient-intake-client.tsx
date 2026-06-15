@@ -21,14 +21,14 @@ const steps = [
 
 export function PatientIntakeClient({ clinicId }: { clinicId: string }) {
     return (
-        <div className="mx-auto flex min-h-0 max-w-4xl flex-col gap-8">
+        <div className="mx-auto flex min-h-0 w-full min-w-0 max-w-4xl flex-col gap-8">
             <Header
                 title="Patient self-registration"
                 description="QR code and link for new patients—no extra apps, just a simple form on their phone."
                 clinicId={clinicId}
             />
 
-            <div className="rounded-[20px] border border-white/60 bg-white/70 p-6 shadow-[0_4px_24px_rgba(0,0,0,0.02)] backdrop-blur-2xl md:p-8">
+            <div className="rounded-[20px] border border-white/60 bg-white/70 p-4 sm:p-6 md:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.02)] backdrop-blur-2xl">
                 <div className="mb-6 flex items-start gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cyan-100 bg-cyan-50/90 text-cyan-700">
                         <QrCode className="h-5 w-5" strokeWidth={2} />

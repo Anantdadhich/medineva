@@ -38,7 +38,7 @@ export function Header({ title, description, children, action, clinicId }: Heade
                 </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                 {/* Global Search */}
                 {clinicId && <GlobalSearch clinicId={clinicId} />}
 
@@ -49,10 +49,10 @@ export function Header({ title, description, children, action, clinicId }: Heade
                     <Button 
                         onClick={action.onClick} 
                         variant={action.variant || "default"} 
-                        className="gap-2 rounded-xl h-10 px-6 bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white shadow-md transition-all hover:shadow-lg border border-gray-800/50"
+                        className="h-10 w-10 sm:w-auto sm:px-6 gap-0 sm:gap-2 rounded-xl flex items-center justify-center bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white shadow-md transition-all hover:shadow-lg border border-gray-800/50"
                     >
-                        <Icon className="h-4 w-4" strokeWidth={2.5} />
-                        <span className="font-semibold text-[13px] tracking-wide">{action.label}</span>
+                        <Icon className="h-4 w-4 shrink-0" strokeWidth={2.5} />
+                        <span className="font-semibold text-[13px] tracking-wide hidden sm:inline">{action.label}</span>
                     </Button>
                 )}
             </div>

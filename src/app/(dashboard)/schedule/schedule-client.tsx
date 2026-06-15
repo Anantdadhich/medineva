@@ -286,7 +286,11 @@ export function ScheduleClient({ clinicId, initialAppointments }: {
         <div className="flex flex-col h-full bg-slate-50/50">
             <Header
                 title="Schedule"
-                description={format(currentDate, "EEEE, MMMM d, yyyy")}
+                description={
+                    view === "week"
+                        ? `${format(weekStart, "EEE, MMM d")} - ${format(addDays(weekStart, 6), "MMM d, yyyy")}`
+                        : format(currentDate, "EEEE, MMMM d, yyyy")
+                }
                 clinicId={clinicId}
                 action={{
                     label: "New Appointment",
@@ -398,7 +402,7 @@ export function ScheduleClient({ clinicId, initialAppointments }: {
                 </DialogContent>
             </Dialog>
 
-            <div className="flex-1 flex flex-col overflow-hidden p-4 md:p-6 lg:p-8">
+            <div className="flex-1 w-full min-w-0 flex flex-col overflow-hidden p-4 md:p-6 lg:p-8">
                 {/* Controls */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
                     <div className="flex items-center gap-2">
@@ -413,13 +417,6 @@ export function ScheduleClient({ clinicId, initialAppointments }: {
                                 <ChevronRight className="h-4 w-4" />
                             </Button>
                         </div>
-                        <h2 className="ml-2 text-lg font-semibold text-slate-800 hidden sm:block">
-                            {view === "week" ? (
-                                `${format(weekStart, "MMM d")} - ${format(addDays(weekStart, 6), "MMM d, yyyy")}`
-                            ) : (
-                                format(currentDate, "MMMM yyyy")
-                            )}
-                        </h2>
                     </div>
 
                     <div className="flex items-center gap-3">
@@ -493,29 +490,29 @@ export function ScheduleClient({ clinicId, initialAppointments }: {
                                                                     getStatusColor(apt.status)
                                                                 )}
                                                             >
-                                                                <div className="flex items-start justify-between gap-4">
-                                                                    <div>
-                                                                        <div className="flex items-center gap-2 mb-1">
-                                                                            <h3 className="font-bold text-slate-900">
+                                                                <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                                                                    <div className="min-w-0 flex-1">
+                                                                        <div className="flex flex-wrap items-center gap-2 mb-1">
+                                                                            <h3 className="font-bold text-slate-900 truncate">
                                                                                 {apt.patient.firstName} {apt.patient.lastName}
                                                                             </h3>
-                                                                            <Badge variant="secondary" className="text-[10px] py-0 px-2 h-5 font-bold uppercase tracking-tight bg-white">
+                                                                            <Badge variant="secondary" className="text-[10px] py-0 px-2 h-5 font-bold uppercase tracking-tight bg-white truncate">
                                                                                 {apt.type}
                                                                             </Badge>
                                                                         </div>
                                                                         <div className="flex flex-wrap items-center gap-y-1 gap-x-4 text-sm text-slate-600">
-                                                                            <span className="flex items-center gap-1.5 font-medium">
+                                                                            <span className="flex items-center gap-1.5 font-medium whitespace-nowrap">
                                                                                 <Clock className="h-3.5 w-3.5 text-slate-400" />
                                                                                 {format(new Date(apt.scheduledAt), "h:mm a")} ({apt.duration}m)
                                                                             </span>
-                                                                            <span className="flex items-center gap-1.5">
+                                                                            <span className="flex items-center gap-1.5 whitespace-nowrap">
                                                                                 <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
                                                                                 Dr. {apt.doctor.lastName}
                                                                             </span>
                                                                         </div>
                                                                     </div>
-
-                                                                    <div className="flex flex-col items-end gap-2">
+ 
+                                                                    <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2 w-full sm:w-auto pt-2.5 sm:pt-0 border-t border-slate-100 sm:border-0 shrink-0">
                                                                         {/* Status with quick actions */}
                                                                         <div className="flex items-center gap-1">
                                                                             <Button

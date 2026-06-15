@@ -71,9 +71,9 @@ export function ExportPatientsDialog({ clinicId }: ExportPatientsDialogProps) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline">
-                    <Download className="mr-2 h-4 w-4" />
-                    Export CSV
+                <Button variant="outline" className="px-3 sm:px-4">
+                    <Download className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Export CSV</span>
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">

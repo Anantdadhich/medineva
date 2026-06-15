@@ -1,54 +1,88 @@
-// Environment variables for BulkSMS
-const TOKEN_ID = process.env.BULKSMS_TOKEN_ID
-const TOKEN_SECRET = process.env.BULKSMS_TOKEN_SECRET
-
 interface SendSMSParams {
     to: string
     body: string
+    variables?: Record<string, string>
 }
 
-export async function sendSMS({ to, body }: SendSMSParams): Promise<{ success: boolean; messageId?: string; error?: any }> {
-    // 1. Mock Mode (Default if no credentials)
-    if (!TOKEN_ID || !TOKEN_SECRET) {
-        console.log("----------------------------------------")
-        console.log("📢 [MOCK SMS - BULKSMS] To:", to)
-        console.log("📝 Message:", body)
-        console.log("----------------------------------------")
-        return { success: true, messageId: `mock_${Date.now()}` }
+export async function sendSMS({ to, body, variables }: SendSMSParams): Promise<{ success: boolean; messageId?: string; error?: any }> {
+    const authKey = process.env.MSG91_AUTH_KEY?.trim()
+    const templateId = process.env.MSG91_TEMPLATE_ID?.trim()
+
+
+    if (!authKey || !templateId) {
+        console.error(" MSG91 config missing! Please set MSG91_AUTH_KEY and MSG91_TEMPLATE_ID in .env")
+        return { success: false, error: "Missing MSG91 Configuration" }
     }
 
-    // 2. Real Mode (BulkSMS.com JSON API)
-    try {
-        const tokenId = TOKEN_ID.trim()
-        const tokenSecret = TOKEN_SECRET.trim()
 
-        const response = await fetch("https://api.bulksms.com/v1/messages", {
+    try {
+        let cleanPhone = to.replace(/[\s\-\(\)\+]/g, '')
+        if (cleanPhone.startsWith('0')) {
+            cleanPhone = cleanPhone.substring(1)
+        }
+        if (cleanPhone.length === 10) {
+            cleanPhone = '91' + cleanPhone
+        }
+
+        const mappedVariables: Record<string, string> = {
+            VAR1: body,
+            var1: body,
+            message: body
+        }
+
+        if (variables) {
+            for (const [key, value] of Object.entries(variables)) {
+                mappedVariables[key.toUpperCase()] = value
+                mappedVariables[key.toLowerCase()] = value
+            }
+        }
+
+        const payload = {
+            template_id: templateId,
+            recipients: [
+                {
+                    mobiles: cleanPhone,
+                    ...mappedVariables
+                }
+            ]
+        }
+
+        const response = await fetch("https://control.msg91.com/api/v5/flow", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                // Ensure no accidental whitespace in env vars
-                "Authorization": `Basic ${Buffer.from(`${tokenId}:${tokenSecret}`).toString('base64')}`
+                "accept": "application/json",
+                "authkey": authKey
             },
-            body: JSON.stringify({
-                to,
-                body,
-                encoding: "TEXT"
-            })
+            body: JSON.stringify(payload)
         })
 
-        const data = await response.json()
+        let data: any = null
+        const responseText = await response.text()
 
-        if (!response.ok) {
-            console.error("❌ BulkSMS Error:", data)
+        try {
+            data = JSON.parse(responseText)
+        } catch (e) {
+            data = { message: responseText }
+        }
+
+        const hasError = !response.ok ||
+            (data && (
+                String(data.type).toLowerCase() === "error" ||
+                String(data.status).toLowerCase() === "error" ||
+                String(data.status).toLowerCase() === "failed" ||
+                data.hasError === true
+            ))
+
+        if (hasError) {
+            console.error(" MSG91 Error Details:", data)
             return { success: false, error: data }
         }
 
-        // BulkSMS returns an array of submissions, we take the first one
-        const submission = data[0]
-        return { success: true, messageId: submission.id }
+        return { success: true, messageId: data.request_id || data.message || `msg91_${Date.now()}` }
 
     } catch (error) {
-        console.error("❌ BulkSMS Network Error:", error)
+        console.error(" MSG91 Network Error:", error)
         return { success: false, error }
     }
 }
