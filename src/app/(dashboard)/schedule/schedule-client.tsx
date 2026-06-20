@@ -74,7 +74,19 @@ export function ScheduleClient({ clinicId, initialAppointments }: {
     clinicId: string
     initialAppointments: any[]
 }) {
-    const [currentDate, setCurrentDate] = useState(new Date())
+    const [currentDate, setCurrentDate] = useState(() => {
+        if (typeof window !== "undefined") {
+            const params = new URLSearchParams(window.location.search)
+            const dateParam = params.get("date")
+            if (dateParam) {
+                const parsed = new Date(dateParam)
+                if (!isNaN(parsed.getTime())) {
+                    return parsed
+                }
+            }
+        }
+        return new Date()
+    })
     const [view, setView] = useState<"day" | "week">("day")
     const [showFullDay, setShowFullDay] = useState(false)
     const [isNewAppointmentOpen, setIsNewAppointmentOpen] = useState(false)
@@ -122,6 +134,18 @@ export function ScheduleClient({ clinicId, initialAppointments }: {
             setShowFullDay(true)
         }
     }, [currentDate, appointments])
+
+    // Keep browser URL query parameters in sync with currentDate
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const params = new URLSearchParams(window.location.search)
+            const dateStr = format(currentDate, "yyyy-MM-dd")
+            if (params.get("date") !== dateStr) {
+                params.set("date", dateStr)
+                router.replace(`/schedule?${params.toString()}`, { scroll: false })
+            }
+        }
+    }, [currentDate, router])
 
     // Auto-scroll to current time or start of working hours
     useEffect(() => {

@@ -108,7 +108,7 @@ export function GlobalSearch({ clinicId }: GlobalSearchProps) {
             <Button
                 variant="outline"
                 size="icon"
-                className="h-11 w-11 md:hidden shrink-0 rounded-xl border border-gray-200/60 bg-white/60 hover:bg-white shadow-sm transition-all text-gray-400 hover:text-cyan-600"
+                className="h-9 w-9 md:hidden shrink-0 rounded-xl border border-gray-200/60 bg-white/60 hover:bg-white shadow-sm transition-all text-gray-400 hover:text-cyan-600"
                 onClick={() => setOpen(true)}
                 aria-label="Search"
             >

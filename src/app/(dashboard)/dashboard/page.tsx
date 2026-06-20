@@ -196,7 +196,7 @@ export default async function DashboardPage() {
                         </Card>
 
                         {/* Bottom Row: Messages & Schedule */}
-                        <div className="grid gap-6 md:grid-cols-2">
+                        <div className="grid gap-6 md:grid-cols-2 w-full min-w-0">
                             <MessagesWidget messages={recentMessages} />
                             <ScheduleWidget appointments={upcomingAppointments} />
                         </div>
@@ -241,15 +241,18 @@ export default async function DashboardPage() {
 
                 {/* FULL WIDTH BOTTOM ROW: Analytics */}
                 <section className="space-y-6 pt-2">
-                    <MonthlyComparisonChart data={monthlyComparisonData} currentYear={new Date().getFullYear()} />
+
+                    <RevenueChart weeklyData={revenueDataWeekly} monthlyData={revenueDataMonthly} />
 
                     <div className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-2">
+                        {/*
                         <div className="min-w-0">
                             <TopServicesChart data={topServicesData} />
                         </div>
                         <div className="min-w-0">
-                            <RevenueChart weeklyData={revenueDataWeekly} monthlyData={revenueDataMonthly} />
+                            <MonthlyComparisonChart data={monthlyComparisonData} currentYear={new Date().getFullYear()} />
                         </div>
+                     */ }
                     </div>
                 </section>
             </div>

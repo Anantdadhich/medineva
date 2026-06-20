@@ -17,22 +17,23 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "DentalPMS | Smart Practice Management for Modern Clinics",
-    template: "%s | DentalPMS",
+    default: "Medineva | Smart Practice Management for Modern Clinics",
+    template: "%s | Medineva",
   },
-  description: "Streamline your dental clinic with our all-in-one Practice Management System. Manage patient records, appointments, billing, and treatment plans efficiently.",
+  description: "Streamline your clinic with our all-in-one Practice Management System. Manage patient records, appointments, billing, and treatment plans efficiently.",
   keywords: [
-    "Dental PMS",
-    "Dental Practice Management",
+    "Practice Management",
+    "Clinic Management System",
     "Clinic Software",
-    "Dentist Patient Management",
-    "Dental Scheduling Software",
+    "Patient Management",
+    "Scheduling Software",
     "Electronic Health Records",
-    "Dentistry Automation",
+    "Clinical Automation",
+    "Medineva",
   ],
-  authors: [{ name: "DentalPMS Team" }],
-  creator: "DentalPMS",
-  applicationName: "DentalPMS",
+  authors: [{ name: "Medineva Team" }],
+  creator: "Medineva",
+  applicationName: "Medineva",
 
   icons: {
     icon: "/pmslogo.png",

@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts"
 import { formatCurrency } from "@/lib/utils"
@@ -14,6 +15,11 @@ interface TopServicesChartProps {
 }
 
 export function TopServicesChart({ data }: TopServicesChartProps) {
+    const [isMounted, setIsMounted] = useState(false)
+    useEffect(() => {
+        setIsMounted(true)
+    }, [])
+
     return (
         <Card className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-[20px] border border-white/60 bg-white/70 shadow-[0_4px_24px_rgba(0,0,0,0.02)] backdrop-blur-2xl">
             <CardHeader className="shrink-0 border-b border-gray-100/50 p-4 sm:p-6 pb-4 sm:pb-4">
@@ -34,7 +40,8 @@ export function TopServicesChart({ data }: TopServicesChartProps) {
                     </div>
                 ) : (
                     <div className="h-[292px] w-full min-w-0">
-                        <ResponsiveContainer width="100%" height="100%">
+                        {isMounted ? (
+                            <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
                                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                                 <XAxis
@@ -82,6 +89,9 @@ export function TopServicesChart({ data }: TopServicesChartProps) {
                                 />
                             </BarChart>
                         </ResponsiveContainer>
+                    ) : (
+                        <div className="h-full w-full bg-slate-50/50 animate-pulse rounded-xl" />
+                    )}
                     </div>
                 )}
             </CardContent>

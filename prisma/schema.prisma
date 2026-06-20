@@ -46,6 +46,7 @@ model User {
   avatarUrl String?
   role      UserRole @default(DOCTOR)
   isActive  Boolean  @default(true)
+  hasAccess Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -56,9 +57,20 @@ model User {
   appointments    Appointment[]    @relation("DoctorAppointments")
   clinicalRecords ClinicalRecord[]
   auditLogs       AuditLog[]
+  accessCode      AccessCode?      @relation("UserAccessCode")
 
   @@index([clinicId])
   @@index([clerkId])
+}
+
+model AccessCode {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  isUsed    Boolean  @default(false)
+  usedById  String?  @unique
+  usedBy    User?    @relation("UserAccessCode", fields: [usedById], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Patient {

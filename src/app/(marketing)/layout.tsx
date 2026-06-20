@@ -17,7 +17,7 @@ const BrandLogo = () => (
         <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-all">
             <Stethoscope size={16} className="text-white" strokeWidth={2.5} />
         </div>
-        <span className="font-semibold text-[18px] tracking-tight text-gray-900">CareSync</span>
+        <span className="font-semibold text-[18px] tracking-tight text-gray-900">Medineva</span>
     </Link>
 );
 
@@ -129,7 +129,7 @@ export default function MarketingLayout({
                         <div className="lg:col-span-2 flex flex-col items-start gap-6">
                             <BrandLogo />
                             <p className="text-[14px] text-gray-500 leading-relaxed max-w-sm">
-                                The easiest and smartest way to manage your dental clinic. Handle appointments, patients, and billing without any computer stress.
+                                The easiest and smartest way to manage your health clinic. Handle appointments, patients, and billing without any computer stress.
                             </p>
 
                         </div>
@@ -177,7 +177,7 @@ export default function MarketingLayout({
 
                     <div className="pt-8 border-t border-gray-200 flex flex-col md:flex-row items-center justify-between gap-4">
                         <span className="text-[13px] text-gray-400">
-                            © {new Date().getFullYear()} CareSync PMS. All rights reserved.
+                            © {new Date().getFullYear()} Medineva PMS. All rights reserved.
                         </span>
                         <div className="flex items-center gap-6">
                             <span className="flex items-center gap-2 text-[13px] text-gray-400">

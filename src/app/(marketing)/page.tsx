@@ -153,7 +153,7 @@ const HeroSection = () => (
             <h1 className="mb-6 md:mb-8 text-[36px] sm:text-[40px] md:text-[56px] font-normal leading-[1.15] md:leading-[1.1] tracking-tight text-gray-900 px-2">
                 A smart and simple way
                 <br className="hidden sm:block" />
-                to manage your dental clinic
+                to manage your health clinic
             </h1>
 
             <p className="mx-auto mb-10 max-w-[600px] text-[15px] sm:text-[16px] md:text-[17px] leading-relaxed text-gray-500 px-4">
@@ -400,7 +400,7 @@ const StatsSection = () => (
         <div className="relative mx-auto max-w-[1400px] px-4 sm:px-6 md:px-8 text-center">
             <div className="mb-5 md:mb-6">
                 <span className="inline-block rounded-full bg-white/90 px-4 py-1.5 md:px-5 md:py-2 text-[13px] md:text-[14px] font-medium text-gray-700 shadow-sm">
-                    Why practices pick CareSync
+                    Why practices pick Medineva
                 </span>
             </div>
 

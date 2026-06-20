@@ -43,7 +43,7 @@ export default async function PublicRegistrationPage(props: { params: Promise<{ 
                     <div className="inline-flex items-center justify-center p-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-lg mb-4">
                         <Image
                             src="/pmslogo.png"
-                            alt="CareSync Logo"
+                            alt="Medineva Logo"
                             width={48}
                             height={48}
                             className="rounded-xl drop-shadow-md"

@@ -16,14 +16,14 @@ import Link from "next/link"
 
 export function MessagesWidget({ messages }: { messages: Message[] }) {
     return (
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <Card className="min-w-0 overflow-hidden bg-white/70 backdrop-blur-2xl border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.02)] rounded-[20px]">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 shrink-0">
                 <CardTitle className="text-[16px]">Messages</CardTitle>
                 <Link href="/messages" className="flex items-center text-[13px] text-cyan-600 font-medium hover:text-cyan-700">
                     See All <span className="ml-1">›</span>
                 </Link>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 sm:p-6">
                 <div className="space-y-4">
                     {messages.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-8 text-center text-gray-400">

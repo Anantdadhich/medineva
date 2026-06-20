@@ -12,6 +12,7 @@ import {
     Stethoscope,
     LogOut,
     MessageSquare,
+    KeyRound,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -39,11 +40,12 @@ const navigationItems = [
 
 interface SidebarProps {
     className?: string
+    isAdmin?: boolean
 }
 
-export function Sidebar({ className }: SidebarProps) {
+export function Sidebar({ className, isAdmin = false }: SidebarProps) {
     const pathname = usePathname()
-    const { isMobile } = useSidebar()
+    const { isMobile, setOpenMobile } = useSidebar()
     const { user, isLoaded } = useUser()
     const { signOut } = useClerk()
 
@@ -64,6 +66,9 @@ export function Sidebar({ className }: SidebarProps) {
             <div className="flex h-[76px] shrink-0 items-center justify-between gap-2 px-4 pt-3 pb-1 md:px-3">
                 <Link
                     href="/dashboard"
+                    onClick={() => {
+                        if (isMobile) setOpenMobile(false)
+                    }}
                     className="flex min-w-0 items-center gap-3 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center"
                 >
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-900 shadow-md shadow-slate-900/15 ring-1 ring-white/15 transition-transform duration-200 hover:scale-[1.02]">
@@ -71,7 +76,7 @@ export function Sidebar({ className }: SidebarProps) {
                     </div>
                     <div className="min-w-0 group-data-[collapsible=icon]:hidden">
                         <p className="truncate text-[17px] font-bold tracking-tight text-slate-900">
-                            CareSync
+                            Medineva
                         </p>
                         <p className="truncate text-[11px] font-medium uppercase tracking-wider text-slate-500">
                             Practice suite
@@ -110,7 +115,13 @@ export function Sidebar({ className }: SidebarProps) {
                                             : "text-slate-600 hover:text-slate-900"
                                     )}
                                 >
-                                    <Link href={item.href} className="flex w-full items-center gap-3">
+                                    <Link 
+                                        href={item.href} 
+                                        className="flex w-full items-center gap-3"
+                                        onClick={() => {
+                                            if (isMobile) setOpenMobile(false)
+                                        }}
+                                    >
                                         <span
                                             className={cn(
                                                 "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors",
@@ -135,6 +146,57 @@ export function Sidebar({ className }: SidebarProps) {
                         )
                     })}
                 </SidebarMenu>
+
+                {isAdmin && (
+                    <div className="mt-4">
+                        <p className="mb-2 px-3 pt-1 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400 group-data-[collapsible=icon]:hidden">
+                            Administration
+                        </p>
+                        <SidebarMenu className="gap-1">
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    asChild
+                                    isActive={pathname === "/admin/codes"}
+                                    tooltip="Access Codes"
+                                    className={cn(
+                                        "h-11 rounded-xl px-3 transition-colors duration-200 outline-none",
+                                        "bg-transparent hover:bg-slate-100/90 data-[active=true]:bg-slate-900 data-[active=true]:text-white data-[active=true]:shadow-md",
+                                        pathname === "/admin/codes"
+                                            ? "text-white shadow-slate-900/10"
+                                            : "text-slate-600 hover:text-slate-900"
+                                    )}
+                                >
+                                    <Link 
+                                        href="/admin/codes" 
+                                        className="flex w-full items-center gap-3"
+                                        onClick={() => {
+                                            if (isMobile) setOpenMobile(false)
+                                        }}
+                                    >
+                                        <span
+                                            className={cn(
+                                                "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors",
+                                                pathname === "/admin/codes"
+                                                    ? "bg-white/15 text-cyan-300"
+                                                    : "bg-slate-100 text-slate-500 group-hover/menu-button:bg-white group-hover/menu-button:text-cyan-600"
+                                            )}
+                                        >
+                                            <KeyRound className="h-[18px] w-[18px]" strokeWidth={pathname === "/admin/codes" ? 2.25 : 2} />
+                                        </span>
+                                        <span
+                                            className={cn(
+                                                "truncate text-[14px] font-medium group-data-[collapsible=icon]:hidden",
+                                                pathname === "/admin/codes" && "font-semibold"
+                                            )}
+                                        >
+                                            Access Codes
+                                        </span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </SidebarMenu>
+                    </div>
+                )}
             </SidebarContent>
 
             <SidebarFooter className="border-t border-slate-200/60 p-3">

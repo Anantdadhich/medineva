@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { useState } from "react"
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameMonth, isToday, addMonths, subMonths, isSameDay } from "date-fns"
+import { useRouter } from "next/navigation"
 
 interface ScheduleWidgetProps {
     appointments?: any[]
@@ -12,6 +13,7 @@ interface ScheduleWidgetProps {
 export function ScheduleWidget({ appointments = [] }: ScheduleWidgetProps) {
     // Dynamic Calendar Logic
     const [currentDate, setCurrentDate] = useState(new Date())
+    const router = useRouter()
 
     const daysInMonth = eachDayOfInterval({
         start: startOfMonth(currentDate),
@@ -34,7 +36,7 @@ export function ScheduleWidget({ appointments = [] }: ScheduleWidgetProps) {
     }
 
     return (
-        <Card className="bg-white/70 backdrop-blur-2xl border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.02)] rounded-[20px] select-none">
+        <Card className="min-w-0 overflow-hidden bg-white/70 backdrop-blur-2xl border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.02)] rounded-[20px] select-none">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-[16px]">Schedule</CardTitle>
                 <div className="flex items-center gap-2 text-[12px] font-medium text-gray-500">
@@ -51,9 +53,15 @@ export function ScheduleWidget({ appointments = [] }: ScheduleWidgetProps) {
                     </div>
                 </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 sm:p-6">
                 <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-wider">
-                    <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+                    <div><span className="hidden sm:inline">Sun</span><span className="sm:hidden">S</span></div>
+                    <div><span className="hidden sm:inline">Mon</span><span className="sm:hidden">M</span></div>
+                    <div><span className="hidden sm:inline">Tue</span><span className="sm:hidden">T</span></div>
+                    <div><span className="hidden sm:inline">Wed</span><span className="sm:hidden">W</span></div>
+                    <div><span className="hidden sm:inline">Thu</span><span className="sm:hidden">T</span></div>
+                    <div><span className="hidden sm:inline">Fri</span><span className="sm:hidden">F</span></div>
+                    <div><span className="hidden sm:inline">Sat</span><span className="sm:hidden">S</span></div>
                 </div>
                 <div className="grid grid-cols-7 gap-1 text-center text-[13px] font-medium text-gray-600">
                     {emptyDays}
@@ -65,6 +73,10 @@ export function ScheduleWidget({ appointments = [] }: ScheduleWidgetProps) {
                         return (
                             <div 
                                 key={i} 
+                                onClick={() => {
+                                    const dateStr = format(day, "yyyy-MM-dd")
+                                    router.push(`/schedule?date=${dateStr}`)
+                                }}
                                 className={`py-1 rounded-md cursor-pointer transition-all relative
                                     ${today ? 'bg-gray-900 text-white shadow-md font-bold' : 'hover:bg-gray-100'}
                                     ${!isSameMonth(day, currentDate) ? 'text-gray-300' : ''}

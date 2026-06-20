@@ -14,7 +14,7 @@ const steps = [
         body: "Basic details and health information go straight into your practice—less paperwork at the desk.",
     },
     {
-        title: "You keep using CareSync as usual",
+        title: "You keep using Medineva as usual",
         body: "Find new patients under Patients, book visits from Schedule, and send messages from Messages when you need to.",
     },
 ]

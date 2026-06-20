@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import {
     Area,
     AreaChart,
@@ -26,6 +26,11 @@ interface PatientGrowthChartProps {
 const CHART_H = 292
 
 export function PatientGrowthChart({ weeklyData, monthlyData }: PatientGrowthChartProps) {
+    const [isMounted, setIsMounted] = useState(false)
+    useEffect(() => {
+        setIsMounted(true)
+    }, [])
+
     const [period, setPeriod] = useState<"weekly" | "monthly">("monthly")
     const data = period === "weekly" ? weeklyData : monthlyData
 
@@ -60,7 +65,8 @@ export function PatientGrowthChart({ weeklyData, monthlyData }: PatientGrowthCha
                     </div>
                 ) : (
                     <div className="w-full min-w-0" style={{ height: CHART_H }}>
-                        <ResponsiveContainer width="100%" height="100%">
+                        {isMounted ? (
+                            <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
                                 <defs>
                                     <linearGradient id={GRADIENT_ID} x1="0" y1="0" x2="0" y2="1">
@@ -114,6 +120,9 @@ export function PatientGrowthChart({ weeklyData, monthlyData }: PatientGrowthCha
                                 />
                             </AreaChart>
                         </ResponsiveContainer>
+                        ) : (
+                            <div className="h-full w-full bg-slate-50/50 animate-pulse rounded-xl" />
+                        )}
                     </div>
                 )}
             </CardContent>

@@ -78,7 +78,7 @@ export function ClinicQrGenerator({ clinicId }: { clinicId: string }) {
         const url = URL.createObjectURL(blob)
         const link = document.createElement("a")
         link.href = url
-        link.download = `caresync-intake-qr-${clinicId.slice(0, 8)}.svg`
+        link.download = `medineva-intake-qr-${clinicId.slice(0, 8)}.svg`
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
@@ -124,7 +124,7 @@ export function ClinicQrGenerator({ clinicId }: { clinicId: string }) {
                     const pngUrl = URL.createObjectURL(blob)
                     const link = document.createElement("a")
                     link.href = pngUrl
-                    link.download = `caresync-intake-qr-${clinicId.slice(0, 8)}.png`
+                    link.download = `medineva-intake-qr-${clinicId.slice(0, 8)}.png`
                     document.body.appendChild(link)
                     link.click()
                     document.body.removeChild(link)

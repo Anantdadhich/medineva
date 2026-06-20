@@ -1,6 +1,12 @@
 import { auth, currentUser } from '@clerk/nextjs/server'
 import prisma from '@/lib/prisma'
 
+export function isAdmin(email: string | undefined): boolean {
+    if (!email) return false
+    const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(e => e.trim().toLowerCase()) || []
+    return adminEmails.includes(email.toLowerCase())
+}
+
 export async function getCurrentUser() {
     const { userId } = await auth()
 
@@ -32,14 +38,16 @@ export async function getCurrentUser() {
                     },
                 })
 
+                const emailAddress = clerkUser.emailAddresses[0]?.emailAddress || ''
                 return await tx.user.create({
                     data: {
                         clerkId: userId,
-                        email: clerkUser.emailAddresses[0]?.emailAddress || '',
+                        email: emailAddress,
                         firstName: clerkUser.firstName || 'User',
                         lastName: clerkUser.lastName || '',
                         avatarUrl: clerkUser.imageUrl,
                         clinicId: clinic.id,
+                        hasAccess: isAdmin(emailAddress),
                     },
                     include: { clinic: true },
                 })
