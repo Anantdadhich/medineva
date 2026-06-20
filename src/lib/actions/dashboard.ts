@@ -1,8 +1,16 @@
-
 import prisma from "@/lib/prisma"
 import { startOfMonth, endOfMonth, subMonths, format, startOfYear, endOfYear, subYears } from "date-fns"
+import { getCurrentUser } from "@/lib/auth"
+
+async function validateClinicAccess(clinicId: string) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess || user.clinicId !== clinicId) {
+        throw new Error("Unauthorized")
+    }
+}
 
 export async function getDashboardStats(clinicId: string) {
+    await validateClinicAccess(clinicId)
     const startOfCurrentMonth = startOfMonth(new Date())
     const endOfCurrentMonth = endOfMonth(new Date())
     const startOfLastMonth = startOfMonth(subMonths(new Date(), 1))
@@ -132,6 +140,7 @@ export async function getDashboardStats(clinicId: string) {
 }
 
 export async function getUpcomingAppointments(clinicId: string) {
+    await validateClinicAccess(clinicId)
     const today = new Date()
     today.setHours(0, 0, 0, 0)
 
@@ -153,6 +162,7 @@ export async function getUpcomingAppointments(clinicId: string) {
 }
 
 export async function getRecentActivity(clinicId: string) {
+    await validateClinicAccess(clinicId)
     const recentAppointments = await prisma.appointment.findMany({
         where: { clinicId }, // Removed status: "COMPLETED" to show all activity
         include: {
@@ -172,6 +182,7 @@ export async function getRecentActivity(clinicId: string) {
 }
 
 export async function getRevenueChartData(clinicId: string) {
+    await validateClinicAccess(clinicId)
     const today = new Date()
     const months = []
 
@@ -213,6 +224,7 @@ export async function getRevenueChartData(clinicId: string) {
 }
 
 export async function getRevenueChartDataWeekly(clinicId: string) {
+    await validateClinicAccess(clinicId)
     const today = new Date()
     const weeks = []
 
@@ -261,6 +273,7 @@ export async function getRevenueChartDataWeekly(clinicId: string) {
 }
 
 export async function getAppointmentStatusDistribution(clinicId: string) {
+    await validateClinicAccess(clinicId)
     const statusCounts = await prisma.appointment.groupBy({
         by: ['status'],
         where: { clinicId },
@@ -279,6 +292,7 @@ export async function getAppointmentStatusDistribution(clinicId: string) {
 }
 
 export async function getPatientGrowthData(clinicId: string) {
+    await validateClinicAccess(clinicId)
     const today = new Date()
     const months = []
 
@@ -316,6 +330,7 @@ export async function getPatientGrowthData(clinicId: string) {
 }
 
 export async function getPatientGrowthDataWeekly(clinicId: string) {
+    await validateClinicAccess(clinicId)
     const today = new Date()
     const weeks = []
 
@@ -360,6 +375,7 @@ export async function getPatientGrowthDataWeekly(clinicId: string) {
 }
 
 export async function getTopServicesData(clinicId: string) {
+    await validateClinicAccess(clinicId)
     const topServices = await prisma.invoiceItem.groupBy({
         by: ['description'],
         where: { invoice: { clinicId } },
@@ -378,6 +394,7 @@ export async function getTopServicesData(clinicId: string) {
 
 // Optimized Monthly Revenue Comparison (Single Query)
 export async function getMonthlyComparisonData(clinicId: string) {
+    await validateClinicAccess(clinicId)
     const currentYear = new Date().getFullYear()
     const lastYear = currentYear - 1
 
@@ -431,6 +448,7 @@ export async function getMonthlyComparisonData(clinicId: string) {
 }
 
 export async function getRecentMessages(clinicId: string) {
+    await validateClinicAccess(clinicId)
     const messages = await prisma.notification.findMany({
         where: { clinicId },
         orderBy: { createdAt: "desc" },
@@ -450,6 +468,7 @@ export async function getRecentMessages(clinicId: string) {
 }
 
 export async function getAllMessages(clinicId: string) {
+    await validateClinicAccess(clinicId)
     const messages = await prisma.notification.findMany({
         where: { clinicId },
         orderBy: { createdAt: "desc" },

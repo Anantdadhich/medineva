@@ -2,9 +2,14 @@
 
 import prisma from "@/lib/prisma"
 import { patientFormSchema, type PatientFormValues } from "@/lib/validations/patient"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 export async function createPublicPatient(clinicId: string, data: PatientFormValues) {
     try {
+        if (!checkRateLimit(`public-intake-${clinicId}`)) {
+            return { error: "Too many registrations. Please wait a moment and try again." }
+        }
+
         // Validate the clinic exists first
         const clinic = await prisma.clinic.findUnique({
             where: { id: clinicId }

@@ -2,6 +2,8 @@
 
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { getCurrentUser } from "@/lib/auth"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 export async function updateClinicSettings(clinicId: string, userId: string, data: {
     name: string
@@ -14,6 +16,14 @@ export async function updateClinicSettings(clinicId: string, userId: string, dat
     defaultAppointmentDuration: number
     invoicePrefix?: string
 }) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess || user.clinicId !== clinicId || user.id !== userId) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`settings-update-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
     // Update clinic basic info
     await prisma.clinic.update({
         where: { id: clinicId },

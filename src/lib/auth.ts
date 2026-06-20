@@ -14,14 +14,13 @@ export async function getCurrentUser() {
         return null
     }
 
-    // Try to find local user
+
     let user = await prisma.user.findUnique({
         where: { clerkId: userId },
         include: { clinic: true },
     })
 
-    // If no local user, create one with a clinic
-    // Wrapped in try/catch to handle race conditions on first login
+
     if (!user) {
         const clerkUser = await currentUser()
         if (!clerkUser) {
@@ -29,7 +28,7 @@ export async function getCurrentUser() {
         }
 
         try {
-            // Use a transaction to create clinic + user atomically
+
             user = await prisma.$transaction(async (tx) => {
                 const clinic = await tx.clinic.create({
                     data: {
@@ -53,9 +52,9 @@ export async function getCurrentUser() {
                 })
             })
         } catch (error: any) {
-            // Handle race condition: another request already created this user
+
             if (error?.code === 'P2002') {
-                // Unique constraint violation — user was created by a parallel request
+
                 user = await prisma.user.findUnique({
                     where: { clerkId: userId },
                     include: { clinic: true },
@@ -63,6 +62,18 @@ export async function getCurrentUser() {
             } else {
                 throw error
             }
+        }
+    }
+
+    if (user && isAdmin(user.email) && !user.hasAccess) {
+        try {
+            user = await prisma.user.update({
+                where: { id: user.id },
+                data: { hasAccess: true },
+                include: { clinic: true },
+            })
+        } catch (e) {
+            user.hasAccess = true
         }
     }
 

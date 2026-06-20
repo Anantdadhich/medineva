@@ -2,6 +2,8 @@
 
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { getCurrentUser } from "@/lib/auth"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 // Type definition for clinical record form
 type ClinicalRecordFormValues = {
@@ -16,6 +18,19 @@ type ClinicalRecordFormValues = {
 }
 
 export async function getClinicalRecords(patientId: string) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`clinical-records-get-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
+    const patient = await prisma.patient.findUnique({ where: { id: patientId } })
+    if (!patient || patient.clinicId !== user.clinicId) {
+        throw new Error("Unauthorized")
+    }
+
     const records = await prisma.clinicalRecord.findMany({
         where: { patientId },
         include: {
@@ -30,6 +45,19 @@ export async function getClinicalRecords(patientId: string) {
 }
 
 export async function getClinicalRecordsByAppointment(appointmentId: string) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`clinical-records-appointment-get-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
+    const appointment = await prisma.appointment.findUnique({ where: { id: appointmentId } })
+    if (!appointment || appointment.clinicId !== user.clinicId) {
+        throw new Error("Unauthorized")
+    }
+
     const records = await prisma.clinicalRecord.findMany({
         where: { appointmentId },
         include: {
@@ -46,6 +74,18 @@ export async function createClinicalRecord(
     userId: string,
     data: ClinicalRecordFormValues
 ) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess || user.id !== userId) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`clinical-records-create-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
+    const patient = await prisma.patient.findUnique({ where: { id: data.patientId } })
+    if (!patient || patient.clinicId !== user.clinicId) {
+        throw new Error("Unauthorized")
+    }
     // Get the procedure to get the standard cost
     const procedure = await prisma.treatmentCatalog.findUnique({
         where: { id: data.procedureId },
@@ -96,13 +136,21 @@ export async function updateClinicalRecord(
     userId: string,
     data: Partial<ClinicalRecordFormValues>
 ) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess || user.id !== userId) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`clinical-records-update-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
     const existingRecord = await prisma.clinicalRecord.findUnique({
         where: { id },
-        include: { procedure: true },
+        include: { procedure: true, patient: true },
     })
 
-    if (!existingRecord) {
-        throw new Error("Clinical record not found")
+    if (!existingRecord || existingRecord.patient.clinicId !== user.clinicId) {
+        throw new Error("Unauthorized")
     }
 
     const record = await prisma.clinicalRecord.update({
@@ -139,12 +187,21 @@ export async function updateClinicalRecord(
 }
 
 export async function deleteClinicalRecord(id: string, userId: string) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess || user.id !== userId) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`clinical-records-delete-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
     const record = await prisma.clinicalRecord.findUnique({
         where: { id },
+        include: { patient: true },
     })
 
-    if (!record) {
-        throw new Error("Clinical record not found")
+    if (!record || record.patient.clinicId !== user.clinicId) {
+        throw new Error("Unauthorized")
     }
 
     await prisma.auditLog.create({
@@ -165,6 +222,19 @@ export async function deleteClinicalRecord(id: string, userId: string) {
 }
 
 export async function getToothHistory(patientId: string, toothNumber: string) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`clinical-records-tooth-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
+    const patient = await prisma.patient.findUnique({ where: { id: patientId } })
+    if (!patient || patient.clinicId !== user.clinicId) {
+        throw new Error("Unauthorized")
+    }
+
     const records = await prisma.clinicalRecord.findMany({
         where: {
             patientId,

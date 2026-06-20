@@ -4,6 +4,8 @@ import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { createInvoiceSchema, paymentFormSchema, type CreateInvoiceValues, type PaymentFormValues } from "@/lib/validations/invoice"
 import { generateInvoiceNumber } from "@/lib/utils"
+import { getCurrentUser } from "@/lib/auth"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 // Helper to serialize Decimal to number
 function serializeInvoice(invoice: any) {
@@ -47,6 +49,14 @@ export async function getInvoices(
         limit?: number
     }
 ) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess || user.clinicId !== clinicId) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`invoices-get-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
     const { patientId, status, limit } = options || {}
 
     const invoices = await prisma.invoice.findMany({
@@ -69,6 +79,14 @@ export async function getInvoices(
 }
 
 export async function getInvoiceById(id: string) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`invoices-get-by-id-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
     const invoice = await prisma.invoice.findUnique({
         where: { id },
         include: {
@@ -88,10 +106,22 @@ export async function getInvoiceById(id: string) {
         },
     })
 
+    if (invoice && invoice.clinicId !== user.clinicId) {
+        throw new Error("Unauthorized")
+    }
+
     return serializeInvoice(invoice)
 }
 
 export async function createInvoice(clinicId: string, data: CreateInvoiceValues) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess || user.clinicId !== clinicId) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`invoices-create-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
     // Server-side validation
     const validated = createInvoiceSchema.parse(data)
 
@@ -144,6 +174,22 @@ export async function createInvoice(clinicId: string, data: CreateInvoiceValues)
 }
 
 export async function recordPayment(data: PaymentFormValues) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`invoices-record-payment-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
+    // Fetch invoice to check boundary
+    const invoiceExists = await prisma.invoice.findUnique({
+        where: { id: data.invoiceId }
+    })
+    if (!invoiceExists || invoiceExists.clinicId !== user.clinicId) {
+        throw new Error("Unauthorized")
+    }
+
     // Server-side validation
     const validated = paymentFormSchema.parse(data)
 
@@ -192,6 +238,21 @@ export async function generateInvoiceFromAppointment(
     appointmentId: string,
     clinicId: string
 ) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess || user.clinicId !== clinicId) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`invoices-generate-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
+    const appointment = await prisma.appointment.findUnique({
+        where: { id: appointmentId }
+    })
+    if (!appointment || appointment.clinicId !== user.clinicId) {
+        throw new Error("Unauthorized")
+    }
+
     // Get clinical records from the appointment
     const clinicalRecords = await prisma.clinicalRecord.findMany({
         where: { appointmentId },
@@ -200,14 +261,6 @@ export async function generateInvoiceFromAppointment(
 
     if (clinicalRecords.length === 0) {
         throw new Error("No treatments found for this appointment")
-    }
-
-    const appointment = await prisma.appointment.findUnique({
-        where: { id: appointmentId },
-    })
-
-    if (!appointment) {
-        throw new Error("Appointment not found")
     }
 
     // Create invoice items from clinical records
@@ -242,6 +295,18 @@ export async function updateInvoice(
         status?: "DRAFT" | "PENDING" | "PARTIAL" | "PAID" | "CANCELLED" | "REFUNDED"
     }
 ) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`invoices-update-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
+    const existing = await prisma.invoice.findUnique({ where: { id: invoiceId } })
+    if (!existing || existing.clinicId !== user.clinicId) {
+        throw new Error("Unauthorized")
+    }
     // Get current invoice to recalculate if discount/tax changed
     const currentInvoice = await prisma.invoice.findUnique({
         where: { id: invoiceId },
@@ -307,6 +372,18 @@ export async function updateInvoiceItems(
         clinicalRecordId?: string
     }>
 ) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`invoices-items-update-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
+    const existing = await prisma.invoice.findUnique({ where: { id: invoiceId } })
+    if (!existing || existing.clinicId !== user.clinicId) {
+        throw new Error("Unauthorized")
+    }
     // Delete existing items
     await prisma.invoiceItem.deleteMany({
         where: { invoiceId }
@@ -362,6 +439,18 @@ export async function updateInvoiceItems(
 
 // Delete invoice
 export async function deleteInvoice(invoiceId: string) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`invoices-delete-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
+    const existing = await prisma.invoice.findUnique({ where: { id: invoiceId } })
+    if (!existing || existing.clinicId !== user.clinicId) {
+        throw new Error("Unauthorized")
+    }
     // First delete related items and payments
     await prisma.invoiceItem.deleteMany({
         where: { invoiceId }

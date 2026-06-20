@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { getCurrentUser } from "@/lib/auth"
 import { patientFormSchema, type PatientFormValues } from "@/lib/validations/patient"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 // Serialization Helpers
 const serializeDecimal = (val: any) => (val !== null && val !== undefined ? Number(val) : null)
@@ -44,6 +45,14 @@ const serializePatient = (patient: any) => {
 }
 
 export async function getPatients(clinicId: string, query?: string) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess || user.clinicId !== clinicId) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`patients-get-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
     // Build search conditions
     const whereConditions: any = { clinicId }
 
@@ -99,6 +108,14 @@ export async function getPatients(clinicId: string, query?: string) {
 }
 
 export async function getPatientById(id: string) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`patients-get-by-id-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
     const patient = await prisma.patient.findUnique({
         where: { id },
         include: {
@@ -123,10 +140,23 @@ export async function getPatientById(id: string) {
             },
         },
     })
+
+    if (patient && patient.clinicId !== user.clinicId) {
+        throw new Error("Unauthorized")
+    }
+
     return serializePatient(patient)
 }
 
 export async function createPatient(clinicId: string, data: PatientFormValues) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess || user.clinicId !== clinicId) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`patients-create-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
     // Server-side validation — prevents bypassing frontend checks
     const validated = patientFormSchema.parse(data)
 
@@ -145,6 +175,19 @@ export async function createPatient(clinicId: string, data: PatientFormValues) {
 }
 
 export async function updatePatient(id: string, data: Partial<PatientFormValues>) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`patients-update-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
+    const existing = await prisma.patient.findUnique({ where: { id } })
+    if (!existing || existing.clinicId !== user.clinicId) {
+        throw new Error("Unauthorized")
+    }
+
     // Partial validation — only validate provided fields
     const validated = patientFormSchema.partial().parse(data)
 
@@ -164,6 +207,19 @@ export async function updatePatient(id: string, data: Partial<PatientFormValues>
 }
 
 export async function deletePatient(id: string) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`patients-delete-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
+    const existing = await prisma.patient.findUnique({ where: { id } })
+    if (!existing || existing.clinicId !== user.clinicId) {
+        throw new Error("Unauthorized")
+    }
+
     await prisma.patient.delete({
         where: { id },
     })
@@ -173,6 +229,16 @@ export async function deletePatient(id: string) {
 }
 
 export async function updateLastVisitDate(patientId: string) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess) {
+        throw new Error("Unauthorized")
+    }
+
+    const existing = await prisma.patient.findUnique({ where: { id: patientId } })
+    if (!existing || existing.clinicId !== user.clinicId) {
+        throw new Error("Unauthorized")
+    }
+
     await prisma.patient.update({
         where: { id: patientId },
         data: { lastVisitDate: new Date() },
@@ -185,8 +251,11 @@ export async function updateLastVisitDate(patientId: string) {
  */
 export async function importPatients(clinicId: string, patients: any[]) {
     const user = await getCurrentUser()
-    if (!user) {
+    if (!user || !user.hasAccess || user.clinicId !== clinicId) {
         throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`patients-import-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
     }
 
     try {
@@ -320,6 +389,14 @@ export async function importPatients(clinicId: string, patients: any[]) {
 }
 
 export async function exportPatients(clinicId: string, startDate?: Date, endDate?: Date) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess || user.clinicId !== clinicId) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`patients-export-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
     const where: any = { clinicId }
 
     if (startDate && endDate) {

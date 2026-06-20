@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/lib/auth"
 import { appointmentFormSchema, type AppointmentFormValues } from "@/lib/validations/appointment"
 import { sendSMS } from "@/lib/notifications"
 import { Client } from "@upstash/qstash"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 export async function getAppointments(
     clinicId: string,
@@ -18,6 +19,14 @@ export async function getAppointments(
         query?: string
     }
 ) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess || user.clinicId !== clinicId) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`appointments-get-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
     const { doctorId, status, startDate, endDate, query } = options || {}
 
 
@@ -86,7 +95,12 @@ export async function createAppointment(
     data: AppointmentFormValues
 ) {
     const user = await getCurrentUser()
-    if (!user) throw new Error("Unauthorized")
+    if (!user || !user.hasAccess || user.clinicId !== clinicId) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`appointments-create-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
 
 
     const validated = appointmentFormSchema.parse(data)
@@ -221,6 +235,19 @@ export async function updateAppointmentStatus(
     id: string,
     status: "SCHEDULED" | "CONFIRMED" | "SEATED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | "NO_SHOW"
 ) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`appointments-status-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
+    const existing = await prisma.appointment.findUnique({ where: { id } })
+    if (!existing || existing.clinicId !== user.clinicId) {
+        throw new Error("Unauthorized")
+    }
+
     const appointment = await prisma.appointment.update({
         where: { id },
         data: { status },
@@ -239,6 +266,14 @@ export async function updateAppointmentStatus(
 }
 
 export async function getUpcomingAppointments(clinicId: string, limit = 5) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess || user.clinicId !== clinicId) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`appointments-upcoming-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
     const now = new Date()
 
     const appointments = await prisma.appointment.findMany({
@@ -259,6 +294,14 @@ export async function getUpcomingAppointments(clinicId: string, limit = 5) {
 }
 
 export async function getTodayAppointments(clinicId: string) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess || user.clinicId !== clinicId) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`appointments-today-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
     const startOfDay = new Date()
     startOfDay.setHours(0, 0, 0, 0)
 
@@ -293,6 +336,18 @@ export async function updateAppointment(
         doctorId?: string
     }
 ) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`appointments-update-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
+    const existing = await prisma.appointment.findUnique({ where: { id } })
+    if (!existing || existing.clinicId !== user.clinicId) {
+        throw new Error("Unauthorized")
+    }
 
     const updateData: any = {}
     if (data.scheduledAt !== undefined) updateData.scheduledAt = data.scheduledAt
@@ -320,6 +375,19 @@ export async function updateAppointment(
 
 
 export async function getPatientAppointments(patientId: string) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`appointments-patient-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
+    const patient = await prisma.patient.findUnique({ where: { id: patientId } })
+    if (!patient || patient.clinicId !== user.clinicId) {
+        throw new Error("Unauthorized")
+    }
+
     const appointments = await prisma.appointment.findMany({
         where: { patientId },
         include: {
@@ -332,6 +400,19 @@ export async function getPatientAppointments(patientId: string) {
 }
 
 export async function deleteAppointment(id: string) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`appointments-delete-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
+    const existing = await prisma.appointment.findUnique({ where: { id } })
+    if (!existing || existing.clinicId !== user.clinicId) {
+        throw new Error("Unauthorized")
+    }
+
     const appointment = await prisma.appointment.delete({
         where: { id },
     })
@@ -344,10 +425,22 @@ export async function deleteAppointment(id: string) {
 
 
 export async function sendManualReminder(appointmentId: string) {
+    const user = await getCurrentUser()
+    if (!user || !user.hasAccess) {
+        throw new Error("Unauthorized")
+    }
+    if (!checkRateLimit(`appointments-reminder-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
+    }
+
     const appointment = await prisma.appointment.findUnique({
         where: { id: appointmentId },
         include: { patient: true, doctor: true, clinic: true }
     })
+    
+    if (appointment && appointment.clinicId !== user.clinicId) {
+        throw new Error("Unauthorized")
+    }
 
     if (!appointment || !appointment.patient.phone) {
         throw new Error("Patient phone number missing")

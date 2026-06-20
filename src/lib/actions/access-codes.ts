@@ -3,6 +3,7 @@
 import prisma from "@/lib/prisma"
 import { getCurrentUser, isAdmin } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 function generateRandomCode(): string {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -16,6 +17,10 @@ export async function verifyAccessCodeAction(code: string) {
         const user = await getCurrentUser()
         if (!user) {
             return { success: false, error: "You must be logged in to verify an access code." }
+        }
+
+        if (!checkRateLimit(`access-codes-verify-${user.id}`)) {
+            return { success: false, error: "Too many verification attempts. Please try again later." }
         }
 
         const trimmedCode = code.trim().toUpperCase()
@@ -64,6 +69,10 @@ export async function generateAccessCodesAction(count: number) {
             throw new Error("Unauthorized: Only admins can generate access codes.")
         }
 
+        if (!checkRateLimit(`access-codes-generate-${user.id}`)) {
+            throw new Error("Rate limit exceeded")
+        }
+
         const codesToCreate = []
         for (let i = 0; i < count; i++) {
             let uniqueCode = ""
@@ -110,6 +119,10 @@ export async function getAccessCodesAction() {
         const user = await getCurrentUser()
         if (!user || !isAdmin(user.email)) {
             throw new Error("Unauthorized: Only admins can view access codes.")
+        }
+
+        if (!checkRateLimit(`access-codes-get-${user.id}`)) {
+            throw new Error("Rate limit exceeded")
         }
 
         const codes = await prisma.accessCode.findMany({
