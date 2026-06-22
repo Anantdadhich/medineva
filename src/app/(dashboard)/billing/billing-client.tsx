@@ -173,40 +173,43 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
                 }}
             />
 
-            <div className="flex-1 p-4 md:p-6 overflow-auto space-y-6">
+            <div className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto space-y-6">
                 {/* Stats Grid */}
-                <div className="grid gap-4 sm:grid-cols-3">
+                <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
                     {stats.map((stat) => (
-                        <Card key={stat.title}>
-                            <CardHeader className="flex flex-row items-center justify-between pb-2">
-                                <CardTitle className="text-sm font-medium text-muted-foreground">
+                        <div 
+                            key={stat.title}
+                            className="bg-white/60 backdrop-blur-2xl border border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.02)] rounded-[24px] p-6 hover:-translate-y-0.5 transition-all duration-200"
+                        >
+                            <div className="flex flex-row items-center justify-between pb-2">
+                                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
                                     {stat.title}
-                                </CardTitle>
-                                <stat.icon className="h-4 w-4 text-muted-foreground" />
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">{stat.value}</div>
-                                <p className="text-xs text-muted-foreground">
+                                </p>
+                                <stat.icon className="h-4 w-4 text-gray-400" />
+                            </div>
+                            <div className="space-y-1 mt-1">
+                                <h3 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight leading-none">{stat.value}</h3>
+                                <p className="text-[11px] text-gray-400 font-semibold pt-1">
                                     {stat.change} · {stat.description}
                                 </p>
-                            </CardContent>
-                        </Card>
+                            </div>
+                        </div>
                     ))}
                 </div>
 
                 {/* Invoices Table */}
-                <Card>
-                    <CardHeader>
+                <Card className="bg-white/60 backdrop-blur-2xl border border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.02)] rounded-[24px] overflow-hidden">
+                    <CardHeader className="py-4 px-4 sm:px-6 border-b border-gray-100/50 bg-white/40">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                            <CardTitle>Recent Invoices</CardTitle>
-                            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                            <CardTitle className="text-[17px] font-bold text-gray-900">Recent Invoices</CardTitle>
+                            <div className="flex flex-col sm:flex-row gap-2.5 w-full sm:w-auto">
                                 <Input
                                     placeholder="Search invoices..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full sm:w-64"
+                                    className="w-full sm:w-64 h-10 rounded-xl border-gray-100 bg-white/50 focus:bg-white transition-all shadow-sm focus-visible:ring-cyan-500/20"
                                 />
-                                <div className="flex gap-1 rounded-xl border border-gray-100/50 bg-gray-50/50 p-1 overflow-x-auto max-w-full">
+                                <div className="flex gap-1 rounded-xl border border-gray-100/50 bg-white/50 p-1 overflow-x-auto max-w-full">
                                     {["all", "pending", "partial", "paid"].map((status) => (
                                         <Button
                                             key={status}
@@ -336,7 +339,7 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
                                 return (
                                     <div
                                         key={invoice.id}
-                                        className="rounded-xl border border-gray-200/60 bg-white/50 p-4 space-y-3 shadow-sm transition-all hover:bg-white"
+                                        className="rounded-[20px] border border-white bg-white/60 p-4 space-y-3 shadow-[0_4px_24px_rgba(0,0,0,0.02)] transition-all hover:bg-white/95 duration-200"
                                     >
                                         <div className="flex items-center justify-between">
                                             <span className="font-mono text-sm font-bold text-gray-900">
@@ -377,14 +380,14 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
                                             </div>
                                         </div>
 
-                                        <div className="flex gap-2 pt-1.5">
+                                        <div className="flex gap-1.5 pt-1.5">
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                className="flex-1 rounded-xl h-9 text-[13px] font-bold border-gray-200 bg-white shadow-sm hover:bg-gray-50 text-gray-750 hover:text-gray-900 cursor-pointer"
+                                                className="flex-1 rounded-xl h-9 px-1.5 text-[12px] font-bold border-slate-200 bg-white shadow-sm hover:bg-slate-50 text-slate-700 hover:text-slate-900 cursor-pointer flex items-center justify-center gap-1"
                                                 onClick={() => router.push(`/billing/${invoice.id}`)}
                                             >
-                                                <Eye className="mr-1.5 h-3.5 w-3.5 text-cyan-600" />
+                                                <Eye className="h-3.5 w-3.5 text-cyan-600 shrink-0" />
                                                 View
                                             </Button>
 
@@ -424,10 +427,10 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
-                                                        className="w-full rounded-xl h-9 text-[13px] font-bold border-gray-200 bg-white shadow-sm hover:bg-gray-50 text-gray-750 hover:text-gray-900 cursor-pointer"
+                                                        className="w-full rounded-xl h-9 px-1.5 text-[12px] font-bold border-slate-200 bg-white shadow-sm hover:bg-slate-50 text-slate-700 hover:text-slate-900 cursor-pointer flex items-center justify-center gap-1"
                                                         disabled={loading}
                                                     >
-                                                        {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="mr-1.5 h-3.5 w-3.5 text-cyan-600" />}
+                                                        {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" /> : <Download className="h-3.5 w-3.5 text-cyan-600 shrink-0" />}
                                                         PDF
                                                     </Button>
                                                 )}
@@ -437,10 +440,10 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    className="flex-1 rounded-xl h-9 text-[13px] font-bold border-cyan-100 bg-cyan-50/20 text-cyan-650 hover:text-cyan-700 hover:bg-cyan-50 shadow-xs cursor-pointer"
+                                                    className="flex-1 rounded-xl h-9 px-1.5 text-[12px] font-bold border-cyan-100 bg-cyan-50/50 hover:bg-cyan-100/50 text-cyan-700 shadow-sm cursor-pointer flex items-center justify-center gap-1"
                                                     onClick={() => handleRecordPayment(invoice)}
                                                 >
-                                                    <CreditCard className="mr-1.5 h-3.5 w-3.5" />
+                                                    <CreditCard className="h-3.5 w-3.5 text-cyan-600 shrink-0" />
                                                     Pay
                                                 </Button>
                                             )}
@@ -456,7 +459,7 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
             {/* Payment Dialog */}
             <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
                 <DialogContent className="max-w-md bg-white/80 backdrop-blur-3xl border-white/60 shadow-2xl rounded-[24px] p-0 overflow-hidden">
-                    <div className="p-6 border-b border-gray-100/50 bg-white/40">
+                    <div className="p-4 sm:p-6 border-b border-gray-100/50 bg-white/40">
                         <DialogHeader>
                             <DialogTitle className="text-xl font-bold text-gray-900">Record Payment</DialogTitle>
                             <DialogDescription className="text-gray-500 font-medium">
@@ -466,7 +469,7 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
                     </div>
 
                     {selectedInvoice && (
-                        <div className="space-y-5 p-6">
+                        <div className="space-y-5 p-4 sm:p-6">
                             <div className="rounded-2xl bg-gray-50/50 border border-gray-100/40 p-4 space-y-2">
                                 <div className="flex justify-between text-sm">
                                     <span className="text-gray-500 font-medium">Invoice Total</span>
@@ -512,11 +515,11 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
                         </div>
                     )}
 
-                    <div className="p-6 bg-gray-50/50 border-t border-gray-100/50 flex justify-end gap-3 rounded-b-[24px]">
-                        <Button variant="outline" onClick={() => setIsPaymentDialogOpen(false)} className="rounded-xl px-5 h-11 font-bold border-gray-200/60 bg-white shadow-sm hover:bg-gray-50">
+                    <div className="p-4 sm:p-6 bg-gray-50/50 border-t border-gray-100/50 flex flex-col-reverse sm:flex-row justify-end gap-3 rounded-b-[24px]">
+                        <Button variant="outline" onClick={() => setIsPaymentDialogOpen(false)} className="w-full sm:w-auto rounded-xl px-5 h-11 font-bold border-gray-200/60 bg-white shadow-sm hover:bg-gray-50">
                             Cancel
                         </Button>
-                        <Button onClick={handleSubmitPayment} disabled={isLoading} className="rounded-xl px-6 h-11 font-bold bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white shadow-md transition-all border border-gray-800/50 cursor-pointer">
+                        <Button onClick={handleSubmitPayment} disabled={isLoading} className="w-full sm:w-auto rounded-xl px-6 h-11 font-bold bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white shadow-md transition-all border border-gray-800/50 cursor-pointer">
                             {isLoading ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

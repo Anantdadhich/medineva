@@ -13,11 +13,13 @@ const NAV_LINKS = [
 
 
 const BrandLogo = () => (
-    <Link href="/" className="flex items-center gap-2 group">
-        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-all">
-            <Stethoscope size={16} className="text-white" strokeWidth={2.5} />
-        </div>
-        <span className="font-semibold text-[18px] tracking-tight text-gray-900">Medineva</span>
+    <Link href="/" className="flex items-center gap-2.5 group select-none">
+        <img
+            src="/pmslogo.png"
+            alt="Medineva Logo"
+            className="h-[26px] w-auto object-contain brightness-0 transition-all duration-200 group-hover:opacity-80"
+        />
+        <span className="font-bold text-[19px] tracking-tight text-gray-900 leading-none pb-0.5">Medineva</span>
     </Link>
 );
 
@@ -120,75 +122,33 @@ export default function MarketingLayout({
                 {children}
             </main>
 
-            {/* Footer - Comprehensive SaaS Layout */}
-            <footer className="bg-gray-50 border-t border-gray-200 pt-16 pb-8 mt-20">
-                <div className="max-w-[1400px] mx-auto px-6 md:px-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8 mb-16">
-
-                        {/* Brand Column */}
-                        <div className="lg:col-span-2 flex flex-col items-start gap-6">
-                            <BrandLogo />
-                            <p className="text-[14px] text-gray-500 leading-relaxed max-w-sm">
-                                The easiest and smartest way to manage your health clinic. Handle appointments, patients, and billing without any computer stress.
-                            </p>
-
-                        </div>
-
-                        {/* Quick Links */}
-                        <div className="flex flex-col gap-6">
-                            <h4 className="text-[15px] font-bold text-gray-900">What we do</h4>
-                            <ul className="flex flex-col gap-3">
-                                <li><Link href="#features" className="text-[14px] text-gray-500 hover:text-gray-900 transition-colors">Digital Calendar</Link></li>
-                                <li><Link href="#features" className="text-[14px] text-gray-500 hover:text-gray-900 transition-colors">Patient Records</Link></li>
-                                <li><Link href="#features" className="text-[14px] text-gray-500 hover:text-gray-900 transition-colors">QR Check-in</Link></li>
-                                <li><Link href="#features" className="text-[14px] text-gray-500 hover:text-gray-900 transition-colors">Easy Billing</Link></li>
-                            </ul>
-                        </div>
-
-                        {/* Support */}
-                        <div className="flex flex-col gap-6">
-                            <h4 className="text-[15px] font-bold text-gray-900">Get Help</h4>
-                            <ul className="flex flex-col gap-3">
-                                <li><Link href="#faq" className="text-[14px] text-gray-500 hover:text-gray-900 transition-colors">Common Questions</Link></li>
-                                <li><Link href="#" className="text-[14px] text-gray-500 hover:text-gray-900 transition-colors">Talk to Us</Link></li>
-                                <li><Link href="#" className="text-[14px] text-gray-500 hover:text-gray-900 transition-colors">Tutorials</Link></li>
-                            </ul>
-                        </div>
-
-                        {/* Contact */}
-                        <div className="flex flex-col gap-6">
-                            <h4 className="text-[15px] font-bold text-gray-900">Contact</h4>
-                            <div className="flex flex-col gap-4">
-                                <div>
-                                    <p className="text-[13px] font-bold text-gray-400 uppercase tracking-wider mb-1">Email</p>
-                                    <p className="text-[14px] text-gray-700 font-medium">arpit@comacks.com</p>
-                                </div>
-                                <div>
-                                    <p className="text-[13px] font-bold text-gray-400 uppercase tracking-wider mb-1">Clinic Support</p>
-                                    <p className="text-[14px] text-gray-700 font-medium">+91 99111 33114</p>
-                                </div>
-                            </div>
-                        </div>
-
-
-
-
+            {/* Footer - Minimalist SaaS Layout */}
+            <footer className="border-t border-gray-150 py-12 bg-white mt-20">
+                <div className="max-w-[1400px] mx-auto px-6 md:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="flex flex-col items-center md:items-start gap-2.5">
+                        <BrandLogo />
+                        <p className="text-[13px] text-gray-400 text-center md:text-left">
+                            © {new Date().getFullYear()} Medineva PMS. All rights reserved.
+                        </p>
+                    </div>
+                    
+                    <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[14px] text-gray-500 font-medium">
+                        <Link href="#features" className="hover:text-gray-900 transition-colors">Features</Link>
+                        <Link href="#faq" className="hover:text-gray-900 transition-colors">Common Questions</Link>
+                        <Link href="https://wa.me/919911133114" target="_blank" className="hover:text-gray-900 transition-colors">Talk to Us</Link>
+                        <span className="text-gray-200">|</span>
+                        <span className="text-[13px] text-gray-400 font-normal">Support: +91 99111 33114</span>
                     </div>
 
-                    <div className="pt-8 border-t border-gray-200 flex flex-col md:flex-row items-center justify-between gap-4">
-                        <span className="text-[13px] text-gray-400">
-                            © {new Date().getFullYear()} Medineva PMS. All rights reserved.
+                    <div className="flex items-center gap-4">
+                        <span className="flex items-center gap-2 text-[13px] text-gray-400">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            All systems operational
                         </span>
-                        <div className="flex items-center gap-6">
-                            <span className="flex items-center gap-2 text-[13px] text-gray-400">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                                All systems operational
-                            </span>
-                            <span className="hidden md:block w-px h-4 bg-gray-200"></span>
-                            <span className="text-[13px] text-gray-400">
-                                Powered by <Link href="https://comacks.com" target="_blank" className="font-medium text-gray-600 hover:text-gray-900 transition-colors">Comacks</Link>
-                            </span>
-                        </div>
+                        <span className="w-px h-3 bg-gray-200"></span>
+                        <span className="text-[13px] text-gray-400">
+                            Powered by <Link href="https://comacks.com" target="_blank" className="font-semibold text-gray-600 hover:text-gray-900 transition-colors">Comacks</Link>
+                        </span>
                     </div>
                 </div>
             </footer>

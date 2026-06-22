@@ -447,9 +447,13 @@ const FaqSection = () => (
                 <p className="mb-6 md:mb-8 text-[14px] md:text-[15px] leading-relaxed text-gray-500">
                     If you're comparing systems for your clinic, start here. We describe what our clinic software actually does today to build trust with your team.
                 </p>
-                <button className="w-full sm:w-auto rounded-xl bg-black px-6 py-3.5 md:py-3 text-[14px] font-medium text-white shadow-sm transition-colors hover:bg-gray-800">
+                <Link
+                    href="https://wa.me/919911133114"
+                    target="_blank"
+                    className="inline-block text-center w-full sm:w-auto rounded-xl bg-black px-6 py-3.5 md:py-3 text-[14px] font-medium text-white shadow-sm transition-colors hover:bg-gray-800"
+                >
                     Talk to us
-                </button>
+                </Link>
             </div>
 
             <div className="space-y-3 md:space-y-4 lg:w-2/3 lg:pt-4">

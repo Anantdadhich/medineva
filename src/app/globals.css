@@ -1,8 +1,6 @@
 @import "tailwindcss";
 
-/* ============================================
-   DESIGN TOKENS - Clinical Medical Theme
-   ============================================ */
+
 
 :root {
   /* Primary: Clinical Blue */
@@ -109,9 +107,6 @@
   --sidebar-ring: 210 100% 55%;
 }
 
-/* ============================================
-   THEME CONFIGURATION
-   ============================================ */
 
 @theme inline {
   --color-background: hsl(var(--background));
@@ -153,9 +148,7 @@
   --radius-xl: calc(var(--radius) + 8px);
 }
 
-/* ============================================
-   BASE STYLES
-   ============================================ */
+
 
 * {
   border-color: hsl(var(--border));
@@ -167,9 +160,7 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
-/* ============================================
-   CUSTOM UTILITIES
-   ============================================ */
+
 
 /* Scrollbar styling */
 .scrollbar-thin {

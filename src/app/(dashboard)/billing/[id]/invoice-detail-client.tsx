@@ -199,27 +199,27 @@ export function InvoiceDetailClient({ invoice, clinicId }: InvoiceDetailClientPr
                 }}
             />
 
-            <div className="flex-1 p-4 md:p-6 overflow-auto">
-                <div className="flex justify-between items-start mb-6">
+            <div className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto space-y-6">
+                <div className="flex justify-between items-center mb-6">
                     <div>
-                        <Badge variant={invoice.status.toLowerCase() as any}>{invoice.status}</Badge>
+                        <Badge variant={invoice.status.toLowerCase() as any} className="uppercase tracking-wider font-bold text-[10px] px-3 py-1 rounded-full">{invoice.status}</Badge>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2.5">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="outline" className="px-3 sm:px-4">
-                                    <MoreVertical className="h-4 w-4 sm:mr-2" />
-                                    <span className="hidden sm:inline">Actions</span>
+                                <Button variant="outline" className="rounded-xl h-10 px-3.5 border-slate-200 bg-white shadow-sm hover:bg-slate-50 text-slate-700 hover:text-slate-900 cursor-pointer">
+                                    <MoreVertical className="h-4 w-4 sm:mr-2 shrink-0" />
+                                    <span className="hidden sm:inline font-bold text-[13px]">Actions</span>
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => setEditOpen(true)}>
-                                    <Edit className="h-4 w-4 mr-2" />
-                                    Edit Invoice
+                            <DropdownMenuContent align="end" className="rounded-xl border border-gray-100 bg-white shadow-xl">
+                                <DropdownMenuItem onClick={() => setEditOpen(true)} className="rounded-lg hover:bg-cyan-50 cursor-pointer">
+                                    <Edit className="h-4 w-4 mr-2 text-slate-500" />
+                                    <span className="font-semibold text-[13px]">Edit Invoice</span>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setDeleteOpen(true)} className="text-destructive">
+                                <DropdownMenuItem onClick={() => setDeleteOpen(true)} className="text-destructive rounded-lg hover:bg-red-50 cursor-pointer">
                                     <Trash className="h-4 w-4 mr-2" />
-                                    Delete Invoice
+                                    <span className="font-semibold text-[13px]">Delete Invoice</span>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -239,16 +239,16 @@ export function InvoiceDetailClient({ invoice, clinicId }: InvoiceDetailClientPr
                             >
                                 {/* @ts-ignore */}
                                 {({ loading }) => (
-                                    <Button variant="outline" disabled={loading} className="px-3 sm:px-4">
-                                        <Download className="h-4 w-4 sm:mr-2" />
-                                        <span className="hidden sm:inline">Download PDF</span>
+                                    <Button variant="outline" disabled={loading} className="rounded-xl h-10 px-3.5 border-slate-200 bg-white shadow-sm hover:bg-slate-50 text-slate-700 hover:text-slate-900 cursor-pointer">
+                                        {loading ? <Loader2 className="h-4 w-4 animate-spin sm:mr-2" /> : <Download className="h-4 w-4 sm:mr-2 text-cyan-600" />}
+                                        <span className="hidden sm:inline font-bold text-[13px]">Download PDF</span>
                                     </Button>
                                 )}
                             </PDFDownloadLink>
                         ) : (
-                            <Button variant="outline" disabled className="px-3 sm:px-4">
+                            <Button variant="outline" disabled className="rounded-xl h-10 px-3.5 border-slate-200 bg-white shadow-sm">
                                 <Loader2 className="h-4 w-4 animate-spin sm:mr-2" />
-                                <span className="hidden sm:inline">Loading PDF...</span>
+                                <span className="hidden sm:inline font-bold text-[13px]">Loading PDF...</span>
                             </Button>
                         )}
                     </div>
@@ -256,70 +256,86 @@ export function InvoiceDetailClient({ invoice, clinicId }: InvoiceDetailClientPr
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Patient Info */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Billed To</CardTitle>
+                    <Card className="bg-white/60 backdrop-blur-2xl border border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.02)] rounded-[24px] overflow-hidden">
+                        <CardHeader className="py-4 px-6 border-b border-gray-100/50 bg-white/40">
+                            <CardTitle className="text-[16px] font-bold text-gray-900">Billed To</CardTitle>
                         </CardHeader>
-                        <CardContent>
-                            <div className="space-y-1">
-                                <p className="font-medium">{invoice.patient.firstName} {invoice.patient.lastName}</p>
-                                <p className="text-sm text-muted-foreground">{invoice.patient.address || "No address"}</p>
-                                <p className="text-sm text-muted-foreground">{invoice.patient.phone}</p>
-                                <p className="text-sm text-muted-foreground">{invoice.patient.email}</p>
+                        <CardContent className="p-6">
+                            <div className="space-y-3.5 text-left">
+                                <div>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Patient Name</p>
+                                    <p className="text-[14px] font-bold text-gray-800 mt-0.5">{invoice.patient.firstName} {invoice.patient.lastName}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Address</p>
+                                    <p className="text-[14px] font-bold text-gray-800 mt-0.5">{invoice.patient.address || "No Address Provided"}</p>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Phone</p>
+                                        <p className="text-[14px] font-bold text-gray-800 mt-0.5">{invoice.patient.phone || "-"}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Email</p>
+                                        <p className="text-[14px] font-bold text-gray-800 mt-0.5 truncate">{invoice.patient.email || "-"}</p>
+                                    </div>
+                                </div>
                             </div>
                         </CardContent>
                     </Card>
 
                     {/* Invoice Info */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Invoice Details</CardTitle>
+                    <Card className="bg-white/60 backdrop-blur-2xl border border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.02)] rounded-[24px] overflow-hidden">
+                        <CardHeader className="py-4 px-6 border-b border-gray-100/50 bg-white/40">
+                            <CardTitle className="text-[16px] font-bold text-gray-900">Invoice Details</CardTitle>
                         </CardHeader>
-                        <CardContent className="grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                                <p className="text-muted-foreground">Invoice Number</p>
-                                <p className="font-medium">{invoice.invoiceNumber}</p>
-                            </div>
-                            <div>
-                                <p className="text-muted-foreground">Date Issued</p>
-                                <p className="font-medium">{safeFormat(invoice.createdAt, "dd MMM yyyy")}</p>
-                            </div>
-                            <div>
-                                <p className="text-muted-foreground">Due Date</p>
-                                <p className="font-medium">{safeFormat(invoice.dueDate, "dd MMM yyyy")}</p>
-                            </div>
-                            <div>
-                                <p className="text-muted-foreground">Notes</p>
-                                <p className="font-medium">{invoice.notes || "-"}</p>
+                        <CardContent className="p-6">
+                            <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-left">
+                                <div>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Invoice Number</p>
+                                    <p className="text-[14px] font-bold text-gray-800 mt-0.5">{invoice.invoiceNumber}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Date Issued</p>
+                                    <p className="text-[14px] font-bold text-gray-800 mt-0.5">{safeFormat(invoice.createdAt, "dd MMM yyyy")}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Due Date</p>
+                                    <p className="text-[14px] font-bold text-gray-800 mt-0.5">{safeFormat(invoice.dueDate, "dd MMM yyyy")}</p>
+                                </div>
+                                <div className="col-span-2">
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Notes</p>
+                                    <p className="text-[14px] font-bold text-gray-800 mt-0.5 leading-relaxed">{invoice.notes || "-"}</p>
+                                </div>
                             </div>
                         </CardContent>
                     </Card>
                 </div>
 
                 {/* Items Table */}
-                <Card className="mt-6">
-                    <CardHeader className="p-4 sm:p-6 pb-4">
-                        <CardTitle className="text-[17px] font-bold text-gray-900">Line Items</CardTitle>
+                <Card className="bg-white/60 backdrop-blur-2xl border border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.02)] rounded-[24px] overflow-hidden mt-6">
+                    <CardHeader className="py-4 px-4 sm:px-6 border-b border-gray-100/50 bg-white/40">
+                        <CardTitle className="text-[16px] font-bold text-gray-900">Line Items</CardTitle>
                     </CardHeader>
-                    <CardContent className="p-4 sm:p-6 pt-0">
+                    <CardContent className="p-0">
                         {/* Desktop View */}
                         <div className="hidden md:block overflow-x-auto w-full">
                             <table className="w-full">
                                 <thead>
-                                    <tr className="border-b text-sm text-muted-foreground">
-                                        <th className="py-2 text-left">Description</th>
-                                        <th className="py-2 text-right">Qty</th>
-                                        <th className="py-2 text-right">Unit Price</th>
-                                        <th className="py-2 text-right">Total</th>
+                                    <tr className="border-b border-gray-100/50 bg-white/40">
+                                        <th className="px-6 py-3.5 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider">Description</th>
+                                        <th className="px-6 py-3.5 text-right text-[10px] font-bold text-gray-400 uppercase tracking-wider">Qty</th>
+                                        <th className="px-6 py-3.5 text-right text-[10px] font-bold text-gray-400 uppercase tracking-wider">Unit Price</th>
+                                        <th className="px-6 py-3.5 text-right text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y">
+                                <tbody className="divide-y divide-gray-100/50">
                                     {invoice.items.map((item: any) => (
-                                        <tr key={item.id}>
-                                            <td className="py-3 text-sm">{item.description}</td>
-                                            <td className="py-3 text-sm text-right">{item.quantity}</td>
-                                            <td className="py-3 text-sm text-right">{formatCurrency(item.unitPrice)}</td>
-                                            <td className="py-3 text-sm text-right font-medium">{formatCurrency(item.total)}</td>
+                                        <tr key={item.id} className="hover:bg-white/40 transition-all duration-200">
+                                            <td className="px-6 py-4 text-sm font-bold text-gray-900">{item.description}</td>
+                                            <td className="px-6 py-4 text-sm text-right text-gray-600 font-semibold">{item.quantity}</td>
+                                            <td className="px-6 py-4 text-sm text-right text-gray-600 font-semibold">{formatCurrency(item.unitPrice)}</td>
+                                            <td className="px-6 py-4 text-sm text-right font-bold text-gray-900">{formatCurrency(item.total)}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -327,52 +343,52 @@ export function InvoiceDetailClient({ invoice, clinicId }: InvoiceDetailClientPr
                         </div>
 
                         {/* Mobile View */}
-                        <div className="md:hidden space-y-3">
+                        <div className="md:hidden p-4 space-y-3">
                             {invoice.items.map((item: any) => (
-                                <div key={item.id} className="p-4 border border-gray-100 rounded-xl bg-gray-50/50 flex justify-between items-center">
+                                <div key={item.id} className="p-4 border border-white bg-white/60 backdrop-blur-2xl rounded-2xl flex justify-between items-center shadow-[0_2px_12px_rgba(0,0,0,0.01)] hover:bg-white/90 transition-all duration-200">
                                     <div className="min-w-0 pr-3">
                                         <p className="font-bold text-[14px] text-gray-900 truncate">{item.description}</p>
-                                        <p className="text-[12px] text-gray-500 font-medium mt-1">
-                                            Qty: {item.quantity} • {formatCurrency(item.unitPrice)}
+                                        <p className="text-[11px] text-gray-400 font-bold uppercase tracking-wider mt-1.5">
+                                            Qty: {item.quantity} · {formatCurrency(item.unitPrice)}
                                         </p>
                                     </div>
-                                    <p className="font-bold text-[14px] text-gray-900 shrink-0">
+                                    <p className="font-black text-[14px] text-gray-950 shrink-0">
                                         {formatCurrency(item.total)}
                                     </p>
                                 </div>
                             ))}
                         </div>
 
-                        <Separator className="my-4" />
+                        <Separator className="bg-gray-100/50" />
 
-                        <div className="flex flex-col items-end space-y-2 text-sm">
-                            <div className="flex justify-between w-48">
-                                <span className="text-muted-foreground">Subtotal</span>
-                                <span>{formatCurrency(invoice.subtotal)}</span>
+                        <div className="flex flex-col items-end space-y-2.5 p-4 sm:p-6 text-sm">
+                            <div className="flex justify-between w-52 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                                <span>Subtotal</span>
+                                <span className="text-gray-800 font-semibold text-[13px] normal-case">{formatCurrency(invoice.subtotal)}</span>
                             </div>
                             {invoice.discount > 0 && (
-                                <div className="flex justify-between w-48 text-success">
+                                <div className="flex justify-between w-52 text-[10px] font-bold text-emerald-500 uppercase tracking-wider">
                                     <span>Discount</span>
-                                    <span>-{formatCurrency(invoice.discount)}</span>
+                                    <span className="text-emerald-600 font-bold text-[13px] normal-case">-{formatCurrency(invoice.discount)}</span>
                                 </div>
                             )}
                             {invoice.tax > 0 && (
-                                <div className="flex justify-between w-48">
+                                <div className="flex justify-between w-52 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                                     <span>Tax</span>
-                                    <span>+{formatCurrency(invoice.tax)}</span>
+                                    <span className="text-gray-800 font-semibold text-[13px] normal-case">+{formatCurrency(invoice.tax)}</span>
                                 </div>
                             )}
-                            <div className="flex justify-between w-48 font-bold text-lg pt-2 border-t">
-                                <span className="text-foreground">Total</span>
-                                <span className="text-primary">{formatCurrency(invoice.total)}</span>
+                            <div className="flex justify-between w-52 font-black text-base pt-3 border-t border-gray-100">
+                                <span className="text-[10px] font-black text-gray-900 uppercase tracking-wider pt-0.5">Total</span>
+                                <span className="text-gray-950 font-black text-lg leading-none">{formatCurrency(invoice.total)}</span>
                             </div>
-                            <div className="flex justify-between w-48 text-muted-foreground mt-2">
+                            <div className="flex justify-between w-52 text-[10px] font-bold text-gray-400 uppercase tracking-wider pt-1">
                                 <span>Amount Paid</span>
-                                <span>{formatCurrency(invoice.amountPaid)}</span>
+                                <span className="text-gray-800 font-semibold text-[13px] normal-case">{formatCurrency(invoice.amountPaid)}</span>
                             </div>
-                            <div className="flex justify-between w-48 font-medium">
-                                <span className={invoice.total - invoice.amountPaid > 0 ? "text-destructive" : "text-success"}>Balance</span>
-                                <span className={invoice.total - invoice.amountPaid > 0 ? "text-destructive" : "text-success"}>
+                            <div className="flex justify-between w-52 text-[10px] font-bold uppercase tracking-wider pt-1">
+                                <span className={invoice.total - invoice.amountPaid > 0 ? "text-amber-500" : "text-emerald-500"}>Balance</span>
+                                <span className={`text-[14px] font-bold ${invoice.total - invoice.amountPaid > 0 ? "text-amber-600" : "text-emerald-600"} normal-case`}>
                                     {formatCurrency(invoice.total - invoice.amountPaid)}
                                 </span>
                             </div>
@@ -382,29 +398,29 @@ export function InvoiceDetailClient({ invoice, clinicId }: InvoiceDetailClientPr
 
                 {/* Payments */}
                 {invoice.payments && invoice.payments.length > 0 && (
-                    <Card className="mt-6">
-                        <CardHeader className="p-4 sm:p-6 pb-4">
-                            <CardTitle className="text-[17px] font-bold text-gray-900">Payment History</CardTitle>
+                    <Card className="bg-white/60 backdrop-blur-2xl border border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.02)] rounded-[24px] overflow-hidden mt-6">
+                        <CardHeader className="py-4 px-4 sm:px-6 border-b border-gray-100/50 bg-white/40">
+                            <CardTitle className="text-[16px] font-bold text-gray-900">Payment History</CardTitle>
                         </CardHeader>
-                        <CardContent className="p-4 sm:p-6 pt-0">
+                        <CardContent className="p-0">
                             {/* Desktop View */}
                             <div className="hidden md:block overflow-x-auto w-full">
                                 <table className="w-full">
                                     <thead>
-                                        <tr className="border-b text-sm text-muted-foreground">
-                                            <th className="py-2 text-left">Date</th>
-                                            <th className="py-2 text-left">Method</th>
-                                            <th className="py-2 text-left">Reference</th>
-                                            <th className="py-2 text-right">Amount</th>
+                                        <tr className="border-b border-gray-100/50 bg-white/40">
+                                            <th className="px-6 py-3.5 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider">Date</th>
+                                            <th className="px-6 py-3.5 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider">Method</th>
+                                            <th className="px-6 py-3.5 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider">Reference</th>
+                                            <th className="px-6 py-3.5 text-right text-[10px] font-bold text-gray-400 uppercase tracking-wider">Amount</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y">
+                                    <tbody className="divide-y divide-gray-100/50">
                                         {invoice.payments.map((payment: any) => (
-                                            <tr key={payment.id}>
-                                                <td className="py-3 text-sm">{safeFormat(payment.paidAt, "dd MMM yyyy HH:mm")}</td>
-                                                <td className="py-3 text-sm capitalize">{payment.method.toLowerCase().replace("_", " ")}</td>
-                                                <td className="py-3 text-sm text-muted-foreground">{payment.reference || "-"}</td>
-                                                <td className="py-3 text-sm text-right font-medium">{formatCurrency(payment.amount)}</td>
+                                            <tr key={payment.id} className="hover:bg-white/40 transition-all duration-200">
+                                                <td className="px-6 py-4 text-sm font-bold text-gray-900">{safeFormat(payment.paidAt, "dd MMM yyyy HH:mm")}</td>
+                                                <td className="px-6 py-4 text-sm font-semibold text-gray-750 capitalize">{payment.method.toLowerCase().replace("_", " ")}</td>
+                                                <td className="px-6 py-4 text-sm text-gray-500 font-medium">{payment.reference || "—"}</td>
+                                                <td className="px-6 py-4 text-sm text-right font-bold text-emerald-650">{formatCurrency(payment.amount)}</td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -412,28 +428,28 @@ export function InvoiceDetailClient({ invoice, clinicId }: InvoiceDetailClientPr
                             </div>
 
                             {/* Mobile View */}
-                            <div className="md:hidden space-y-3">
+                            <div className="md:hidden p-4 space-y-3">
                                 {invoice.payments.map((payment: any) => (
-                                    <div key={payment.id} className="p-4 border border-gray-100 rounded-xl bg-gray-50/50 flex flex-col gap-2">
+                                    <div key={payment.id} className="p-4 border border-white bg-white/60 backdrop-blur-2xl rounded-2xl flex flex-col gap-2.5 shadow-[0_2px_12px_rgba(0,0,0,0.01)] hover:bg-white/90 transition-all duration-200">
                                         <div className="flex items-center justify-between">
-                                            <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">Date</span>
-                                            <span className="text-[13px] text-gray-900 font-semibold">{safeFormat(payment.paidAt, "dd MMM yyyy HH:mm")}</span>
+                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Date</span>
+                                            <span className="text-[13px] text-gray-800 font-bold">{safeFormat(payment.paidAt, "dd MMM yyyy HH:mm")}</span>
                                         </div>
                                         <div className="flex items-center justify-between">
-                                            <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">Method</span>
-                                            <span className="text-[13px] text-gray-900 font-semibold capitalize bg-white border border-gray-200 px-2 py-0.5 rounded-md shadow-sm">
+                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Method</span>
+                                            <span className="text-[11px] text-cyan-700 font-bold uppercase bg-cyan-50/50 border border-cyan-100 px-2.5 py-0.5 rounded-lg shadow-sm">
                                                 {payment.method.toLowerCase().replace("_", " ")}
                                             </span>
                                         </div>
                                         {payment.reference && (
                                             <div className="flex items-center justify-between">
-                                                <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">Reference</span>
-                                                <span className="text-[13px] text-gray-500 font-medium">{payment.reference}</span>
+                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Reference</span>
+                                                <span className="text-[13px] text-gray-600 font-semibold">{payment.reference}</span>
                                             </div>
                                         )}
-                                        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                                            <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">Amount</span>
-                                            <span className="text-[14px] font-bold text-emerald-600">{formatCurrency(payment.amount)}</span>
+                                        <div className="flex items-center justify-between pt-2.5 border-t border-gray-100/50">
+                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Amount</span>
+                                            <span className="text-[14px] font-black text-emerald-600">{formatCurrency(payment.amount)}</span>
                                         </div>
                                     </div>
                                 ))}
@@ -445,92 +461,114 @@ export function InvoiceDetailClient({ invoice, clinicId }: InvoiceDetailClientPr
 
             {/* Edit Dialog */}
             <Dialog open={editOpen} onOpenChange={setEditOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Edit Invoice</DialogTitle>
-                        <DialogDescription>Update invoice details.</DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
+                <DialogContent className="max-w-md bg-white/80 backdrop-blur-3xl border-white/60 shadow-2xl rounded-[24px] p-0 overflow-hidden">
+                    <div className="p-4 sm:p-6 border-b border-gray-100/50 bg-white/40">
+                        <DialogHeader>
+                            <DialogTitle className="text-xl font-bold text-gray-900">Edit Invoice</DialogTitle>
+                            <DialogDescription className="text-gray-500 font-medium mt-1">Update invoice details.</DialogDescription>
+                        </DialogHeader>
+                    </div>
+                    <div className="space-y-4 p-4 sm:p-6">
                         <div className="space-y-2">
-                            <Label>Status</Label>
+                            <Label className="text-gray-700 font-semibold text-[13px]">Status</Label>
                             <Select
                                 value={formData.status}
                                 onValueChange={(val: any) => setFormData({ ...formData, status: val })}
                             >
-                                <SelectTrigger>
+                                <SelectTrigger className="h-11 rounded-xl bg-white/60 border-gray-200/60 focus:bg-white transition-all shadow-sm focus:ring-cyan-500/20">
                                     <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="DRAFT">Draft</SelectItem>
-                                    <SelectItem value="PENDING">Pending</SelectItem>
-                                    <SelectItem value="PAID">Paid</SelectItem>
-                                    <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                                <SelectContent className="rounded-xl border border-gray-100 bg-white shadow-xl">
+                                    <SelectItem value="DRAFT" className="rounded-lg">Draft</SelectItem>
+                                    <SelectItem value="PENDING" className="rounded-lg">Pending</SelectItem>
+                                    <SelectItem value="PAID" className="rounded-lg">Paid</SelectItem>
+                                    <SelectItem value="CANCELLED" className="rounded-lg">Cancelled</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label>Discount (%)</Label>
+                                <Label className="text-gray-700 font-semibold text-[13px]">Discount (%)</Label>
                                 <Input
                                     type="number"
                                     min="0"
                                     max="100"
                                     value={formData.discount}
                                     onChange={(e) => setFormData({ ...formData, discount: Number(e.target.value) })}
+                                    className="h-11 rounded-xl bg-white/60 border-gray-200/60 focus:bg-white transition-all shadow-sm focus-visible:ring-cyan-500/20 px-4"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label>Tax</Label>
+                                <Label className="text-gray-700 font-semibold text-[13px]">Tax</Label>
                                 <Input
                                     type="number"
                                     min="0"
                                     value={formData.tax}
                                     onChange={(e) => setFormData({ ...formData, tax: Number(e.target.value) })}
+                                    className="h-11 rounded-xl bg-white/60 border-gray-200/60 focus:bg-white transition-all shadow-sm focus-visible:ring-cyan-500/20 px-4"
                                 />
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <Label>Due Date</Label>
+                            <Label className="text-gray-700 font-semibold text-[13px]">Due Date</Label>
                             <Input
                                 type="date"
                                 value={formData.dueDate}
                                 onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
+                                className="h-11 rounded-xl bg-white/60 border-gray-200/60 focus:bg-white transition-all shadow-sm focus-visible:ring-cyan-500/20 px-4"
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label>Notes</Label>
+                            <Label className="text-gray-700 font-semibold text-[13px]">Notes</Label>
                             <Textarea
                                 value={formData.notes}
                                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                                 placeholder="Add notes..."
+                                className="rounded-xl bg-white/60 border-gray-200/60 focus:bg-white transition-all shadow-sm focus-visible:ring-cyan-500/20 p-3 min-h-[80px]"
                             />
                         </div>
                     </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setEditOpen(false)}>Cancel</Button>
-                        <Button onClick={handleSaveEdit} disabled={isLoading}>
-                            {isLoading ? "Saving..." : "Save Changes"}
+                    <div className="p-4 sm:p-6 bg-gray-50/50 border-t border-gray-100/50 flex flex-col-reverse sm:flex-row justify-end gap-3 rounded-b-[24px]">
+                        <Button variant="outline" onClick={() => setEditOpen(false)} className="w-full sm:w-auto rounded-xl px-5 h-11 font-bold border-gray-200/60 bg-white shadow-sm hover:bg-gray-50 text-gray-700">
+                            Cancel
                         </Button>
-                    </DialogFooter>
+                        <Button onClick={handleSaveEdit} disabled={isLoading} className="w-full sm:w-auto rounded-xl px-6 h-11 font-bold bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white shadow-md transition-all border border-gray-800/50 cursor-pointer">
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Saving...
+                                </>
+                            ) : "Save Changes"}
+                        </Button>
+                    </div>
                 </DialogContent>
             </Dialog>
 
             {/* Delete Alert */}
             <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete the invoice
-                            and all associated data.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                            Delete
+                <AlertDialogContent className="max-w-md bg-white/80 backdrop-blur-3xl border-white/60 shadow-2xl rounded-[24px] p-0 overflow-hidden">
+                    <div className="p-4 sm:p-6">
+                        <AlertDialogHeader>
+                            <AlertDialogTitle className="text-xl font-bold text-gray-900">Are you sure?</AlertDialogTitle>
+                            <AlertDialogDescription className="text-gray-500 font-medium mt-2">
+                                This action cannot be undone. This will permanently delete the invoice
+                                and all associated data.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                    </div>
+                    <div className="p-4 sm:p-6 bg-gray-50/50 border-t border-gray-100/50 flex flex-col-reverse sm:flex-row justify-end gap-3 rounded-b-[24px]">
+                        <AlertDialogCancel className="w-full sm:w-auto rounded-xl px-5 h-11 font-bold border-gray-200/60 bg-white shadow-sm hover:bg-gray-50 mt-0 text-gray-700">
+                            Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} disabled={isLoading} className="w-full sm:w-auto rounded-xl px-6 h-11 font-bold bg-destructive text-white hover:bg-red-700 shadow-md transition-all border border-transparent cursor-pointer flex items-center justify-center">
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Deleting...
+                                </>
+                            ) : "Delete"}
                         </AlertDialogAction>
-                    </AlertDialogFooter>
+                    </div>
                 </AlertDialogContent>
             </AlertDialog>
         </div>

@@ -365,19 +365,19 @@ export function PatientForm({
                 />
             </div>
 
-            <div className="flex justify-end gap-3 pt-6 border-t border-gray-100/50 mt-6">
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t border-gray-100/50 mt-6">
                 <Button
                     type="button"
                     variant="outline"
                     onClick={onCancel}
-                    className="rounded-xl h-12 px-5 font-bold border-gray-200/60 bg-white shadow-sm hover:bg-gray-50 text-gray-750 cursor-pointer"
+                    className="w-full sm:w-auto rounded-xl h-12 px-5 font-bold border-gray-200/60 bg-white shadow-sm hover:bg-gray-50 text-gray-750 cursor-pointer"
                 >
                     Cancel
                 </Button>
                 <Button
                     type="submit"
                     disabled={isLoading}
-                    className="rounded-xl h-12 px-7 font-bold bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white shadow-md hover:shadow-lg transition-all border border-gray-800/50 cursor-pointer"
+                    className="w-full sm:w-auto rounded-xl h-12 px-7 font-bold bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white shadow-md hover:shadow-lg transition-all border border-gray-800/50 cursor-pointer"
                 >
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin shrink-0" />}
                     {defaultValues?.firstName ? "Update Patient" : "Save Patient"}

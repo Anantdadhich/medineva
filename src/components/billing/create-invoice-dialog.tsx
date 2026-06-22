@@ -440,11 +440,11 @@ export function CreateInvoiceDialog({
                         </div>
                     </div>
 
-                    <div className="p-6 bg-gray-50/50 border-t border-gray-100/50 flex justify-end gap-3 rounded-b-[24px] shrink-0">
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="rounded-xl px-5 h-11 font-bold border-gray-200/60 bg-white shadow-sm hover:bg-gray-50 text-gray-750">
+                    <div className="p-4 sm:p-6 bg-gray-50/50 border-t border-gray-100/50 flex flex-col-reverse sm:flex-row justify-end gap-3 rounded-b-[24px] shrink-0">
+                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto rounded-xl px-5 h-11 font-bold border-gray-200/60 bg-white shadow-sm hover:bg-gray-50 text-gray-700">
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={isSubmitting} className="rounded-xl px-6 h-11 font-bold bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white shadow-md transition-all border border-gray-800/50 cursor-pointer">
+                        <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto rounded-xl px-6 h-11 font-bold bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white shadow-md transition-all border border-gray-800/50 cursor-pointer flex items-center justify-center">
                             {isSubmitting ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

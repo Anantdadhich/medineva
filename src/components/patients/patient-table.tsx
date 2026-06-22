@@ -187,64 +187,37 @@ export function PatientTable({ patients, onView, onEdit, onDelete }: PatientTabl
                     return (
                         <Card key={patient.id} className="bg-white/70 backdrop-blur-2xl border border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.02)] rounded-[20px] overflow-hidden hover:shadow-md transition-all duration-200">
                             <CardContent className="p-5">
-                                <div className="flex items-start justify-between mb-4">
+                                {/* Top Line: Avatar, Name, and Status Badge */}
+                                <div className="flex items-center justify-between mb-4 gap-2">
                                     <div className="flex items-center gap-3 min-w-0">
-                                        <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full border font-bold text-[15px] shadow-sm ${avatarStyle.bg}`}>
+                                        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border font-bold text-[14px] shadow-sm ${avatarStyle.bg}`}>
                                             {patient.firstName.charAt(0).toUpperCase()}{patient.lastName.charAt(0).toUpperCase()}
                                         </div>
                                         <div className="min-w-0">
                                             <h3 
                                                 onClick={() => onView(patient)}
-                                                className="font-bold text-[16px] text-gray-900 leading-tight truncate hover:text-cyan-700 transition-colors cursor-pointer"
+                                                className="font-bold text-[15px] text-gray-900 leading-tight truncate hover:text-cyan-700 transition-colors cursor-pointer"
                                             >
                                                 {patient.firstName} {patient.lastName}
                                             </h3>
-                                            <p className="text-[13px] text-gray-500 font-medium mt-1">
+                                            <p className="text-[12px] text-gray-400 font-medium mt-0.5">
                                                 {calculateAge(patient.dateOfBirth)}y
                                                 {patient.gender && ` • ${patient.gender}`}
                                             </p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-1 shrink-0">
-                                        <div className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider border mr-1
-                                            ${activeStatus 
-                                                ? "bg-emerald-50 text-emerald-700 border-emerald-100/60" 
-                                                : "bg-gray-50 text-gray-500 border-gray-100"}
-                                        `}>
-                                            <span className={`w-1 h-1 rounded-full ${activeStatus ? "bg-emerald-500 animate-pulse" : "bg-gray-400"}`} />
-                                            {activeStatus ? "Active" : "Inactive"}
-                                        </div>
-                                        <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            className="h-8 w-8 p-0 text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50 rounded-lg cursor-pointer"
-                                            onClick={() => onView(patient)}
-                                            title="View Details"
-                                        >
-                                            <Eye className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            className="h-8 w-8 p-0 text-gray-600 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg cursor-pointer"
-                                            onClick={() => onEdit(patient)}
-                                            title="Edit"
-                                        >
-                                            <Edit className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            className="h-8 w-8 p-0 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg cursor-pointer"
-                                            onClick={() => onDelete(patient)}
-                                            title="Delete"
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
+                                    <div className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider border shrink-0
+                                        ${activeStatus 
+                                            ? "bg-emerald-50 text-emerald-700 border-emerald-100/60" 
+                                            : "bg-gray-50 text-gray-500 border-gray-100"}
+                                    `}>
+                                        <span className={`w-1 h-1 rounded-full ${activeStatus ? "bg-emerald-500 animate-pulse" : "bg-gray-400"}`} />
+                                        {activeStatus ? "Active" : "Inactive"}
                                     </div>
                                 </div>
 
-                                <div className="bg-white/50 rounded-[14px] border border-gray-100 p-4 space-y-3 mb-4">
+                                {/* Body Information Box */}
+                                <div className="bg-white/50 rounded-[14px] border border-gray-100 p-4 space-y-3 mb-1">
                                     <div className="flex items-center gap-3 text-[13px] font-medium text-gray-600">
                                         <Phone className="h-4 w-4 text-cyan-600/70 shrink-0" />
                                         <a href={`tel:${patient.phone}`} className="hover:text-cyan-700 transition-colors">
@@ -269,22 +242,31 @@ export function PatientTable({ patients, onView, onEdit, onDelete }: PatientTabl
                                     </div>
                                 </div>
 
-                                <div className="flex gap-3">
+                                {/* Bottom Grid Actions: View, Edit, Delete */}
+                                <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-gray-100/60">
                                     <Button
                                         onClick={() => onView(patient)}
                                         variant="outline"
-                                        className="flex-1 rounded-xl h-9 text-[13px] font-bold border-gray-200 bg-white shadow-sm hover:bg-gray-50 text-gray-700 hover:text-gray-900"
+                                        className="rounded-xl h-9 text-[12px] font-bold border-slate-200 bg-white shadow-sm hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center justify-center gap-1 px-1 cursor-pointer"
                                     >
-                                        <Eye className="mr-2 h-3.5 w-3.5" />
-                                        View
+                                        <Eye className="h-3.5 w-3.5 text-cyan-600" />
+                                        <span>View</span>
                                     </Button>
                                     <Button
                                         onClick={() => onEdit(patient)}
                                         variant="outline"
-                                        className="flex-1 rounded-xl h-9 text-[13px] font-bold border-gray-200 bg-white shadow-sm hover:bg-gray-50 text-gray-700 hover:text-gray-900"
+                                        className="rounded-xl h-9 text-[12px] font-bold border-slate-200 bg-white shadow-sm hover:bg-slate-50 text-slate-700 hover:text-slate-900 flex items-center justify-center gap-1 px-1 cursor-pointer"
                                     >
-                                        <Edit className="mr-2 h-3.5 w-3.5" />
-                                        Edit
+                                        <Edit className="h-3.5 w-3.5 text-slate-500" />
+                                        <span>Edit</span>
+                                    </Button>
+                                    <Button
+                                        onClick={() => onDelete(patient)}
+                                        variant="outline"
+                                        className="rounded-xl h-9 text-[12px] font-bold border-rose-100 bg-rose-50/50 hover:bg-rose-100/50 text-rose-600 shadow-sm flex items-center justify-center gap-1 px-1 cursor-pointer"
+                                    >
+                                        <Trash2 className="h-3.5 w-3.5 text-rose-500" />
+                                        <span>Delete</span>
                                     </Button>
                                 </div>
                             </CardContent>

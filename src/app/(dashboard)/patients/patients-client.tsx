@@ -274,9 +274,9 @@ export function PatientsClient({ initialPatients, clinicId }: PatientsClientProp
                     </div>
 
                     {/* Filters */}
-                    <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                    <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
                         <Select value={statusFilter} onValueChange={setStatusFilter}>
-                            <SelectTrigger className="w-[140px] h-10 rounded-xl border-gray-100 bg-white/50 hover:bg-white transition-all shadow-sm">
+                            <SelectTrigger className="flex-1 sm:w-[130px] h-10 rounded-xl border-gray-100 bg-white/50 hover:bg-white transition-all shadow-sm">
                                 <SelectValue placeholder="Status" />
                             </SelectTrigger>
                             <SelectContent className="rounded-xl border-gray-100 shadow-lg">
@@ -287,7 +287,7 @@ export function PatientsClient({ initialPatients, clinicId }: PatientsClientProp
                         </Select>
 
                         <Select value={sortBy} onValueChange={setSortBy}>
-                            <SelectTrigger className="w-[140px] h-10 rounded-xl border-gray-100 bg-white/50 hover:bg-white transition-all shadow-sm">
+                            <SelectTrigger className="flex-1 sm:w-[130px] h-10 rounded-xl border-gray-100 bg-white/50 hover:bg-white transition-all shadow-sm">
                                 <SelectValue placeholder="Sort by" />
                             </SelectTrigger>
                             <SelectContent className="rounded-xl border-gray-100 shadow-lg">
@@ -297,7 +297,7 @@ export function PatientsClient({ initialPatients, clinicId }: PatientsClientProp
                             </SelectContent>
                         </Select>
 
-                        <div className="text-[13px] font-medium text-gray-400 pl-2 border-l border-gray-200/50">
+                        <div className="text-[13px] font-medium text-gray-400 pl-2 sm:border-l border-gray-200/50 w-full sm:w-auto text-center sm:text-left mt-1 sm:mt-0">
                             <span className="text-gray-900 font-bold">{filteredPatients.length}</span> of {patients.length}
                         </div>
                     </div>

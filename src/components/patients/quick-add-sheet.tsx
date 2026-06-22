@@ -43,7 +43,7 @@ export function QuickAddPatientSheet({
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent className="sm:max-w-xl overflow-y-auto bg-white/70 backdrop-blur-3xl border-l border-white/60 shadow-[-8px_0_32px_rgba(0,0,0,0.05)] p-0">
-                <div className="px-8 py-6 border-b border-gray-100/50 bg-white/40 sticky top-0 z-10">
+                <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-gray-100 bg-white sticky top-0 z-10">
                     <SheetHeader>
                         <SheetTitle className="text-2xl font-bold text-gray-900 tracking-tight">
                             {defaultValues ? "Edit Patient" : "Add New Patient"}
@@ -53,7 +53,7 @@ export function QuickAddPatientSheet({
                         </SheetDescription>
                     </SheetHeader>
                 </div>
-                <div className="p-8">
+                <div className="p-4 sm:p-8">
                     <PatientForm
                         clinicId={clinicId}
                         defaultValues={defaultValues}

@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Building2, Globe2, Loader2, Mail, MapPin, Phone, Save, type LucideIcon } from "lucide-react"
+import { Building2, Globe2, Loader2, Mail, MapPin, Phone, Save, User, Clock, Coins, Hash, type LucideIcon } from "lucide-react"
 import { Header } from "@/components/layout/header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -79,111 +79,122 @@ export function SettingsClient({ clinicId, userId, initialSettings }: SettingsCl
     return (
         <div className="mx-auto flex min-h-0 w-full min-w-0 max-w-4xl flex-col gap-8">
             <Header
-                title="General"
-                description="Practice profile, time zone, money format, and default visit length."
+                title="General Settings"
+                description="Configure your practice identity, appointment preferences, time zone, and billing configurations."
                 clinicId={clinicId}
             />
 
-            <div className="space-y-6">
-                <div className="relative overflow-hidden rounded-[20px] border border-white/60 bg-white/70 shadow-[0_4px_24px_rgba(0,0,0,0.02)] backdrop-blur-2xl">
-                    <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-cyan-200/20 blur-3xl" />
+            <div className="space-y-8">
+                {/* 1. Clinic Information Section */}
+                <div className="relative overflow-hidden rounded-[24px] border border-white/80 bg-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.03)] backdrop-blur-3xl transition-all duration-300 hover:shadow-[0_12px_40px_rgba(0,0,0,0.05)]">
+                    <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-gradient-to-br from-cyan-300/10 to-blue-300/10 blur-3xl" />
                     <SectionIntro
                         icon={Building2}
-                        iconClassName="border-blue-100 bg-blue-50/80 text-blue-600"
-                        title="Clinic information"
-                        description="Shown on invoices, reminders, and your public intake page."
+                        iconClassName="border-cyan-100/80 bg-cyan-50/80 text-cyan-600 shadow-sm"
+                        title="Clinic Information"
+                        description="This information will be displayed on invoices, automated notifications, and the public registration portal."
                     />
-                    <div className="space-y-6 p-4 sm:p-6 md:p-8 md:pt-2">
+                    
+                    <div className="space-y-6 p-6 md:p-8 md:pt-4">
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                            {/* Doctor Name */}
                             <div className="space-y-2">
                                 <Label
                                     htmlFor="doctorName"
-                                    className="text-[12px] font-bold uppercase tracking-wider text-gray-600"
+                                    className="text-[11px] font-bold uppercase tracking-wider text-slate-500"
                                 >
                                     Doctor Name / User Name
                                 </Label>
                                 <div className="relative">
-                                    <Building2 className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                    <User className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                                     <Input
                                         id="doctorName"
                                         value={settings.doctorName}
                                         onChange={(e) => setSettings({ ...settings, doctorName: e.target.value })}
                                         placeholder="e.g. Dr. John Doe"
-                                        className="h-12 rounded-xl border-gray-200/60 bg-white/80 pl-11 shadow-sm transition-all focus-visible:bg-white focus-visible:ring-cyan-500/20"
+                                        className="h-12 rounded-[16px] border-slate-200/60 bg-white/60 pl-11 shadow-sm transition-all focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-cyan-500/10 focus-visible:border-cyan-500/70"
                                     />
                                 </div>
                             </div>
+
+                            {/* Clinic Name */}
                             <div className="space-y-2">
                                 <Label
                                     htmlFor="name"
-                                    className="text-[12px] font-bold uppercase tracking-wider text-gray-600"
+                                    className="text-[11px] font-bold uppercase tracking-wider text-slate-500"
                                 >
-                                    Clinic name <span className="text-red-500">*</span>
+                                    Clinic Name <span className="text-red-500">*</span>
                                 </Label>
                                 <div className="relative">
-                                    <Building2 className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                    <Building2 className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                                     <Input
                                         id="name"
                                         value={settings.name}
                                         onChange={(e) => setSettings({ ...settings, name: e.target.value })}
                                         placeholder="e.g. Riverside Dental"
                                         required
-                                        className="h-12 rounded-xl border-gray-200/60 bg-white/80 pl-11 shadow-sm transition-all focus-visible:bg-white focus-visible:ring-cyan-500/20"
+                                        className="h-12 rounded-[16px] border-slate-200/60 bg-white/60 pl-11 shadow-sm transition-all focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-cyan-500/10 focus-visible:border-cyan-500/70"
                                     />
                                 </div>
                             </div>
+
+                            {/* Clinic Email */}
                             <div className="space-y-2">
                                 <Label
                                     htmlFor="email"
-                                    className="text-[12px] font-bold uppercase tracking-wider text-gray-600"
+                                    className="text-[11px] font-bold uppercase tracking-wider text-slate-500"
                                 >
-                                    Clinic email
+                                    Clinic Email Address
                                 </Label>
                                 <div className="relative">
-                                    <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                    <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                                     <Input
                                         id="email"
                                         type="email"
                                         value={settings.email}
                                         onChange={(e) => setSettings({ ...settings, email: e.target.value })}
                                         placeholder="hello@yourclinic.com"
-                                        className="h-12 rounded-xl border-gray-200/60 bg-white/80 pl-11 shadow-sm transition-all focus-visible:bg-white focus-visible:ring-cyan-500/20"
+                                        className="h-12 rounded-[16px] border-slate-200/60 bg-white/60 pl-11 shadow-sm transition-all focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-cyan-500/10 focus-visible:border-cyan-500/70"
                                     />
                                 </div>
                             </div>
+
+                            {/* Phone */}
                             <div className="space-y-2">
                                 <Label
                                     htmlFor="phone"
-                                    className="text-[12px] font-bold uppercase tracking-wider text-gray-600"
+                                    className="text-[11px] font-bold uppercase tracking-wider text-slate-500"
                                 >
-                                    Phone
+                                    Phone Number
                                 </Label>
                                 <div className="relative">
-                                    <Phone className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                    <Phone className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                                     <Input
                                         id="phone"
                                         value={settings.phone}
                                         onChange={(e) => setSettings({ ...settings, phone: e.target.value })}
                                         placeholder="+1 234 567 8900"
-                                        className="h-12 rounded-xl border-gray-200/60 bg-white/80 pl-11 shadow-sm transition-all focus-visible:bg-white focus-visible:ring-cyan-500/20"
+                                        className="h-12 rounded-[16px] border-slate-200/60 bg-white/60 pl-11 shadow-sm transition-all focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-cyan-500/10 focus-visible:border-cyan-500/70"
                                     />
                                 </div>
                             </div>
+
+                            {/* Address */}
                             <div className="space-y-2 md:col-span-2">
                                 <Label
                                     htmlFor="address"
-                                    className="text-[12px] font-bold uppercase tracking-wider text-gray-600"
+                                    className="text-[11px] font-bold uppercase tracking-wider text-slate-500"
                                 >
-                                    Address
+                                    Street Address
                                 </Label>
                                 <div className="relative">
-                                    <MapPin className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                    <MapPin className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                                     <Input
                                         id="address"
                                         value={settings.address}
                                         onChange={(e) => setSettings({ ...settings, address: e.target.value })}
-                                        placeholder="Street, city, region"
-                                        className="h-12 rounded-xl border-gray-200/60 bg-white/80 pl-11 shadow-sm transition-all focus-visible:bg-white focus-visible:ring-cyan-500/20"
+                                        placeholder="e.g. 123 Health Ave, Suite 100, New York, NY"
+                                        className="h-12 rounded-[16px] border-slate-200/60 bg-white/60 pl-11 shadow-sm transition-all focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-cyan-500/10 focus-visible:border-cyan-500/70"
                                     />
                                 </div>
                             </div>
@@ -191,59 +202,66 @@ export function SettingsClient({ clinicId, userId, initialSettings }: SettingsCl
                     </div>
                 </div>
 
-                <div className="relative overflow-hidden rounded-[20px] border border-white/60 bg-white/70 shadow-[0_4px_24px_rgba(0,0,0,0.02)] backdrop-blur-2xl">
-                    <div className="pointer-events-none absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-violet-200/20 blur-3xl" />
+                {/* 2. Regional & Scheduling Section */}
+                <div className="relative overflow-hidden rounded-[24px] border border-white/80 bg-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.03)] backdrop-blur-3xl transition-all duration-300 hover:shadow-[0_12px_40px_rgba(0,0,0,0.05)]">
+                    <div className="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-gradient-to-tr from-violet-300/10 to-fuchsia-300/10 blur-3xl" />
                     <SectionIntro
                         icon={Globe2}
-                        iconClassName="border-violet-100 bg-violet-50/80 text-violet-600"
-                        title="Regional & scheduling"
-                        description="Time zone, currency, default visit length, and invoice numbering."
+                        iconClassName="border-violet-100/80 bg-violet-50/80 text-violet-600 shadow-sm"
+                        title="Regional & Scheduling Preferences"
+                        description="Define default timezone, billing currency, default slot durations, and invoice prefix variables."
                     />
-                    <div className="space-y-6 p-4 sm:p-6 md:p-8 md:pt-2">
+                    
+                    <div className="space-y-6 p-6 md:p-8 md:pt-4">
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                            {/* Timezone */}
                             <div className="space-y-2">
-                                <Label className="text-[12px] font-bold uppercase tracking-wider text-gray-600">
-                                    Timezone
+                                <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                                    <Globe2 className="h-3.5 w-3.5 text-slate-400" /> Timezone
                                 </Label>
                                 <Select
                                     value={settings.timezone}
                                     onValueChange={(value) => setSettings({ ...settings, timezone: value })}
                                 >
-                                    <SelectTrigger className="h-12 rounded-xl border-gray-200/60 bg-white/80 shadow-sm">
+                                    <SelectTrigger className="h-12 rounded-[16px] border-slate-200/60 bg-white/60 shadow-sm transition-all focus:ring-4 focus:ring-cyan-500/10">
                                         <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent className="rounded-xl border-gray-100 shadow-xl">
+                                    <SelectContent className="rounded-2xl border-slate-100 shadow-xl">
                                         <SelectItem value="Asia/Kolkata">India (IST)</SelectItem>
-                                        <SelectItem value="America/New_York">USA — Eastern</SelectItem>
-                                        <SelectItem value="America/Los_Angeles">USA — Pacific</SelectItem>
+                                        <SelectItem value="America/New_York">USA — Eastern (EST)</SelectItem>
+                                        <SelectItem value="America/Los_Angeles">USA — Pacific (PST)</SelectItem>
                                         <SelectItem value="Europe/London">UK (GMT)</SelectItem>
                                         <SelectItem value="Asia/Dubai">UAE (GST)</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
+
+                            {/* Currency */}
                             <div className="space-y-2">
-                                <Label className="text-[12px] font-bold uppercase tracking-wider text-gray-600">
-                                    Currency
+                                <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                                    <Coins className="h-3.5 w-3.5 text-slate-400" /> Currency
                                 </Label>
                                 <Select
                                     value={settings.currency}
                                     onValueChange={(value) => setSettings({ ...settings, currency: value })}
                                 >
-                                    <SelectTrigger className="h-12 rounded-xl border-gray-200/60 bg-white/80 shadow-sm">
+                                    <SelectTrigger className="h-12 rounded-[16px] border-slate-200/60 bg-white/60 shadow-sm transition-all focus:ring-4 focus:ring-cyan-500/10">
                                         <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent className="rounded-xl border-gray-100 shadow-xl">
-                                        <SelectItem value="INR">Indian rupee (₹)</SelectItem>
-                                        <SelectItem value="USD">US dollar ($)</SelectItem>
+                                    <SelectContent className="rounded-2xl border-slate-100 shadow-xl">
+                                        <SelectItem value="INR">Indian Rupee (₹)</SelectItem>
+                                        <SelectItem value="USD">US Dollar ($)</SelectItem>
                                         <SelectItem value="EUR">Euro (€)</SelectItem>
-                                        <SelectItem value="GBP">British pound (£)</SelectItem>
-                                        <SelectItem value="AED">UAE dirham (AED)</SelectItem>
+                                        <SelectItem value="GBP">British Pound (£)</SelectItem>
+                                        <SelectItem value="AED">UAE Dirham (AED)</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
+
+                            {/* Default slot duration */}
                             <div className="space-y-2">
-                                <Label className="text-[12px] font-bold uppercase tracking-wider text-gray-600">
-                                    Default appointment duration
+                                <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                                    <Clock className="h-3.5 w-3.5 text-slate-400" /> Default Appointment Duration
                                 </Label>
                                 <Select
                                     value={settings.defaultAppointmentDuration.toString()}
@@ -251,10 +269,10 @@ export function SettingsClient({ clinicId, userId, initialSettings }: SettingsCl
                                         setSettings({ ...settings, defaultAppointmentDuration: parseInt(value) })
                                     }
                                 >
-                                    <SelectTrigger className="h-12 rounded-xl border-gray-200/60 bg-white/80 shadow-sm">
+                                    <SelectTrigger className="h-12 rounded-[16px] border-slate-200/60 bg-white/60 shadow-sm transition-all focus:ring-4 focus:ring-cyan-500/10">
                                         <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent className="rounded-xl border-gray-100 shadow-xl">
+                                    <SelectContent className="rounded-2xl border-slate-100 shadow-xl">
                                         <SelectItem value="15">15 minutes</SelectItem>
                                         <SelectItem value="30">30 minutes</SelectItem>
                                         <SelectItem value="45">45 minutes</SelectItem>
@@ -262,12 +280,14 @@ export function SettingsClient({ clinicId, userId, initialSettings }: SettingsCl
                                     </SelectContent>
                                 </Select>
                             </div>
+
+                            {/* Invoice Prefix */}
                             <div className="space-y-2">
                                 <Label
                                     htmlFor="invoicePrefix"
-                                    className="text-[12px] font-bold uppercase tracking-wider text-gray-600"
+                                    className="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5"
                                 >
-                                    Invoice prefix
+                                    <Hash className="h-3.5 w-3.5 text-slate-400" /> Invoice Prefix
                                 </Label>
                                 <Input
                                     id="invoicePrefix"
@@ -275,42 +295,42 @@ export function SettingsClient({ clinicId, userId, initialSettings }: SettingsCl
                                     onChange={(e) => setSettings({ ...settings, invoicePrefix: e.target.value })}
                                     placeholder="INV"
                                     maxLength={10}
-                                    className="h-12 rounded-xl border-gray-200/60 bg-white/80 font-mono text-sm shadow-sm focus-visible:bg-white focus-visible:ring-cyan-500/20"
+                                    className="h-12 rounded-[16px] border-slate-200/60 bg-white/60 font-mono text-sm shadow-sm transition-all focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-cyan-500/10 focus-visible:border-cyan-500/70"
                                 />
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="flex flex-col items-stretch justify-end gap-3 sm:flex-row sm:items-center">
-                    <p className="flex-1 text-[13px] text-gray-500">
-                        Save before leaving this page so staff see the latest clinic details everywhere.
+                {/* Footer Save Control Area */}
+                <div className="flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center p-4 rounded-[20px] bg-slate-50/50 border border-slate-100/80 backdrop-blur-sm">
+                    <p className="text-[12px] text-slate-400">
+                        Ensure all adjustments are reviewed before saving changes.
                     </p>
                     <Button
                         onClick={handleSave}
                         disabled={isSaving}
-                        className="h-12 rounded-xl bg-slate-900 px-8 font-semibold text-white shadow-lg shadow-slate-900/15 hover:bg-slate-800"
+                        className="h-11 rounded-xl bg-slate-900 px-6 font-bold text-white shadow-md shadow-slate-900/10 hover:bg-slate-800 transition-all active:scale-[0.98] disabled:opacity-70"
                     >
                         {isSaving ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin text-slate-300" />
                         ) : (
-                            <Save className="mr-2 h-4 w-4" />
+                            <Save className="mr-2 h-4 w-4 text-cyan-300" />
                         )}
-                        {isSaving ? "Saving…" : "Save changes"}
+                        {isSaving ? "Saving changes…" : "Save Changes"}
                     </Button>
                 </div>
             </div>
 
-            <p className="text-[13px] text-gray-500">
-                Need a QR code or link for new patients? Open{" "}
+            <div className="text-[12px] text-slate-400 flex items-center gap-1.5 p-1">
+                <span>Looking for self-intake links or QR codes?</span>
                 <Link
                     href="/settings/patient-intake"
-                    className="font-semibold text-cyan-700 underline-offset-2 hover:underline"
+                    className="font-bold text-cyan-600 hover:text-cyan-700 underline underline-offset-2 transition-colors"
                 >
                     Patient self-registration
-                </Link>{" "}
-                in the menu on the left.
-            </p>
+                </Link>
+            </div>
         </div>
     )
 }

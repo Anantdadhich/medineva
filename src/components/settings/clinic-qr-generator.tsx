@@ -163,7 +163,7 @@ export function ClinicQrGenerator({ clinicId }: { clinicId: string }) {
     return (
         <div className="space-y-6">
             {/* Section 1: Reception QR */}
-            <Card className="relative overflow-hidden rounded-[20px] border border-white/60 bg-white/70 shadow-[0_4px_24px_rgba(0,0,0,0.02)] backdrop-blur-2xl">
+            <Card className="relative overflow-hidden rounded-[24px] border border-white/80 bg-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.03)] backdrop-blur-3xl transition-all duration-300 hover:shadow-[0_12px_40px_rgba(0,0,0,0.05)]">
                 <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-cyan-200/25 blur-3xl" />
                 <CardHeader className="p-4 sm:p-6 space-y-1 border-b border-gray-100/50 pb-4">
                     <CardTitle className="text-[17px] font-bold text-gray-900">Reception QR code</CardTitle>
@@ -211,7 +211,7 @@ export function ClinicQrGenerator({ clinicId }: { clinicId: string }) {
             </Card>
 
             {/* Section 2: Link & file downloads */}
-            <Card className="relative overflow-hidden rounded-[20px] border border-white/60 bg-white/70 shadow-[0_4px_24px_rgba(0,0,0,0.02)] backdrop-blur-2xl">
+            <Card className="relative overflow-hidden rounded-[24px] border border-white/80 bg-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.03)] backdrop-blur-3xl transition-all duration-300 hover:shadow-[0_12px_40px_rgba(0,0,0,0.05)]">
                 <div className="pointer-events-none absolute -left-12 -bottom-12 h-40 w-40 rounded-full bg-slate-200/40 blur-3xl" />
                 <CardHeader className="p-4 sm:p-6 space-y-1 border-b border-gray-100/50 pb-4">
                     <CardTitle className="text-[17px] font-bold text-gray-900">Link &amp; downloads</CardTitle>

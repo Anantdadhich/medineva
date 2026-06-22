@@ -11,7 +11,7 @@ const pool = new Pool({
     connectionString: DATABASE_URL,
     max: 15,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
+    connectionTimeoutMillis: 15000,
 })
 
 const prisma = globalForPrisma.prisma || new PrismaClient({
