@@ -132,9 +132,9 @@ export function AdminCodesClient({ initialCodes }: AdminCodesClientProps) {
                     />
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
                     <Select value={count} onValueChange={setCount}>
-                        <SelectTrigger className="w-[110px] rounded-xl border-gray-200/80 bg-white shadow-sm h-11">
+                        <SelectTrigger className="w-full sm:w-[110px] rounded-xl border-gray-200/80 bg-white shadow-sm h-11">
                             <SelectValue placeholder="Count" />
                         </SelectTrigger>
                         <SelectContent className="rounded-xl border-gray-150">
@@ -148,7 +148,7 @@ export function AdminCodesClient({ initialCodes }: AdminCodesClientProps) {
                     <Button
                         onClick={handleGenerate}
                         disabled={isGenerating}
-                        className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold h-11 px-5 shadow-sm border border-slate-800 cursor-pointer flex items-center gap-2"
+                        className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold h-11 px-5 shadow-sm border border-slate-800 cursor-pointer flex items-center justify-center gap-2 w-full sm:w-auto shrink-0"
                     >
                         <Plus className="h-4 w-4" />
                         Generate Codes

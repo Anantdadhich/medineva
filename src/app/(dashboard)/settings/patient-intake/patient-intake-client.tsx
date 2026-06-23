@@ -21,14 +21,9 @@ const steps = [
 
 export function PatientIntakeClient({ clinicId }: { clinicId: string }) {
     return (
-        <div className="mx-auto flex min-h-0 w-full min-w-0 max-w-4xl flex-col gap-8">
-            <Header
-                title="Patient self-registration"
-                description="QR code and link for new patients—no extra apps, just a simple form on their phone."
-                clinicId={clinicId}
-            />
+        <div className="mx-auto flex min-h-0 w-full min-w-0 max-w-4xl flex-col">
 
-            <div className="relative overflow-hidden rounded-[24px] border border-white/80 bg-white/40 p-6 sm:p-8 shadow-[0_8px_32px_rgba(0,0,0,0.03)] backdrop-blur-3xl transition-all duration-300 hover:shadow-[0_12px_40px_rgba(0,0,0,0.05)]">
+            <div className="relative overflow-hidden rounded-[24px] border border-white/80 bg-white/40 p-4 sm:p-6 md:p-8 shadow-[0_8px_32px_rgba(0,0,0,0.03)] backdrop-blur-3xl transition-all duration-300 hover:shadow-[0_12px_40px_rgba(0,0,0,0.05)]">
                 <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-gradient-to-br from-cyan-300/10 to-blue-300/10 blur-3xl" />
                 <div className="relative mb-6 flex items-start gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cyan-100 bg-cyan-50/90 text-cyan-700">

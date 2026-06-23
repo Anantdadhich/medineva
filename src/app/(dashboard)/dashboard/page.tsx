@@ -74,7 +74,13 @@ export default async function DashboardPage() {
     ])
 
     return (
-        <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col gap-6">
+        <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col gap-6 relative">
+            {/* Global Ambient Background Glows */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
+                <div className="absolute top-[10%] left-[20%] w-[350px] h-[350px] rounded-full bg-cyan-400/5 blur-[120px]" />
+                <div className="absolute top-[40%] right-[10%] w-[400px] h-[400px] rounded-full bg-indigo-400/5 blur-[130px]" />
+            </div>
+
             <Header
                 title="Dashboard Overview"
                 description={`Welcome back, Dr ${user.firstName}. Detailed information about your clinic's health.`}
@@ -104,7 +110,7 @@ export default async function DashboardPage() {
                         </div>
 
                         {/* Doctor's List (Upcoming Appointments Table) */}
-                        <Card className="overflow-hidden bg-white/70 backdrop-blur-2xl border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.02)] rounded-[20px]">
+                        <Card className="overflow-hidden bg-white/70 backdrop-blur-2xl border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.015)] rounded-[20px] transition-all duration-300 ease-out hover:shadow-[0_12px_40px_rgba(0,0,0,0.03)] border hover:border-slate-200/80">
                             <CardHeader className="flex flex-row items-center justify-between py-4 border-b border-gray-100/50">
                                 <CardTitle className="text-[17px] font-bold text-gray-800">Clinical Appointments</CardTitle>
                                 <Link href="/schedule" className="text-[13px] text-cyan-600 font-medium hover:text-cyan-700">
@@ -208,26 +214,28 @@ export default async function DashboardPage() {
                         <PatientGrowthChart weeklyData={patientGrowthDataWeekly} monthlyData={patientGrowthDataMonthly} />
 
                         {/* Appointment Timeline */}
-                        <Card className="bg-white/70 backdrop-blur-2xl border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.02)] rounded-[20px] flex flex-col h-[520px]">
+                        <Card className="bg-white/70 backdrop-blur-2xl border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.015)] rounded-[20px] flex flex-col transition-all duration-300 ease-out hover:shadow-[0_12px_40px_rgba(0,0,0,0.03)] border hover:border-slate-200/80">
                             <CardHeader className="flex flex-row items-center justify-between pb-3 shrink-0">
-                                <CardTitle className="text-[16px]">Appointment Timeline</CardTitle>
+                                <CardTitle className="text-[16px] font-bold text-gray-900">Appointment Timeline</CardTitle>
                                 <span className="text-[12px] text-cyan-600 font-medium cursor-pointer">See All ›</span>
                             </CardHeader>
-                            <CardContent className="overflow-y-auto flex-1 pr-2 custom-scrollbar min-h-0">
-                                <div className="space-y-5 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-200 before:to-transparent">
-                                    {recentActivity.length === 0 ? (
+                            <CardContent className="p-4 sm:p-5 pt-0">
+                                <div className="space-y-4 relative before:absolute before:left-4 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
+                                    {recentActivity.slice(0, 5).length === 0 ? (
                                         <div className="text-center text-gray-400 text-sm py-4 relative z-10 bg-white/70">No activity today</div>
-                                    ) : recentActivity.map((activity: any, index: number) => (
-                                        <div key={activity.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                                            <div className="flex items-center justify-center w-8 h-8 rounded-full border border-white bg-slate-100 text-slate-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 absolute left-5 md:left-1/2 -translate-x-1/2 z-10">
+                                    ) : recentActivity.slice(0, 5).map((activity: any) => (
+                                        <div key={activity.id} className="relative pl-10 pr-1 group">
+                                            {/* Timeline Dot */}
+                                            <div className="absolute left-0 top-1.5 flex items-center justify-center w-8 h-8 rounded-full border border-white bg-slate-50 shadow-sm shrink-0 z-10 transition-transform duration-300 group-hover:scale-110">
                                                 <div className={`w-2.5 h-2.5 rounded-full ${activity.action === 'completed' ? 'bg-emerald-400' : 'bg-amber-400'}`} />
                                             </div>
-                                            <div className="w-[calc(100%-3rem)] md:w-[calc(50%-2rem)] ml-10 md:ml-0 p-3.5 rounded-[14px] border border-gray-100/50 bg-white/50 shadow-sm transition-all hover:bg-white text-left">
-                                                <div className="flex items-center justify-between mb-1">
+                                            {/* Card Content */}
+                                            <div className="p-3 rounded-[14px] border border-gray-100/50 bg-white/50 shadow-sm transition-all hover:bg-white hover:shadow-md hover:border-slate-200/80 text-left">
+                                                <div className="flex items-center justify-between mb-1.5">
                                                     <div className="font-bold text-[13px] text-gray-900">{format(new Date(activity.time), "dd-MMM-yy")}</div>
-                                                    <div className="text-[11px] text-gray-400">{format(new Date(activity.time), "HH:mm")}</div>
+                                                    <div className="text-[11px] text-gray-400 font-medium">{format(new Date(activity.time), "HH:mm")}</div>
                                                 </div>
-                                                <div className="text-[12px] font-semibold text-gray-800 leading-tight">{activity.treatment}</div>
+                                                <div className="text-[12px] font-bold text-gray-800 leading-tight">{activity.treatment}</div>
                                                 <div className="text-[11px] text-gray-500 mt-1 truncate">{activity.patient}</div>
                                             </div>
                                         </div>

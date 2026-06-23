@@ -76,3 +76,8 @@ export async function updateClinicSettings(clinicId: string, userId: string, dat
 
     return { success: true }
 }
+
+export async function getClinicId() {
+    const user = await getCurrentUser()
+    return user?.clinicId || null
+}

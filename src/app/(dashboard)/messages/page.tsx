@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { format } from "date-fns"
 import { MessageSquare, CheckCircle2, Clock, AlertCircle } from "lucide-react"
+import { MessagesClient } from "./messages-client"
 
 export const dynamic = "force-dynamic"
 
@@ -90,75 +91,7 @@ export default async function MessagesPage() {
                 ))}
             </div>
 
-            <Card className="min-h-0 flex-1 overflow-hidden rounded-[20px] border border-white/60 bg-white/70 shadow-[0_4px_24px_rgba(0,0,0,0.02)] backdrop-blur-2xl">
-                <CardContent className="p-0">
-                    {messages.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center px-6 py-20 text-center">
-                            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100 text-gray-400">
-                                <MessageSquare className="h-7 w-7" strokeWidth={1.75} />
-                            </div>
-                            <h3 className="text-[17px] font-bold text-gray-900">No messages yet</h3>
-                            <p className="mt-2 max-w-md text-[14px] leading-relaxed text-gray-500">
-                                When you send reminders or updates to patients, a timeline of deliveries
-                                will show up here.
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="divide-y divide-gray-100/50">
-                            {messages.map((msg) => (
-                                <div
-                                    key={msg.id}
-                                    className="flex gap-4 px-4 py-5 transition-colors hover:bg-gray-50/50 sm:gap-5 sm:px-6"
-                                >
-                                    <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[15px] font-bold text-slate-600 shadow-inner">
-                                        {msg.recipient.charAt(0)}
-                                        {msg.status === "SENT" ? (
-                                            <div className="absolute -bottom-0.5 -right-0.5 rounded-full border border-white bg-white p-0.5 shadow-sm">
-                                                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-                                            </div>
-                                        ) : msg.status === "FAILED" ? (
-                                            <div className="absolute -bottom-0.5 -right-0.5 rounded-full border border-white bg-white p-0.5 shadow-sm">
-                                                <AlertCircle className="h-3.5 w-3.5 text-red-500" />
-                                            </div>
-                                        ) : (
-                                            <div className="absolute -bottom-0.5 -right-0.5 rounded-full border border-white bg-white p-0.5 shadow-sm">
-                                                <Clock className="h-3.5 w-3.5 text-amber-500" />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="min-w-0 flex-1 pt-0.5">
-                                        <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
-                                            <p className="text-[15px] font-bold leading-snug text-gray-900">
-                                                {msg.recipient}
-                                            </p>
-                                            <time
-                                                className="shrink-0 text-[12px] font-medium tabular-nums text-gray-400 sm:pl-4 sm:text-right sm:text-[13px]"
-                                                dateTime={msg.time}
-                                            >
-                                                {format(new Date(msg.time), "MMM d, yyyy · HH:mm")}
-                                            </time>
-                                        </div>
-                                        <p className="mt-2 text-[14px] leading-relaxed text-gray-600">
-                                            {msg.message}
-                                        </p>
-                                        <div
-                                            className={`mt-3 inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider ${
-                                                msg.status === "SENT"
-                                                    ? "bg-emerald-50 text-emerald-700"
-                                                    : msg.status === "FAILED"
-                                                      ? "bg-red-50 text-red-700"
-                                                      : "bg-amber-50 text-amber-700"
-                                            }`}
-                                        >
-                                            {msg.status}
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
+            <MessagesClient initialMessages={messages} />
         </div>
     )
 }

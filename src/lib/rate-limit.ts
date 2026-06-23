@@ -36,7 +36,7 @@ export function checkRateLimit(key: string): boolean {
         const refilledTokens = Math.floor(elapsed / REFILL_RATE)
         if (refilledTokens > 0) {
             bucket.tokens = Math.min(BUCKET_LIMIT, bucket.tokens + refilledTokens)
-            bucket.lastRefill = now
+            bucket.lastRefill = bucket.lastRefill + (refilledTokens * REFILL_RATE)
         }
     }
 

@@ -131,15 +131,15 @@ export function TreatmentsClient({ initialTreatments, clinicId }: TreatmentsClie
 
     return (
         <div className="mx-auto flex min-h-0 w-full min-w-0 max-w-4xl flex-col space-y-6">
-            <Header
-                title="Treatment catalog"
-                description="Services, standard fees, and durations for scheduling and billing."
-                clinicId={clinicId}
-                action={{
-                    label: "Add treatment",
-                    onClick: () => handleOpenDialog(),
-                }}
-            />
+            <div className="flex justify-between items-center px-1">
+                <h3 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Services Catalog</h3>
+                <Button
+                    onClick={() => handleOpenDialog()}
+                    className="rounded-xl px-4 bg-slate-900 hover:bg-slate-850 text-white font-bold text-[12px] h-9 shadow-sm active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                    Add treatment
+                </Button>
+            </div>
 
             <div className="flex-1 space-y-6">
                 {treatments.length === 0 && (
@@ -177,7 +177,7 @@ export function TreatmentsClient({ initialTreatments, clinicId }: TreatmentsClie
                                 {categoryTreatments.map((treatment) => (
                                     <div
                                         key={treatment.id}
-                                        className="flex flex-col gap-3 px-4 sm:px-6 py-4 transition-colors hover:bg-gray-50/50 sm:flex-row sm:items-center sm:justify-between"
+                                        className="flex flex-col gap-1 px-4 sm:px-6 py-4 transition-colors hover:bg-gray-50/50 sm:flex-row sm:items-center sm:justify-between"
                                     >
                                         <div className="min-w-0 flex-1">
                                             <div className="flex flex-wrap items-center gap-2">
@@ -195,37 +195,57 @@ export function TreatmentsClient({ initialTreatments, clinicId }: TreatmentsClie
                                                     {treatment.description}
                                                 </p>
                                             )}
-                                            {/* Mobile Duration and Cost badges */}
-                                            <div className="flex items-center gap-3 mt-2 sm:hidden text-[13px] font-medium text-gray-500">
-                                                {treatment.duration != null && treatment.duration > 0 && (
-                                                    <span className="tabular-nums">
-                                                        {treatment.duration} min
+                                            {/* Mobile View Metadata & Actions Row */}
+                                            <div className="flex items-center justify-between mt-2.5 sm:hidden">
+                                                <div className="flex items-center gap-2 text-[13px] font-medium text-gray-500">
+                                                    {treatment.duration != null && treatment.duration > 0 && (
+                                                        <span className="tabular-nums">{treatment.duration} min</span>
+                                                    )}
+                                                    {treatment.duration != null && treatment.duration > 0 && (
+                                                        <span className="text-gray-350">•</span>
+                                                    )}
+                                                    <span className="font-bold tabular-nums text-gray-900">
+                                                        {formatCurrency(treatment.standardCost)}
                                                     </span>
-                                                )}
-                                                {treatment.duration != null && treatment.duration > 0 && (
-                                                    <span className="text-gray-300">•</span>
-                                                )}
-                                                <span className="font-bold tabular-nums text-gray-900">
-                                                    {formatCurrency(treatment.standardCost)}
-                                                </span>
+                                                </div>
+                                                <div className="flex items-center gap-0.5">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 rounded-xl text-gray-600 hover:bg-white hover:text-gray-900"
+                                                        onClick={() => handleOpenDialog(treatment)}
+                                                        aria-label="Edit treatment"
+                                                    >
+                                                        <Edit className="h-3.5 w-3.5" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 rounded-xl text-red-650 hover:bg-red-50 hover:text-red-700"
+                                                        onClick={() => handleDelete(treatment.id)}
+                                                        aria-label="Delete treatment"
+                                                    >
+                                                        <Trash2 className="h-3.5 w-3.5" />
+                                                    </Button>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 mt-1 sm:mt-0 pt-2.5 sm:pt-0 border-t border-gray-100/50 sm:border-0 shrink-0">
-                                            <div className="hidden sm:flex items-center gap-3 sm:gap-4">
-                                                {treatment.duration != null && treatment.duration > 0 && (
-                                                    <span className="text-[13px] font-medium text-gray-500 tabular-nums">
-                                                        {treatment.duration} min
-                                                    </span>
-                                                )}
-                                                <span className="text-[15px] font-bold tabular-nums text-gray-900">
-                                                    {formatCurrency(treatment.standardCost)}
+
+                                        {/* Desktop View Actions & Pricing Row */}
+                                        <div className="hidden sm:flex items-center gap-4 shrink-0">
+                                            {treatment.duration != null && treatment.duration > 0 && (
+                                                <span className="text-[13px] font-medium text-gray-500 tabular-nums">
+                                                    {treatment.duration} min
                                                 </span>
-                                            </div>
-                                            <div className="flex items-center gap-0.5 ml-auto">
+                                            )}
+                                            <span className="text-[15px] font-bold tabular-nums text-gray-900">
+                                                {formatCurrency(treatment.standardCost)}
+                                            </span>
+                                            <div className="flex items-center gap-0.5">
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
-                                                    className="h-9 w-9 rounded-xl text-gray-600 hover:bg-white hover:text-gray-900"
+                                                    className="h-9 w-9 rounded-xl text-gray-600 hover:bg-white hover:text-gray-950"
                                                     onClick={() => handleOpenDialog(treatment)}
                                                     aria-label="Edit treatment"
                                                 >
@@ -248,26 +268,26 @@ export function TreatmentsClient({ initialTreatments, clinicId }: TreatmentsClie
                         </CardContent>
                     </Card>
                 ))}
-            </div>
-
-            {/* Add/Edit Dialog */}
+            </div>            {/* Add/Edit Dialog */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="rounded-2xl sm:max-w-lg">
-                    <DialogHeader>
-                        <DialogTitle>
-                            {editingTreatment ? "Edit Treatment" : "Add New Treatment"}
-                        </DialogTitle>
-                        <DialogDescription>
-                            {editingTreatment
-                                ? "Update the treatment details below."
-                                : "Add a new service to your treatment catalog."}
-                        </DialogDescription>
-                    </DialogHeader>
+                <DialogContent className="max-w-md bg-white/80 backdrop-blur-3xl border-white/60 shadow-2xl rounded-[24px] p-0 overflow-hidden">
+                    <div className="p-4 sm:p-6 border-b border-gray-100/50 bg-white/40">
+                        <DialogHeader>
+                            <DialogTitle className="text-xl font-bold text-gray-900">
+                                {editingTreatment ? "Edit Treatment" : "Add New Treatment"}
+                            </DialogTitle>
+                            <DialogDescription className="text-gray-500 font-medium mt-1">
+                                {editingTreatment
+                                    ? "Update the treatment details below."
+                                    : "Add a new service to your treatment catalog."}
+                            </DialogDescription>
+                        </DialogHeader>
+                    </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-4 p-4 sm:p-6">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="code">Service Code</Label>
+                                <Label htmlFor="code" className="text-gray-700 font-semibold text-[13px]">Service Code</Label>
                                 <Input
                                     id="code"
                                     placeholder="D0120"
@@ -275,20 +295,21 @@ export function TreatmentsClient({ initialTreatments, clinicId }: TreatmentsClie
                                     onChange={(e) =>
                                         setFormData({ ...formData, code: e.target.value })
                                     }
+                                    className="h-11 rounded-xl bg-white/60 border-gray-200/60 focus:bg-white transition-all shadow-sm focus-visible:ring-cyan-500/20 px-4"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="category">Category *</Label>
+                                <Label htmlFor="category" className="text-gray-700 font-semibold text-[13px]">Category *</Label>
                                 <select
                                     id="category"
-                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                    className="flex h-11 w-full rounded-xl border border-gray-200/60 bg-white/60 focus:bg-white px-3 py-2 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-cyan-500/20 text-gray-800"
                                     value={formData.category}
                                     onChange={(e) =>
                                         setFormData({ ...formData, category: e.target.value })
                                     }
                                     required
                                 >
-                                    <option value="">Select category</option>
+                                    <option value="" disabled>Select category</option>
                                     <option value="Preventive">Preventive</option>
                                     <option value="Restorative">Restorative</option>
                                     <option value="Cosmetic">Cosmetic</option>
@@ -304,7 +325,7 @@ export function TreatmentsClient({ initialTreatments, clinicId }: TreatmentsClie
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="name">Treatment Name *</Label>
+                            <Label htmlFor="name" className="text-gray-700 font-semibold text-[13px]">Treatment Name *</Label>
                             <Input
                                 id="name"
                                 placeholder="Root Canal - Molar"
@@ -313,11 +334,12 @@ export function TreatmentsClient({ initialTreatments, clinicId }: TreatmentsClie
                                     setFormData({ ...formData, name: e.target.value })
                                 }
                                 required
+                                className="h-11 rounded-xl bg-white/60 border-gray-200/60 focus:bg-white transition-all shadow-sm focus-visible:ring-cyan-500/20 px-4"
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="description">Description</Label>
+                            <Label htmlFor="description" className="text-gray-700 font-semibold text-[13px]">Description</Label>
                             <Input
                                 id="description"
                                 placeholder="Brief description of the treatment"
@@ -325,12 +347,13 @@ export function TreatmentsClient({ initialTreatments, clinicId }: TreatmentsClie
                                 onChange={(e) =>
                                     setFormData({ ...formData, description: e.target.value })
                                 }
+                                className="h-11 rounded-xl bg-white/60 border-gray-200/60 focus:bg-white transition-all shadow-sm focus-visible:ring-cyan-500/20 px-4"
                             />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="standardCost">Standard Cost (₹) *</Label>
+                                <Label htmlFor="standardCost" className="text-gray-700 font-semibold text-[13px]">Standard Cost (₹) *</Label>
                                 <Input
                                     id="standardCost"
                                     type="number"
@@ -340,10 +363,11 @@ export function TreatmentsClient({ initialTreatments, clinicId }: TreatmentsClie
                                         setFormData({ ...formData, standardCost: e.target.value })
                                     }
                                     required
+                                    className="h-11 rounded-xl bg-white/60 border-gray-200/60 focus:bg-white transition-all shadow-sm focus-visible:ring-cyan-500/20 px-4"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="duration">Duration (minutes)</Label>
+                                <Label htmlFor="duration" className="text-gray-700 font-semibold text-[13px]">Duration (minutes)</Label>
                                 <Input
                                     id="duration"
                                     type="number"
@@ -352,23 +376,29 @@ export function TreatmentsClient({ initialTreatments, clinicId }: TreatmentsClie
                                     onChange={(e) =>
                                         setFormData({ ...formData, duration: e.target.value })
                                     }
+                                    className="h-11 rounded-xl bg-white/60 border-gray-200/60 focus:bg-white transition-all shadow-sm focus-visible:ring-cyan-500/20 px-4"
                                 />
                             </div>
                         </div>
 
-                        <DialogFooter>
+                        <div className="p-4 sm:p-6 bg-gray-50/50 border-t border-gray-100/50 flex flex-col-reverse sm:flex-row justify-end gap-3 rounded-b-[24px] -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 mt-6">
                             <Button
                                 type="button"
                                 variant="outline"
                                 onClick={() => setIsDialogOpen(false)}
+                                className="w-full sm:w-auto rounded-xl px-5 h-11 font-bold border-gray-200/60 bg-white shadow-sm hover:bg-gray-50 text-gray-700"
                             >
                                 Cancel
                             </Button>
-                            <Button type="submit" disabled={isLoading}>
-                                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                {editingTreatment ? "Save Changes" : "Add Treatment"}
+                            <Button type="submit" disabled={isLoading} className="w-full sm:w-auto rounded-xl px-6 h-11 font-bold bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white shadow-md transition-all border border-gray-800/50 cursor-pointer flex items-center justify-center">
+                                {isLoading ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Saving...
+                                    </>
+                                ) : editingTreatment ? "Save Changes" : "Add Treatment"}
                             </Button>
-                        </DialogFooter>
+                        </div>
                     </form>
                 </DialogContent>
             </Dialog>

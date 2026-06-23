@@ -77,12 +77,7 @@ export function SettingsClient({ clinicId, userId, initialSettings }: SettingsCl
     }
 
     return (
-        <div className="mx-auto flex min-h-0 w-full min-w-0 max-w-4xl flex-col gap-8">
-            <Header
-                title="General Settings"
-                description="Configure your practice identity, appointment preferences, time zone, and billing configurations."
-                clinicId={clinicId}
-            />
+        <div className="mx-auto flex min-h-0 w-full min-w-0 max-w-4xl flex-col">
 
             <div className="space-y-8">
                 {/* 1. Clinic Information Section */}
@@ -95,7 +90,7 @@ export function SettingsClient({ clinicId, userId, initialSettings }: SettingsCl
                         description="This information will be displayed on invoices, automated notifications, and the public registration portal."
                     />
                     
-                    <div className="space-y-6 p-6 md:p-8 md:pt-4">
+                    <div className="space-y-6 p-4 sm:p-6 md:p-8 md:pt-4">
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                             {/* Doctor Name */}
                             <div className="space-y-2">
@@ -212,7 +207,7 @@ export function SettingsClient({ clinicId, userId, initialSettings }: SettingsCl
                         description="Define default timezone, billing currency, default slot durations, and invoice prefix variables."
                     />
                     
-                    <div className="space-y-6 p-6 md:p-8 md:pt-4">
+                    <div className="space-y-6 p-4 sm:p-6 md:p-8 md:pt-4">
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                             {/* Timezone */}
                             <div className="space-y-2">
@@ -303,14 +298,14 @@ export function SettingsClient({ clinicId, userId, initialSettings }: SettingsCl
                 </div>
 
                 {/* Footer Save Control Area */}
-                <div className="flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center p-4 rounded-[20px] bg-slate-50/50 border border-slate-100/80 backdrop-blur-sm">
-                    <p className="text-[12px] text-slate-400">
+                <div className="flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center p-4 sm:p-5 rounded-[24px] bg-slate-50/50 border border-slate-100/80 backdrop-blur-sm">
+                    <p className="text-[12px] text-slate-400 text-center sm:text-left">
                         Ensure all adjustments are reviewed before saving changes.
                     </p>
                     <Button
                         onClick={handleSave}
                         disabled={isSaving}
-                        className="h-11 rounded-xl bg-slate-900 px-6 font-bold text-white shadow-md shadow-slate-900/10 hover:bg-slate-800 transition-all active:scale-[0.98] disabled:opacity-70"
+                        className="h-11 w-full sm:w-auto rounded-xl bg-slate-900 px-6 font-bold text-white shadow-md shadow-slate-900/10 hover:bg-slate-800 transition-all active:scale-[0.98] disabled:opacity-70 flex items-center justify-center"
                     >
                         {isSaving ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin text-slate-300" />

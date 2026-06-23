@@ -127,7 +127,7 @@ export function Sidebar({ className, isAdmin = false }: SidebarProps) {
                                                 "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors",
                                                 isActive
                                                     ? "bg-white/15 text-cyan-300"
-                                                    : "bg-slate-100 text-slate-500 group-hover/menu-button:bg-white group-hover/menu-button:text-cyan-600"
+                                                    : "bg-transparent text-slate-400 group-hover/menu-button:text-cyan-600"
                                             )}
                                         >
                                             <item.icon className="h-[18px] w-[18px]" strokeWidth={isActive ? 2.25 : 2} />
@@ -178,7 +178,7 @@ export function Sidebar({ className, isAdmin = false }: SidebarProps) {
                                                 "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors",
                                                 pathname === "/admin/codes"
                                                     ? "bg-white/15 text-cyan-300"
-                                                    : "bg-slate-100 text-slate-500 group-hover/menu-button:bg-white group-hover/menu-button:text-cyan-600"
+                                                    : "bg-transparent text-slate-400 group-hover/menu-button:text-cyan-600"
                                             )}
                                         >
                                             <KeyRound className="h-[18px] w-[18px]" strokeWidth={pathname === "/admin/codes" ? 2.25 : 2} />

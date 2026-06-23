@@ -324,15 +324,25 @@ export async function updateInvoice(
     if (data.dueDate !== undefined) updateData.dueDate = data.dueDate
     if (data.status !== undefined) updateData.status = data.status
 
-    // If discount or tax changed, recalculate total
+    // If discount, tax, or discountType changed, recalculate total
     if (data.discount !== undefined || data.tax !== undefined || data.discountType !== undefined) {
         const subtotal = Number(currentInvoice.subtotal)
-
-        let discount = data.discount ?? Number(currentInvoice.discount)
+        let discount = Number(currentInvoice.discount)
         const discountType = data.discountType ?? currentInvoice.discountType
 
-        if (discountType === "percentage") {
-            discount = (subtotal * discount) / 100
+        if (data.discount !== undefined) {
+            discount = data.discount
+            if (discountType === "percentage") {
+                discount = (subtotal * discount) / 100
+            }
+        } else if (data.discountType !== undefined && data.discountType !== currentInvoice.discountType) {
+            // If discountType changed but discount wasn't sent,
+            // we should convert the old absolute discount to percentage rate if needed,
+            // but normally they are changed together.
+            if (data.discountType === "percentage" && subtotal > 0) {
+                // If they changed to percentage, convert absolute to proportional (already stored as absolute)
+                // We keep it as is.
+            }
         }
 
         const tax = data.tax ?? Number(currentInvoice.tax)
@@ -402,7 +412,12 @@ export async function updateInvoiceItems(
 
     let discount = Number(currentInvoice.discount)
     if (currentInvoice.discountType === "percentage") {
-        discount = (subtotal * discount) / 100
+        const oldSubtotal = Number(currentInvoice.subtotal)
+        if (oldSubtotal > 0) {
+            discount = (subtotal * discount) / oldSubtotal
+        } else {
+            discount = 0
+        }
     }
 
     const tax = Number(currentInvoice.tax)

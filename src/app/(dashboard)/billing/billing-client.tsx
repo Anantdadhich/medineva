@@ -26,6 +26,8 @@ import {
     Eye,
     CreditCard,
     Loader2,
+    ChevronLeft,
+    ChevronRight,
 } from "lucide-react"
 import { formatCurrency } from "@/lib/utils"
 import { PAYMENT_METHODS } from "@/lib/validations/invoice"
@@ -51,6 +53,15 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
     const [paymentMethod, setPaymentMethod] = useState("CASH")
     const [isLoading, setIsLoading] = useState(false)
     const [isCreateInvoiceOpen, setIsCreateInvoiceOpen] = useState(false)
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1)
+    const [pageSize, setPageSize] = useState(10)
+
+    // Reset pagination on search or filter change
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [filter, searchQuery])
 
     const searchParams = useSearchParams()
     const router = useRouter()
@@ -96,6 +107,9 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
             change: "Total",
             icon: DollarSign,
             description: "All time",
+            color: "text-emerald-500",
+            bg: "bg-emerald-50/60 border-emerald-100/50",
+            filterVal: "paid"
         },
         {
             title: "Outstanding",
@@ -103,6 +117,9 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
             change: "Unpaid",
             icon: Clock,
             description: "Pending payment",
+            color: "text-amber-500",
+            bg: "bg-amber-50/60 border-amber-100/50",
+            filterVal: "pending"
         },
         {
             title: "Invoices Created",
@@ -110,6 +127,9 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
             change: "Total",
             icon: Receipt,
             description: "All time",
+            color: "text-cyan-500",
+            bg: "bg-cyan-50/60 border-cyan-100/50",
+            filterVal: "all"
         },
     ]
 
@@ -123,6 +143,13 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
             invoice.invoiceNumber?.toLowerCase().includes(searchQuery.toLowerCase())
         return matchesFilter && matchesSearch
     })
+
+    const totalItems = filteredInvoices.length
+    const totalPages = Math.ceil(totalItems / pageSize)
+    const paginatedInvoices = filteredInvoices.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize
+    )
 
     const handleRecordPayment = (invoice: any) => {
         setSelectedInvoice(invoice)
@@ -177,17 +204,20 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
                 {/* Stats Grid */}
                 <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
                     {stats.map((stat) => (
-                        <div 
+                        <div
                             key={stat.title}
-                            className="bg-white/60 backdrop-blur-2xl border border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.02)] rounded-[24px] p-6 hover:-translate-y-0.5 transition-all duration-200"
+                            onClick={() => setFilter(stat.filterVal)}
+                            className="bg-white/70 backdrop-blur-2xl border border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.015)] rounded-[24px] p-6 transition-all duration-300 ease-out hover:scale-[1.02] hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(0,0,0,0.03)] border border-transparent hover:border-slate-200/80 cursor-pointer group"
                         >
                             <div className="flex flex-row items-center justify-between pb-2">
-                                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider transition-colors group-hover:text-gray-500">
                                     {stat.title}
                                 </p>
-                                <stat.icon className="h-4 w-4 text-gray-400" />
+                                <div className={`flex h-8 w-8 items-center justify-center rounded-xl border ${stat.bg}`}>
+                                    <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                                </div>
                             </div>
-                            <div className="space-y-1 mt-1">
+                            <div className="space-y-1 mt-1.5">
                                 <h3 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight leading-none">{stat.value}</h3>
                                 <p className="text-[11px] text-gray-400 font-semibold pt-1">
                                     {stat.change} · {stat.description}
@@ -216,11 +246,10 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
                                             variant="ghost"
                                             size="sm"
                                             onClick={() => setFilter(status)}
-                                            className={`capitalize rounded-lg px-4 font-semibold text-[13px] transition-all cursor-pointer ${
-                                                filter === status 
-                                                    ? "bg-white text-cyan-700 shadow-sm border border-gray-100/50" 
-                                                    : "text-gray-500 hover:text-gray-900 hover:bg-gray-100/30"
-                                            }`}
+                                            className={`capitalize rounded-lg px-4 font-semibold text-[13px] transition-all cursor-pointer ${filter === status
+                                                ? "bg-white text-cyan-700 shadow-sm border border-gray-100/50"
+                                                : "text-gray-500 hover:text-gray-900 hover:bg-gray-100/30"
+                                                }`}
                                         >
                                             {status}
                                         </Button>
@@ -228,60 +257,197 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
                                 </div>
                             </div>
                         </div>
-                    </CardHeader>
-                    <CardContent>
-                        {/* Desktop View */}
-                        <div className="hidden md:block rounded-lg border overflow-x-auto w-full">
-                            <table className="w-full">
-                                <thead>
-                                    <tr className="border-b bg-muted/50">
-                                        <th className="px-4 py-3 text-left text-sm font-medium">Invoice</th>
-                                        <th className="px-4 py-3 text-left text-sm font-medium">Patient</th>
-                                        <th className="px-4 py-3 text-left text-sm font-medium">Date</th>
-                                        <th className="px-4 py-3 text-right text-sm font-medium">Total</th>
-                                        <th className="px-4 py-3 text-right text-sm font-medium">Paid</th>
-                                        <th className="px-4 py-3 text-right text-sm font-medium">Balance</th>
-                                        <th className="px-4 py-3 text-center text-sm font-medium">Status</th>
-                                        <th className="px-4 py-3 text-center text-sm font-medium">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredInvoices.map((invoice) => (
-                                        <tr key={invoice.id} className="border-b hover:bg-muted/50">
-                                            <td className="px-4 py-3 font-mono text-sm">{invoice.invoiceNumber || invoice.number}</td>
-                                            <td className="px-4 py-3 font-medium">{invoice.patient ? `${invoice.patient.firstName} ${invoice.patient.lastName}` : invoice.patientName}</td>
-                                            <td className="px-4 py-3 text-sm text-muted-foreground">
-                                                {invoice.createdAt ? format(new Date(invoice.createdAt), "dd MMM yyyy") : format(invoice.date, "dd MMM yyyy")}
-                                            </td>
-                                            <td className="px-4 py-3 text-right font-medium">
-                                                {formatCurrency(invoice.total)}
-                                            </td>
-                                            <td className="px-4 py-3 text-right text-success">
-                                                {formatCurrency(invoice.amountPaid)}
-                                            </td>
-                                            <td className="px-4 py-3 text-right">
-                                                {invoice.total - invoice.amountPaid > 0 ? (
-                                                    <span className="text-warning font-medium">
-                                                        {formatCurrency(invoice.total - invoice.amountPaid)}
+                    </CardHeader>                    <CardContent>
+                        {paginatedInvoices.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+                                <div className="h-14 w-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center shadow-sm mb-4">
+                                    <Receipt className="h-6 w-6 text-gray-400" />
+                                </div>
+                                <h3 className="text-base font-bold text-gray-800">No Invoices Found</h3>
+                                <p className="text-xs text-gray-400 mt-1 max-w-[280px] font-medium leading-relaxed">
+                                    We couldn't find any invoices matching your filters or search terms. Try modifying your criteria.
+                                </p>
+                                {(searchQuery || filter !== "all") && (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="mt-5 rounded-xl font-bold border-gray-200 bg-white hover:bg-slate-50 text-slate-750 text-xs px-4 py-2 cursor-pointer shadow-sm"
+                                        onClick={() => {
+                                            setSearchQuery("")
+                                            setFilter("all")
+                                        }}
+                                    >
+                                        Clear Filters
+                                    </Button>
+                                )}
+                            </div>
+                        ) : (
+                            <>
+                                {/* Desktop View */}
+                                <div className="hidden md:block overflow-x-auto w-full">
+                                    <table className="w-full">
+                                        <thead>
+                                            <tr className="border-b border-gray-100/50 bg-gray-50/40">
+                                                <th className="px-6 py-4 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">Invoice</th>
+                                                <th className="px-6 py-4 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">Patient</th>
+                                                <th className="px-6 py-4 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">Date</th>
+                                                <th className="px-6 py-4 text-right text-[11px] font-bold text-gray-400 uppercase tracking-wider">Total</th>
+                                                <th className="px-6 py-4 text-right text-[11px] font-bold text-gray-400 uppercase tracking-wider">Paid</th>
+                                                <th className="px-6 py-4 text-right text-[11px] font-bold text-gray-400 uppercase tracking-wider">Balance</th>
+                                                <th className="px-6 py-4 text-center text-[11px] font-bold text-gray-400 uppercase tracking-wider">Status</th>
+                                                <th className="px-6 py-4 text-center text-[11px] font-bold text-gray-400 uppercase tracking-wider">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-100/50">
+                                            {paginatedInvoices.map((invoice) => (
+                                                <tr key={invoice.id} className="hover:bg-white/40 transition-colors">
+                                                    <td className="px-6 py-4 font-mono font-bold text-[13px] text-gray-800">{invoice.invoiceNumber || invoice.number}</td>
+                                                    <td className="px-6 py-4 text-[14px] font-bold text-gray-950">{invoice.patient ? `${invoice.patient.firstName} ${invoice.patient.lastName}` : invoice.patientName}</td>
+                                                    <td className="px-6 py-4 text-[13px] font-medium text-gray-500">
+                                                        {invoice.createdAt ? format(new Date(invoice.createdAt), "dd MMM yyyy") : format(invoice.date, "dd MMM yyyy")}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-right font-black text-gray-900">
+                                                        {formatCurrency(invoice.total)}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-right font-bold text-emerald-600">
+                                                        {formatCurrency(invoice.amountPaid)}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-right">
+                                                        {invoice.total - invoice.amountPaid > 0 ? (
+                                                            <span className="text-amber-600 font-bold">
+                                                                {formatCurrency(invoice.total - invoice.amountPaid)}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-gray-400 font-medium">—</span>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-center">
+                                                        <Badge variant={invoice.status.toLowerCase() as any} className="uppercase tracking-wider font-bold text-[10px] px-2.5 py-0.5 rounded-full">{invoice.status}</Badge>
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex justify-center gap-1.5">
+                                                            <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg border-gray-200 bg-white hover:bg-slate-50 shadow-sm" onClick={() => router.push(`/billing/${invoice.id}`)}>
+                                                                <Eye className="h-4 w-4 text-cyan-600" />
+                                                            </Button>
+                                                            <PDFDownloadLink
+                                                                document={
+                                                                    <InvoicePDF
+                                                                        invoice={{
+                                                                            ...invoice,
+                                                                            number: invoice.invoiceNumber,
+                                                                            date: invoice.createdAt || invoice.date,
+                                                                            dueDate: invoice.dueDate,
+                                                                            patientName: invoice.patient ? `${invoice.patient.firstName} ${invoice.patient.lastName}` : invoice.patientName,
+                                                                            items: invoice.items?.map((i: any) => ({
+                                                                                description: i.description,
+                                                                                quantity: i.quantity,
+                                                                                unitPrice: i.unitPrice,
+                                                                                total: i.total
+                                                                            })) || [],
+                                                                            patient: invoice.patient ? {
+                                                                                firstName: invoice.patient.firstName,
+                                                                                lastName: invoice.patient.lastName,
+                                                                                email: invoice.patient.email || "",
+                                                                                phone: invoice.patient.phone
+                                                                            } : { firstName: "", lastName: "", email: "", phone: "" }
+                                                                        }}
+                                                                        clinicName={invoice.clinic?.name}
+                                                                        clinicAddress={invoice.clinic?.address}
+                                                                        clinicPhone={invoice.clinic?.phone}
+                                                                        clinicEmail={invoice.clinic?.email}
+                                                                    />
+                                                                }
+                                                                fileName={`${invoice.invoiceNumber || invoice.id}.pdf`}
+                                                            >
+                                                                {/* @ts-ignore */}
+                                                                {({ loading }) => (
+                                                                    <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg border-gray-200 bg-white hover:bg-slate-50 shadow-sm" disabled={loading}>
+                                                                        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4 text-cyan-650" />}
+                                                                    </Button>
+                                                                )}
+                                                            </PDFDownloadLink>
+                                                            {invoice.status !== "PAID" && invoice.status !== "paid" && (
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="icon"
+                                                                    className="h-8 w-8 rounded-lg border-cyan-100 bg-cyan-50/50 hover:bg-cyan-100/50 shadow-sm text-cyan-700"
+                                                                    onClick={() => handleRecordPayment(invoice)}
+                                                                >
+                                                                    <CreditCard className="h-4 w-4" />
+                                                                </Button>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* Mobile List View */}
+                                <div className="md:hidden space-y-4">
+                                    {paginatedInvoices.map((invoice) => {
+                                        const balance = invoice.total - invoice.amountPaid
+                                        return (
+                                            <div
+                                                key={invoice.id}
+                                                className="rounded-[20px] border border-white bg-white/60 p-4 space-y-3 shadow-[0_4px_24px_rgba(0,0,0,0.02)] transition-all hover:bg-white/95 duration-200"
+                                            >
+                                                <div className="flex items-center justify-between">
+                                                    <span className="font-mono text-sm font-bold text-gray-900">
+                                                        {invoice.invoiceNumber || invoice.number}
                                                     </span>
-                                                ) : (
-                                                    <span className="text-muted-foreground">—</span>
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-3 text-center">
-                                                <Badge variant={invoice.status.toLowerCase() as any}>{invoice.status}</Badge>
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <div className="flex justify-center gap-1">
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/billing/${invoice.id}`)}>
-                                                        <Eye className="h-4 w-4" />
+                                                    <Badge variant={invoice.status.toLowerCase() as any}>
+                                                        {invoice.status}
+                                                    </Badge>
+                                                </div>
+
+                                                <div className="space-y-0.5">
+                                                    <p className="text-[14px] font-bold text-gray-900">
+                                                        {invoice.patient ? `${invoice.patient.firstName} ${invoice.patient.lastName}` : invoice.patientName}
+                                                    </p>
+                                                    <p className="text-xs text-gray-400 font-medium">
+                                                        {invoice.createdAt ? format(new Date(invoice.createdAt), "dd MMM yyyy") : format(invoice.date, "dd MMM yyyy")}
+                                                    </p>
+                                                </div>
+
+                                                <div className="grid grid-cols-3 gap-2 py-2 px-3 rounded-xl bg-gray-50/50 border border-gray-100/40 text-center">
+                                                    <div>
+                                                        <p className="text-[9px] uppercase font-bold text-gray-400">Total</p>
+                                                        <p className="text-[12px] font-bold text-gray-900 mt-0.5">
+                                                            {formatCurrency(invoice.total)}
+                                                        </p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[9px] uppercase font-bold text-emerald-500">Paid</p>
+                                                        <p className="text-[12px] font-bold text-emerald-600 mt-0.5">
+                                                            {formatCurrency(invoice.amountPaid)}
+                                                        </p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[9px] uppercase font-bold text-amber-500">Balance</p>
+                                                        <p className="text-[12px] font-bold text-amber-600 mt-0.5">
+                                                            {balance > 0 ? formatCurrency(balance) : "—"}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex gap-1.5 pt-1.5">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="flex-1 rounded-xl h-9 px-1.5 text-[12px] font-bold border-slate-200 bg-white shadow-sm hover:bg-slate-50 text-slate-700 hover:text-slate-900 cursor-pointer flex items-center justify-center gap-1"
+                                                        onClick={() => router.push(`/billing/${invoice.id}`)}
+                                                    >
+                                                        <Eye className="h-3.5 w-3.5 text-cyan-600 shrink-0" />
+                                                        View
                                                     </Button>
+
                                                     <PDFDownloadLink
                                                         document={
                                                             <InvoicePDF
                                                                 invoice={{
                                                                     ...invoice,
-                                                                    // Map prisma model to invoice type expected by PDF
                                                                     number: invoice.invoiceNumber,
                                                                     date: invoice.createdAt || invoice.date,
                                                                     dueDate: invoice.dueDate,
@@ -306,152 +472,109 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
                                                             />
                                                         }
                                                         fileName={`${invoice.invoiceNumber || invoice.id}.pdf`}
+                                                        style={{ display: "inline-flex", flex: 1 }}
                                                     >
-                                                        {/* @ts-ignore - render prop type mismatch */}
+                                                        {/* @ts-ignore */}
                                                         {({ loading }) => (
-                                                            <Button variant="ghost" size="icon" className="h-8 w-8" disabled={loading}>
-                                                                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                className="w-full rounded-xl h-9 px-1.5 text-[12px] font-bold border-slate-200 bg-white shadow-sm hover:bg-slate-50 text-slate-700 hover:text-slate-900 cursor-pointer flex items-center justify-center gap-1"
+                                                                disabled={loading}
+                                                            >
+                                                                {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" /> : <Download className="h-3.5 w-3.5 text-cyan-650 shrink-0" />}
+                                                                PDF
                                                             </Button>
                                                         )}
                                                     </PDFDownloadLink>
+
                                                     {invoice.status !== "PAID" && invoice.status !== "paid" && (
                                                         <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-8 w-8 text-primary"
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="flex-1 rounded-xl h-9 px-1.5 text-[12px] font-bold border-cyan-100 bg-cyan-50/50 hover:bg-cyan-100/50 text-cyan-700 shadow-sm cursor-pointer flex items-center justify-center gap-1"
                                                             onClick={() => handleRecordPayment(invoice)}
                                                         >
-                                                            <CreditCard className="h-4 w-4" />
+                                                            <CreditCard className="h-3.5 w-3.5 text-cyan-600 shrink-0" />
+                                                            Pay
                                                         </Button>
                                                     )}
                                                 </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        {/* Mobile List View */}
-                        <div className="md:hidden space-y-4">
-                            {filteredInvoices.map((invoice) => {
-                                const balance = invoice.total - invoice.amountPaid
-                                return (
-                                    <div
-                                        key={invoice.id}
-                                        className="rounded-[20px] border border-white bg-white/60 p-4 space-y-3 shadow-[0_4px_24px_rgba(0,0,0,0.02)] transition-all hover:bg-white/95 duration-200"
-                                    >
-                                        <div className="flex items-center justify-between">
-                                            <span className="font-mono text-sm font-bold text-gray-900">
-                                                {invoice.invoiceNumber || invoice.number}
-                                            </span>
-                                            <Badge variant={invoice.status.toLowerCase() as any}>
-                                                {invoice.status}
-                                            </Badge>
-                                        </div>
-
-                                        <div className="space-y-0.5">
-                                            <p className="text-[14px] font-bold text-gray-900">
-                                                {invoice.patient ? `${invoice.patient.firstName} ${invoice.patient.lastName}` : invoice.patientName}
-                                            </p>
-                                            <p className="text-xs text-gray-400 font-medium">
-                                                {invoice.createdAt ? format(new Date(invoice.createdAt), "dd MMM yyyy") : format(invoice.date, "dd MMM yyyy")}
-                                            </p>
-                                        </div>
-
-                                        <div className="grid grid-cols-3 gap-2 py-2 px-3 rounded-xl bg-gray-50/50 border border-gray-100/40 text-center">
-                                            <div>
-                                                <p className="text-[9px] uppercase font-bold text-gray-400">Total</p>
-                                                <p className="text-[12px] font-bold text-gray-900 mt-0.5">
-                                                    {formatCurrency(invoice.total)}
-                                                </p>
                                             </div>
-                                            <div>
-                                                <p className="text-[9px] uppercase font-bold text-emerald-500">Paid</p>
-                                                <p className="text-[12px] font-bold text-emerald-600 mt-0.5">
-                                                    {formatCurrency(invoice.amountPaid)}
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <p className="text-[9px] uppercase font-bold text-amber-500">Balance</p>
-                                                <p className="text-[12px] font-bold text-amber-600 mt-0.5">
-                                                    {balance > 0 ? formatCurrency(balance) : "—"}
-                                                </p>
-                                            </div>
+                                        )
+                                    })}
+                                </div>
+
+                                {/* Pagination Controls */}
+                                {totalPages > 1 && (
+                                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 px-4 sm:px-6 border-t border-gray-150/40 mt-4 bg-white/20">
+                                        <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                                            Showing {Math.min(totalItems, (currentPage - 1) * pageSize + 1)}–{Math.min(totalItems, currentPage * pageSize)} of {totalItems} invoices
                                         </div>
-
-                                        <div className="flex gap-1.5 pt-1.5">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="flex-1 rounded-xl h-9 px-1.5 text-[12px] font-bold border-slate-200 bg-white shadow-sm hover:bg-slate-50 text-slate-700 hover:text-slate-900 cursor-pointer flex items-center justify-center gap-1"
-                                                onClick={() => router.push(`/billing/${invoice.id}`)}
-                                            >
-                                                <Eye className="h-3.5 w-3.5 text-cyan-600 shrink-0" />
-                                                View
-                                            </Button>
-
-                                            <PDFDownloadLink
-                                                document={
-                                                    <InvoicePDF
-                                                        invoice={{
-                                                            ...invoice,
-                                                            number: invoice.invoiceNumber,
-                                                            date: invoice.createdAt || invoice.date,
-                                                            dueDate: invoice.dueDate,
-                                                            patientName: invoice.patient ? `${invoice.patient.firstName} ${invoice.patient.lastName}` : invoice.patientName,
-                                                            items: invoice.items?.map((i: any) => ({
-                                                                description: i.description,
-                                                                quantity: i.quantity,
-                                                                unitPrice: i.unitPrice,
-                                                                total: i.total
-                                                            })) || [],
-                                                            patient: invoice.patient ? {
-                                                                firstName: invoice.patient.firstName,
-                                                                lastName: invoice.patient.lastName,
-                                                                email: invoice.patient.email || "",
-                                                                phone: invoice.patient.phone
-                                                            } : { firstName: "", lastName: "", email: "", phone: "" }
-                                                        }}
-                                                        clinicName={invoice.clinic?.name}
-                                                        clinicAddress={invoice.clinic?.address}
-                                                        clinicPhone={invoice.clinic?.phone}
-                                                        clinicEmail={invoice.clinic?.email}
-                                                    />
-                                                }
-                                                fileName={`${invoice.invoiceNumber || invoice.id}.pdf`}
-                                                style={{ display: "inline-flex", flex: 1 }}
-                                            >
-                                                {/* @ts-ignore */}
-                                                {({ loading }) => (
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        className="w-full rounded-xl h-9 px-1.5 text-[12px] font-bold border-slate-200 bg-white shadow-sm hover:bg-slate-50 text-slate-700 hover:text-slate-900 cursor-pointer flex items-center justify-center gap-1"
-                                                        disabled={loading}
-                                                    >
-                                                        {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" /> : <Download className="h-3.5 w-3.5 text-cyan-600 shrink-0" />}
-                                                        PDF
-                                                    </Button>
-                                                )}
-                                            </PDFDownloadLink>
-
-                                            {invoice.status !== "PAID" && invoice.status !== "paid" && (
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex items-center gap-1.5 text-xs text-gray-500 font-semibold">
+                                                <span>Rows:</span>
+                                                <select
+                                                    value={pageSize}
+                                                    onChange={(e) => {
+                                                        setPageSize(Number(e.target.value))
+                                                        setCurrentPage(1)
+                                                    }}
+                                                    className="h-8 rounded-lg border border-gray-200/80 bg-white px-2 focus:outline-none focus:ring-1 focus:ring-cyan-500/20 text-xs font-semibold"
+                                                >
+                                                    {[10, 25, 50].map((size) => (
+                                                        <option key={size} value={size}>{size}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div className="flex gap-1">
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    className="flex-1 rounded-xl h-9 px-1.5 text-[12px] font-bold border-cyan-100 bg-cyan-50/50 hover:bg-cyan-100/50 text-cyan-700 shadow-sm cursor-pointer flex items-center justify-center gap-1"
-                                                    onClick={() => handleRecordPayment(invoice)}
+                                                    className="h-8 w-8 p-0 rounded-lg border-gray-200 bg-white"
+                                                    disabled={currentPage === 1}
+                                                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                                                 >
-                                                    <CreditCard className="h-3.5 w-3.5 text-cyan-600 shrink-0" />
-                                                    Pay
+                                                    <ChevronLeft className="h-4 w-4" />
                                                 </Button>
-                                            )}
+                                                {Array.from({ length: totalPages }).map((_, idx) => {
+                                                    const pageNum = idx + 1
+                                                    if (totalPages > 5 && Math.abs(currentPage - pageNum) > 1 && pageNum !== 1 && pageNum !== totalPages) {
+                                                        if (pageNum === 2 || pageNum === totalPages - 1) {
+                                                            return <span key={pageNum} className="text-gray-400 self-center px-1 text-xs font-bold">...</span>
+                                                        }
+                                                        return null
+                                                    }
+                                                    return (
+                                                        <Button
+                                                            key={pageNum}
+                                                            variant={currentPage === pageNum ? "default" : "outline"}
+                                                            size="sm"
+                                                            className={`h-8 w-8 p-0 rounded-lg text-xs font-bold ${currentPage === pageNum
+                                                                ? "bg-cyan-600 hover:bg-cyan-700 text-white border-transparent"
+                                                                : "border-gray-200 bg-white hover:bg-gray-50 text-gray-700"
+                                                                }`}
+                                                            onClick={() => setCurrentPage(pageNum)}
+                                                        >
+                                                            {pageNum}
+                                                        </Button>
+                                                    )
+                                                })}
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="h-8 w-8 p-0 rounded-lg border-gray-200 bg-white"
+                                                    disabled={currentPage === totalPages}
+                                                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                                >
+                                                    <ChevronRight className="h-4 w-4" />
+                                                </Button>
+                                            </div>
                                         </div>
                                     </div>
-                                )
-                            })}
-                        </div>
+                                )}
+                            </>
+                        )}
                     </CardContent>
                 </Card>
             </div>

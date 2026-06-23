@@ -271,3 +271,63 @@ body {
   background-color: hsl(210 100% 95%);
   color: hsl(210 100% 45%);
 }
+
+@media print {
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Hide exact interactive & navigation components */
+  aside,
+  [data-sidebar="sidebar"],
+  button,
+  .no-print,
+  [role="dialog"],
+  [role="menu"],
+  header,
+  .sidebar-trigger {
+    display: none !important;
+  }
+
+  body, html {
+    background: white !important;
+    color: black !important;
+    font-size: 11pt !important;
+  }
+
+  /* Re-align layout containers for printing */
+  main,
+  [class*="SidebarInset"],
+  [class*="sidebar-inset"],
+  div[class*="flex-1 p-3 sm:p-4 md:p-6"] {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    background: white !important;
+  }
+
+  /* Remove premium screen designs (glassmorphism/shadows) for physical paper */
+  div[class*="backdrop-blur"],
+  div[class*="shadow-"],
+  .shadow-sm,
+  .shadow-md,
+  .shadow-lg,
+  .shadow-xl,
+  .shadow-2xl {
+    box-shadow: none !important;
+    background: white !important;
+    border-color: #e2e8f0 !important;
+  }
+
+  div[class*="rounded-[24px]"],
+  table {
+    page-break-inside: avoid !important;
+  }
+}

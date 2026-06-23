@@ -21,6 +21,7 @@ const PDFDownloadLink = dynamic(
 )
 import { InvoicePDF } from "@/components/billing/invoice-pdf"
 import { deleteInvoice, updateInvoice, updateInvoiceItems } from "@/lib/actions/invoices"
+import { getTreatments } from "@/lib/actions/treatments"
 import { useState, useEffect } from "react"
 import { useToast } from "@/hooks/use-toast"
 import {
@@ -114,9 +115,107 @@ export function InvoiceDetailClient({ invoice, clinicId }: InvoiceDetailClientPr
         notes: invoice.notes || "",
         status: invoice.status,
         dueDate: invoice.dueDate ? new Date(invoice.dueDate).toISOString().split('T')[0] : "",
-        discount: invoice.discount || 0,
+        discount: invoice.discountType === "percentage" && invoice.subtotal > 0
+            ? Number(((invoice.discount * 100) / invoice.subtotal).toFixed(2))
+            : (invoice.discount || 0),
+        discountType: invoice.discountType || "percentage",
         tax: invoice.tax || 0,
     })
+
+    const [formItems, setFormItems] = useState<Array<{
+        id?: string
+        description: string
+        quantity: number
+        unitPrice: number
+    }>>([])
+
+    const [treatments, setTreatments] = useState<{ id: string; name: string; standardCost: number }[]>([])
+    const [isLoadingTreatments, setIsLoadingTreatments] = useState(false)
+
+    useEffect(() => {
+        if (editOpen) {
+            setFormData({
+                notes: invoice.notes || "",
+                status: invoice.status,
+                dueDate: invoice.dueDate ? new Date(invoice.dueDate).toISOString().split('T')[0] : "",
+                discount: invoice.discountType === "percentage" && invoice.subtotal > 0
+                    ? Number(((invoice.discount * 100) / invoice.subtotal).toFixed(2))
+                    : (invoice.discount || 0),
+                discountType: invoice.discountType || "percentage",
+                tax: invoice.tax || 0,
+            })
+            setFormItems(invoice.items.map(item => ({
+                id: item.id,
+                description: item.description,
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
+            })))
+        }
+    }, [editOpen, invoice])
+
+    useEffect(() => {
+        if (editOpen) {
+            const loadTreatments = async () => {
+                setIsLoadingTreatments(true)
+                try {
+                    const treatmentsData = await getTreatments(clinicId)
+                    if (treatmentsData.length === 0) {
+                        const defaultServices = [
+                            { id: 'default-1', name: 'Dental Cleaning (Prophylaxis)', standardCost: 1500 },
+                            { id: 'default-2', name: 'Tooth Filling (Composite)', standardCost: 2000 },
+                            { id: 'default-3', name: 'Tooth Extraction', standardCost: 1500 },
+                            { id: 'default-4', name: 'Root Canal Treatment (RCT)', standardCost: 5000 },
+                            { id: 'default-5', name: 'Dental Crown (Ceramic)', standardCost: 8000 },
+                            { id: 'default-6', name: 'Teeth Whitening', standardCost: 10000 },
+                            { id: 'default-7', name: 'Scaling & Polishing', standardCost: 1200 },
+                            { id: 'default-8', name: 'Tooth Implant', standardCost: 35000 },
+                            { id: 'default-9', name: 'Dental Bridge', standardCost: 15000 },
+                            { id: 'default-10', name: 'Orthodontic Braces (Full)', standardCost: 50000 },
+                            { id: 'default-11', name: 'Wisdom Tooth Extraction', standardCost: 3000 },
+                            { id: 'default-12', name: 'Dental Veneer (per tooth)', standardCost: 12000 },
+                            { id: 'default-13', name: 'Consultation Fee', standardCost: 500 },
+                            { id: 'default-14', name: 'X-Ray (Full Mouth)', standardCost: 800 },
+                            { id: 'default-15', name: 'Gum Treatment (Deep Cleaning)', standardCost: 4000 },
+                        ]
+                        setTreatments(defaultServices as any)
+                    } else {
+                        setTreatments(treatmentsData)
+                    }
+                } catch (error) {
+                    console.error("Failed to load treatments", error)
+                } finally {
+                    setIsLoadingTreatments(false)
+                }
+            }
+            loadTreatments()
+        }
+    }, [editOpen, clinicId])
+
+    const handleAddItem = (description: string, quantity: number, unitPrice: number) => {
+        setFormItems([...formItems, { description, quantity, unitPrice }])
+    }
+
+    const handleRemoveItem = (index: number) => {
+        if (formItems.length === 1) return
+        setFormItems(formItems.filter((_, idx) => idx !== index))
+    }
+
+    const handleUpdateItem = (index: number, field: string, value: any) => {
+        setFormItems(formItems.map((item, idx) => {
+            if (idx === index) {
+                return { ...item, [field]: value }
+            }
+            return item
+        }))
+    }
+
+    const editSubtotal = formItems.reduce((acc, item) => acc + (Number(item.quantity || 0) * Number(item.unitPrice || 0)), 0)
+    let editDiscountAmount = Number(formData.discount) || 0
+    if (formData.discountType === "percentage") {
+        editDiscountAmount = (editSubtotal * editDiscountAmount) / 100
+    }
+    const editTaxAmount = Number(formData.tax) || 0
+    const editTotal = editSubtotal - editDiscountAmount + editTaxAmount
 
     const pdfInvoiceData = {
         ...invoice,
@@ -167,11 +266,13 @@ export function InvoiceDetailClient({ invoice, clinicId }: InvoiceDetailClientPr
                 status: formData.status as "DRAFT" | "PENDING" | "PARTIAL" | "PAID" | "CANCELLED" | "REFUNDED",
                 dueDate: formData.dueDate ? new Date(formData.dueDate) : undefined,
                 discount: Number(formData.discount),
+                discountType: formData.discountType,
                 tax: Number(formData.tax),
             })
+            await updateInvoiceItems(invoice.id, formItems)
             toast({
                 title: "Invoice updated",
-                description: "Invoice details saved successfully.",
+                description: "Invoice details and items saved successfully.",
             })
             setEditOpen(false)
             router.refresh()
@@ -187,7 +288,8 @@ export function InvoiceDetailClient({ invoice, clinicId }: InvoiceDetailClientPr
     }
 
     return (
-        <div className="flex flex-col w-full min-w-0 h-full space-y-6">
+        <>
+            <div className="flex flex-col w-full min-w-0 h-full space-y-6 print:hidden">
             <Header
                 title={`Invoice ${invoice.invoiceNumber}`}
                 description={`Created on ${safeFormat(invoice.createdAt, "PPP")}`}
@@ -200,11 +302,11 @@ export function InvoiceDetailClient({ invoice, clinicId }: InvoiceDetailClientPr
             />
 
             <div className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto space-y-6">
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex justify-between items-center mb-6 no-print">
                     <div>
                         <Badge variant={invoice.status.toLowerCase() as any} className="uppercase tracking-wider font-bold text-[10px] px-3 py-1 rounded-full">{invoice.status}</Badge>
                     </div>
-                    <div className="flex gap-2.5">
+                    <div className="flex gap-2.5 no-print">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline" className="rounded-xl h-10 px-3.5 border-slate-200 bg-white shadow-sm hover:bg-slate-50 text-slate-700 hover:text-slate-900 cursor-pointer">
@@ -251,6 +353,15 @@ export function InvoiceDetailClient({ invoice, clinicId }: InvoiceDetailClientPr
                                 <span className="hidden sm:inline font-bold text-[13px]">Loading PDF...</span>
                             </Button>
                         )}
+
+                        <Button
+                            variant="outline"
+                            onClick={() => window.print()}
+                            className="rounded-xl h-10 px-3.5 border-slate-200 bg-white shadow-sm hover:bg-slate-50 text-slate-700 hover:text-slate-900 cursor-pointer"
+                        >
+                            <Printer className="h-4 w-4 sm:mr-2 text-cyan-650" />
+                            <span className="hidden sm:inline font-bold text-[13px]">Print Receipt</span>
+                        </Button>
                     </div>
                 </div>
 
@@ -461,14 +572,14 @@ export function InvoiceDetailClient({ invoice, clinicId }: InvoiceDetailClientPr
 
             {/* Edit Dialog */}
             <Dialog open={editOpen} onOpenChange={setEditOpen}>
-                <DialogContent className="max-w-md bg-white/80 backdrop-blur-3xl border-white/60 shadow-2xl rounded-[24px] p-0 overflow-hidden">
-                    <div className="p-4 sm:p-6 border-b border-gray-100/50 bg-white/40">
+                <DialogContent className="max-w-2xl bg-white/80 backdrop-blur-3xl border-white/60 shadow-2xl rounded-[24px] p-0 overflow-hidden flex flex-col max-h-[90vh]">
+                    <div className="p-4 sm:p-6 border-b border-gray-100/50 bg-white/40 shrink-0">
                         <DialogHeader>
                             <DialogTitle className="text-xl font-bold text-gray-900">Edit Invoice</DialogTitle>
-                            <DialogDescription className="text-gray-500 font-medium mt-1">Update invoice details.</DialogDescription>
+                            <DialogDescription className="text-gray-500 font-medium mt-1">Update invoice details and items.</DialogDescription>
                         </DialogHeader>
                     </div>
-                    <div className="space-y-4 p-4 sm:p-6">
+                    <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
                         <div className="space-y-2">
                             <Label className="text-gray-700 font-semibold text-[13px]">Status</Label>
                             <Select
@@ -488,18 +599,28 @@ export function InvoiceDetailClient({ invoice, clinicId }: InvoiceDetailClientPr
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label className="text-gray-700 font-semibold text-[13px]">Discount (%)</Label>
-                                <Input
-                                    type="number"
-                                    min="0"
-                                    max="100"
-                                    value={formData.discount}
-                                    onChange={(e) => setFormData({ ...formData, discount: Number(e.target.value) })}
-                                    className="h-11 rounded-xl bg-white/60 border-gray-200/60 focus:bg-white transition-all shadow-sm focus-visible:ring-cyan-500/20 px-4"
-                                />
+                                <Label className="text-gray-700 font-semibold text-[13px]">Discount</Label>
+                                <div className="flex gap-2">
+                                    <Input
+                                        type="number"
+                                        min="0"
+                                        max={formData.discountType === "percentage" ? 100 : undefined}
+                                        value={formData.discount}
+                                        onChange={(e) => setFormData({ ...formData, discount: Number(e.target.value) })}
+                                        className="flex-1 h-11 rounded-xl bg-white/60 border-gray-200/60 focus:bg-white transition-all shadow-sm focus-visible:ring-cyan-500/20 px-4"
+                                    />
+                                    <select
+                                        className="flex h-11 w-[100px] rounded-xl border border-gray-200/60 bg-white/60 focus:bg-white px-3 py-2 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-cyan-500/20 text-gray-800"
+                                        value={formData.discountType}
+                                        onChange={(e) => setFormData({ ...formData, discountType: e.target.value })}
+                                    >
+                                        <option value="percentage">%</option>
+                                        <option value="fixed">Fixed</option>
+                                    </select>
+                                </div>
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-gray-700 font-semibold text-[13px]">Tax</Label>
+                                <Label className="text-gray-700 font-semibold text-[13px]">Tax (₹)</Label>
                                 <Input
                                     type="number"
                                     min="0"
@@ -527,8 +648,175 @@ export function InvoiceDetailClient({ invoice, clinicId }: InvoiceDetailClientPr
                                 className="rounded-xl bg-white/60 border-gray-200/60 focus:bg-white transition-all shadow-sm focus-visible:ring-cyan-500/20 p-3 min-h-[80px]"
                             />
                         </div>
+
+                        {/* Line Items Editor */}
+                        <div className="space-y-4 pt-2">
+                            <div className="flex flex-col gap-3 p-4 bg-cyan-50/20 border border-cyan-100/50 rounded-2xl sm:flex-row sm:items-center sm:justify-between">
+                                <div className="flex flex-col gap-1.5 w-full sm:flex-row sm:items-center sm:gap-2 sm:flex-1">
+                                    <Label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider sm:text-xs whitespace-nowrap">Quick Add Service:</Label>
+                                    <select
+                                        className="flex h-10 w-full sm:h-9 sm:max-w-[240px] rounded-xl border border-gray-200/65 bg-white px-3 py-1 text-sm shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-cyan-500/20 text-gray-800"
+                                        onChange={(e) => {
+                                            const treatmentId = e.target.value
+                                            if (!treatmentId) return
+                                            const treatment = treatments.find(t => t.id === treatmentId)
+                                            if (treatment) {
+                                                handleAddItem(treatment.name, 1, Number(treatment.standardCost))
+                                                e.target.value = ""
+                                            }
+                                        }}
+                                        defaultValue=""
+                                    >
+                                        <option value="" disabled>Select treatment...</option>
+                                        {treatments.map((t: any) => (
+                                            <option key={t.id} value={t.id}>
+                                                {t.name} - ₹{t.standardCost}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="w-full sm:w-auto h-10 sm:h-9 rounded-xl font-bold border-gray-200/60 bg-white hover:bg-gray-50 text-gray-750 text-xs gap-1.5 px-4 shadow-sm"
+                                    onClick={() => handleAddItem("", 1, 0)}
+                                >
+                                    <Plus className="h-3.5 w-3.5 text-cyan-600" />
+                                    Add Blank Item
+                                </Button>
+                            </div>
+
+                            <div className="space-y-3">
+                                {formItems.length > 0 && (
+                                    <div className="hidden sm:grid grid-cols-12 gap-2 text-[11px] font-bold text-gray-400 uppercase tracking-wider px-1">
+                                        <div className="col-span-6">Description</div>
+                                        <div className="col-span-2">Qty</div>
+                                        <div className="col-span-3">Price (₹)</div>
+                                        <div className="col-span-1"></div>
+                                    </div>
+                                )}
+                                {formItems.map((item, index) => (
+                                    <div key={index} className="w-full">
+                                        {/* Desktop View */}
+                                        <div className="hidden sm:grid grid-cols-12 gap-2 items-end">
+                                            <div className="col-span-6">
+                                                <Input
+                                                    placeholder="Description"
+                                                    value={item.description}
+                                                    onChange={(e) => handleUpdateItem(index, "description", e.target.value)}
+                                                    className="h-11 rounded-xl bg-white/60 border-gray-200/60 focus:bg-white transition-all shadow-sm focus-visible:ring-cyan-500/20 px-4"
+                                                />
+                                            </div>
+                                            <div className="col-span-2">
+                                                <Input
+                                                    type="number"
+                                                    placeholder="Qty"
+                                                    min="1"
+                                                    value={item.quantity}
+                                                    onChange={(e) => handleUpdateItem(index, "quantity", Number(e.target.value))}
+                                                    className="h-11 rounded-xl bg-white/60 border-gray-200/60 focus:bg-white transition-all shadow-sm focus-visible:ring-cyan-500/20 px-4"
+                                                />
+                                            </div>
+                                            <div className="col-span-3">
+                                                <Input
+                                                    type="number"
+                                                    placeholder="Price"
+                                                    min="0"
+                                                    value={item.unitPrice}
+                                                    onChange={(e) => handleUpdateItem(index, "unitPrice", Number(e.target.value))}
+                                                    className="h-11 rounded-xl bg-white/60 border-gray-200/60 focus:bg-white transition-all shadow-sm focus-visible:ring-cyan-500/20 px-4"
+                                                />
+                                            </div>
+                                            <div className="col-span-1">
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => handleRemoveItem(index)}
+                                                    disabled={formItems.length === 1}
+                                                    className="h-11 w-full text-red-400 hover:text-red-650 hover:bg-red-50 rounded-xl cursor-pointer"
+                                                >
+                                                    <Trash className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        </div>
+
+                                        {/* Mobile View */}
+                                        <div className="sm:hidden flex flex-col gap-3 p-3.5 border border-gray-100/60 bg-white/40 backdrop-blur-md rounded-2xl relative shadow-sm">
+                                            {formItems.length > 1 && (
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="absolute top-2 right-2 h-8 w-8 text-red-500 hover:text-red-650 hover:bg-red-50 rounded-xl"
+                                                    onClick={() => handleRemoveItem(index)}
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                </Button>
+                                            )}
+                                            <div className="space-y-1">
+                                                <Label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Description</Label>
+                                                <Input
+                                                    placeholder="Description"
+                                                    value={item.description}
+                                                    onChange={(e) => handleUpdateItem(index, "description", e.target.value)}
+                                                    className="h-11 rounded-xl bg-white border-gray-200/60 focus:bg-white transition-all shadow-sm focus-visible:ring-cyan-500/20 px-4"
+                                                />
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <div className="space-y-1">
+                                                    <Label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Qty</Label>
+                                                    <Input
+                                                        type="number"
+                                                        placeholder="Qty"
+                                                        min="1"
+                                                        value={item.quantity}
+                                                        onChange={(e) => handleUpdateItem(index, "quantity", Number(e.target.value))}
+                                                        className="h-11 rounded-xl bg-white border-gray-200/60 focus:bg-white transition-all shadow-sm focus-visible:ring-cyan-500/20 px-4"
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <Label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Price (₹)</Label>
+                                                    <Input
+                                                        type="number"
+                                                        placeholder="Price"
+                                                        min="0"
+                                                        value={item.unitPrice}
+                                                        onChange={(e) => handleUpdateItem(index, "unitPrice", Number(e.target.value))}
+                                                        className="h-11 rounded-xl bg-white border-gray-200/60 focus:bg-white transition-all shadow-sm focus-visible:ring-cyan-500/20 px-4"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <Separator className="bg-gray-100/50" />
+
+                            <div className="rounded-2xl bg-gray-50/50 border border-gray-100/40 p-4 space-y-2 text-sm">
+                                <div className="flex justify-between text-gray-500 font-medium">
+                                    <span>Subtotal</span>
+                                    <span className="font-bold text-gray-950">₹{editSubtotal.toFixed(2)}</span>
+                                </div>
+                                <div className="flex justify-between text-gray-500 font-medium">
+                                    <span>Discount</span>
+                                    <span className="text-red-500 font-bold">- ₹{editDiscountAmount.toFixed(2)}</span>
+                                </div>
+                                <div className="flex justify-between text-gray-500 font-medium">
+                                    <span>Tax</span>
+                                    <span className="text-gray-700 font-bold">+ ₹{editTaxAmount.toFixed(2)}</span>
+                                </div>
+                                <Separator className="my-1.5" />
+                                <div className="flex justify-between font-black text-[17px] text-gray-900 pt-1">
+                                    <span>Total</span>
+                                    <span className="text-cyan-700">₹{editTotal.toFixed(2)}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div className="p-4 sm:p-6 bg-gray-50/50 border-t border-gray-100/50 flex flex-col-reverse sm:flex-row justify-end gap-3 rounded-b-[24px]">
+                    <div className="p-4 sm:p-6 bg-gray-50/50 border-t border-gray-100/50 flex flex-col-reverse sm:flex-row justify-end gap-3 rounded-b-[24px] shrink-0">
                         <Button variant="outline" onClick={() => setEditOpen(false)} className="w-full sm:w-auto rounded-xl px-5 h-11 font-bold border-gray-200/60 bg-white shadow-sm hover:bg-gray-50 text-gray-700">
                             Cancel
                         </Button>
@@ -571,6 +859,111 @@ export function InvoiceDetailClient({ invoice, clinicId }: InvoiceDetailClientPr
                     </div>
                 </AlertDialogContent>
             </AlertDialog>
-        </div>
+            </div>
+
+            {/* Print-only Invoice Receipt Component */}
+            <div className="hidden print:block w-full max-w-4xl mx-auto p-0 font-sans text-slate-800 text-[12px] leading-relaxed bg-white">
+                {/* Header */}
+                <div className="flex justify-between items-start border-b border-slate-200 pb-5 mb-8">
+                    <div>
+                        <h2 className="text-xl font-bold text-slate-900 uppercase tracking-wide">{invoice.clinic?.name || "Smile Science Dentistry"}</h2>
+                        <p className="text-slate-500 max-w-[350px] mt-1">{invoice.clinic?.address || "ELECTRONICS CITY, 5th Floor, 224, 3rd Cross Road, Neeladri Nagar, Electronic City Phase I, Electronic City, Bengaluru, Karnataka 560100"}</p>
+                        <p className="text-slate-500 mt-1">{invoice.clinic?.phone || "+91 98765 43210"} • {invoice.clinic?.email || "comacksclient@gmail.com"}</p>
+                    </div>
+                    <div className="text-right">
+                        <h1 className="text-2xl font-bold text-slate-300 tracking-wider mb-2">INVOICE</h1>
+                        <div className="space-y-1">
+                            <div>
+                                <p className="text-[10px] text-slate-400 uppercase font-semibold">Invoice #</p>
+                                <p className="font-bold text-slate-900">{invoice.invoiceNumber}</p>
+                            </div>
+                            <div>
+                                <p className="text-[10px] text-slate-400 uppercase font-semibold">Date Issued</p>
+                                <p className="font-bold text-slate-900">{safeFormat(invoice.createdAt, "dd MMM yyyy")}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Client Info Block */}
+                <div className="grid grid-cols-3 gap-6 bg-slate-50 border border-slate-100 rounded-lg p-5 mb-8">
+                    <div>
+                        <p className="text-[9px] text-slate-400 uppercase font-bold tracking-wider mb-1">Billed To</p>
+                        <p className="text-sm font-bold text-slate-900">{invoice.patient.firstName} {invoice.patient.lastName}</p>
+                        <p className="text-slate-500">{invoice.patient.email}</p>
+                        {invoice.patient.phone && <p className="text-slate-500">{invoice.patient.phone}</p>}
+                    </div>
+                    <div>
+                        <p className="text-[9px] text-slate-400 uppercase font-bold tracking-wider mb-1">Due Date</p>
+                        <p className="text-sm font-bold text-slate-900">{safeFormat(invoice.dueDate, "dd MMM yyyy")}</p>
+                    </div>
+                    <div>
+                        <p className="text-[9px] text-slate-400 uppercase font-bold tracking-wider mb-1">Status</p>
+                        <p className={`text-sm font-bold uppercase ${invoice.status === 'PAID' ? 'text-green-600' : 'text-slate-900'}`}>{invoice.status || 'DRAFT'}</p>
+                    </div>
+                </div>
+
+                {/* Items Table */}
+                <table className="w-full mb-8">
+                    <thead>
+                        <tr className="border-b-2 border-slate-900 text-left text-[10px] font-bold text-slate-900 uppercase tracking-wider">
+                            <th className="py-2 w-3/5">Description</th>
+                            <th className="py-2 text-center w-1/12">Qty</th>
+                            <th className="py-2 text-right w-1/6">Rate</th>
+                            <th className="py-2 text-right w-1/6">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                        {invoice.items.map((item: any) => (
+                            <tr key={item.id} className="py-3">
+                                <td className="py-3 font-bold text-slate-950">{item.description}</td>
+                                <td className="py-3 text-center">{item.quantity}</td>
+                                <td className="py-3 text-right">Rs. {Number(item.unitPrice).toLocaleString('en-IN')}</td>
+                                <td className="py-3 text-right font-bold text-slate-950">Rs. {Number(item.total).toLocaleString('en-IN')}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+
+                {/* Totals */}
+                <div className="flex justify-end mb-16">
+                    <div className="w-2/5 space-y-2">
+                        <div className="flex justify-between text-slate-500 border-b border-slate-100 pb-1">
+                            <span>Subtotal</span>
+                            <span className="font-semibold text-slate-900">Rs. {Number(invoice.subtotal).toLocaleString('en-IN')}</span>
+                        </div>
+                        {invoice.discount > 0 && (
+                            <div className="flex justify-between text-emerald-600 border-b border-slate-100 pb-1">
+                                <span>Discount</span>
+                                <span className="font-bold">-Rs. {Number(invoice.discount).toLocaleString('en-IN')}</span>
+                            </div>
+                        )}
+                        {invoice.tax > 0 && (
+                            <div className="flex justify-between text-slate-500 border-b border-slate-100 pb-1">
+                                <span>Tax</span>
+                                <span className="font-semibold text-slate-900">+Rs. {Number(invoice.tax).toLocaleString('en-IN')}</span>
+                            </div>
+                        )}
+                        <div className="flex justify-between text-slate-900 font-bold border-t-2 border-slate-900 pt-2 text-[14px]">
+                            <span>Total</span>
+                            <span className="text-[16px]">Rs. {Number(invoice.total).toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="flex justify-between text-slate-500 text-[11px] pt-1">
+                            <span>Amount Paid</span>
+                            <span>Rs. {Number(invoice.amountPaid).toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className={`flex justify-between font-bold text-[12px] pt-1 ${invoice.total - invoice.amountPaid > 0 ? 'text-red-500' : 'text-green-600'}`}>
+                            <span>Balance Due</span>
+                            <span>Rs. {Number(invoice.total - invoice.amountPaid).toLocaleString('en-IN')}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Footer Message */}
+                <div className="border-t border-slate-150 pt-5 text-center text-slate-400 text-[11px]">
+                    Thank you for choosing {invoice.clinic?.name || "Smile Science Dentistry"}.
+                </div>
+            </div>
+        </>
     )
 }

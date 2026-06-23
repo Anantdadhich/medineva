@@ -16,7 +16,7 @@ import { formatCurrency } from "@/lib/utils"
 import { TrendingUp } from "lucide-react"
 
 /** Warm amber / orange — matches dashboard gradient, no green or blue */
-const STROKE = "#c2410c"
+const STROKE = "#10b981"
 const GRADIENT_ID = "revenueAreaFill"
 
 interface RevenueChartProps {

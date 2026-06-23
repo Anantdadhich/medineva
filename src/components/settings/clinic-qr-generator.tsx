@@ -174,7 +174,7 @@ export function ClinicQrGenerator({ clinicId }: { clinicId: string }) {
                 </CardHeader>
                 <CardContent className="p-4 sm:p-6 pt-6 sm:pt-6">
                     <div className="flex flex-col items-center gap-8 md:flex-row md:items-start md:justify-center">
-                        <div className="rounded-2xl border border-gray-200/80 bg-white p-5 shadow-inner">
+                        <div className="rounded-2xl border border-gray-200/80 bg-white p-3.5 sm:p-5 shadow-inner max-w-full overflow-hidden">
                             {intakeUrl ? (
                                 <QRCodeSVG
                                     ref={qrRef}

@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Users } from "lucide-react"
 
 /** Dashboard analytics: warm clinical palette — no green / blue */
-const STROKE = "#a21caf"
+const STROKE = "#4f46e5"
 const GRADIENT_ID = "patientGrowthFill"
 
 interface PatientGrowthChartProps {
