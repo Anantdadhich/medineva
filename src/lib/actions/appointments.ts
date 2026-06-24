@@ -127,7 +127,7 @@ export async function createAppointment(
         const serviceName = validated.type || "consultation";
         const prettyDateTime = validated.scheduledAt.toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
 
-        const message = `Hi ${appointment.patient.firstName}, your ${serviceName} appointment at ${clinicName} is confirmed for ${prettyDateTime}.`;
+        const message = `Hi ${appointment.patient.firstName}, your ${serviceName} appointment at ${clinicName} is confirmed for ${prettyDateTime}.\nFrom Medineva.`;
 
 
         const notification = await prisma.notification.create({
@@ -146,6 +146,7 @@ export async function createAppointment(
         sendSMS({
             to: patientPhone,
             body: message,
+            templateId: process.env.MSG91_CONFIRMATION_TEMPLATE_ID,
             variables: {
                 VAR1: appointment.patient.firstName,
                 VAR2: serviceName,
@@ -179,7 +180,7 @@ export async function createAppointment(
                 const clinicName = appointment.clinic?.name || "our clinic";
                 const serviceName = validated.type || "consultation";
 
-                const reminderMessage = `Hi ${appointment.patient.firstName}, this is a reminder for your ${serviceName} appointment at ${clinicName} tomorrow at ${prettyTime}.`;
+                const reminderMessage = `Hi ${appointment.patient.firstName}, this is a reminder for your ${serviceName} appointment at ${clinicName} tomorrow at ${prettyTime}.\nFrom Medineva`;
 
                 const job = await prisma.smsJob.create({
                     data: {
@@ -201,6 +202,7 @@ export async function createAppointment(
                         jobId: job.id,
                         phone: patientPhone,
                         message: reminderMessage,
+                        templateId: process.env.MSG91_REMINDER_TEMPLATE_ID,
                         variables: {
                             VAR1: appointment.patient.firstName,
                             VAR2: serviceName,
@@ -448,8 +450,7 @@ export async function sendManualReminder(appointmentId: string) {
 
     const clinicName = appointment.clinic?.name || "our clinic";
     const prettyDateTime = appointment.scheduledAt.toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
-    const message = `Hi ${appointment.patient.firstName}, this is a reminder for your upcoming appointment at ${clinicName} on ${prettyDateTime}.`
-
+    const message = `Hi ${appointment.patient.firstName}, this is a reminder for your ${appointment.type || "consultation"} appointment at ${clinicName} ${prettyDateTime}.\nFrom Medineva`;
 
     const notification = await prisma.notification.create({
         data: {
@@ -467,6 +468,7 @@ export async function sendManualReminder(appointmentId: string) {
     const res = await sendSMS({
         to: appointment.patient.phone,
         body: message,
+        templateId: process.env.MSG91_REMINDER_TEMPLATE_ID,
         variables: {
             VAR1: appointment.patient.firstName,
             VAR2: appointment.type || "consultation",

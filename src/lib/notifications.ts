@@ -2,18 +2,17 @@ interface SendSMSParams {
     to: string
     body: string
     variables?: Record<string, string>
+    templateId?: string
 }
 
-export async function sendSMS({ to, body, variables }: SendSMSParams): Promise<{ success: boolean; messageId?: string; error?: any }> {
+export async function sendSMS({ to, body, variables, templateId }: SendSMSParams): Promise<{ success: boolean; messageId?: string; error?: any }> {
     const authKey = process.env.MSG91_AUTH_KEY?.trim()
-    const templateId = process.env.MSG91_TEMPLATE_ID?.trim()
+    const activeTemplateId = templateId?.trim() || process.env.MSG91_TEMPLATE_ID?.trim()
 
-
-    if (!authKey || !templateId) {
-        console.error(" MSG91 config missing! Please set MSG91_AUTH_KEY and MSG91_TEMPLATE_ID in .env")
+    if (!authKey || !activeTemplateId) {
+        console.error(" MSG91 config missing! Please set MSG91_AUTH_KEY in .env")
         return { success: false, error: "Missing MSG91 Configuration" }
     }
-
 
     try {
         let cleanPhone = to.replace(/[\s\-\(\)\+]/g, '')
@@ -25,9 +24,10 @@ export async function sendSMS({ to, body, variables }: SendSMSParams): Promise<{
         }
 
         const mappedVariables: Record<string, string> = {
-            VAR1: body,
             var1: body,
-            message: body
+            var2: "",
+            var3: "",
+            var4: ""
         }
 
         if (variables) {
@@ -38,7 +38,7 @@ export async function sendSMS({ to, body, variables }: SendSMSParams): Promise<{
         }
 
         const payload = {
-            template_id: templateId,
+            flow_id: activeTemplateId,
             recipients: [
                 {
                     mobiles: cleanPhone,
@@ -81,8 +81,9 @@ export async function sendSMS({ to, body, variables }: SendSMSParams): Promise<{
 
         return { success: true, messageId: data.request_id || data.message || `msg91_${Date.now()}` }
 
-    } catch (error) {
+    } catch (error: any) {
         console.error(" MSG91 Network Error:", error)
-        return { success: false, error }
+        return { success: false, error: error?.message || error }
     }
 }
+

@@ -210,8 +210,12 @@ export function PatientDetailClient({ patient }: { patient: any }) {
 
         setIsLoading(true)
         try {
-            await sendManualReminder(appointmentId)
-            alert("Reminder sent successfully!")
+            const res = await sendManualReminder(appointmentId)
+            if (res && res.success) {
+                alert("Reminder sent successfully!")
+            } else {
+                alert("Failed to send reminder.")
+            }
         } catch (error) {
             console.error("Failed to send reminder", error)
             alert("Failed to send reminder.")
@@ -265,8 +269,8 @@ export function PatientDetailClient({ patient }: { patient: any }) {
                         <div key={visit.id} className="relative group">
                             {/* Timeline Dot Indicator */}
                             <div className={`absolute -left-[22px] sm:-left-[30px] md:-left-[34px] top-1.5 w-4 h-4 rounded-full border-2 bg-white transition-all duration-200 flex items-center justify-center group-hover:scale-110 z-10
-                                ${isTimelineCompleted 
-                                    ? "border-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.25)]" 
+                                ${isTimelineCompleted
+                                    ? "border-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.25)]"
                                     : "border-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.25)]"
                                 }
                             `}>
@@ -282,8 +286,8 @@ export function PatientDetailClient({ patient }: { patient: any }) {
                                                 {format(visitDate, "dd MMM yyyy")}
                                             </span>
                                             <Badge className={`px-2.5 py-0.5 rounded-md font-bold uppercase text-[9px] tracking-wider border-0 ${isTimelineCompleted ? 'bg-emerald-50 text-emerald-700' :
-                                                    visit.status === "SCHEDULED" ? 'bg-cyan-100 text-cyan-700 hover:bg-cyan-200' :
-                                                        'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                                                visit.status === "SCHEDULED" ? 'bg-cyan-100 text-cyan-700 hover:bg-cyan-200' :
+                                                    'bg-slate-100 text-slate-700 hover:bg-slate-200'
                                                 }`}>
                                                 {visit.status}
                                             </Badge>
@@ -363,17 +367,16 @@ export function PatientDetailClient({ patient }: { patient: any }) {
                                                         const isSent = status === 'SENT'
                                                         const isFailed = status === 'FAILED'
                                                         const displayLabel = count > 1 ? `${type}: ${status} (${count})` : `${type}: ${status}`
-                                                        
+
                                                         return (
-                                                            <Badge 
-                                                                key={key} 
-                                                                className={`text-[9px] uppercase font-bold px-2 py-0.5 border-0 ${
-                                                                    isSent 
-                                                                        ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100/50' 
-                                                                        : isFailed 
-                                                                            ? 'bg-red-50 text-red-750 bg-red-50 hover:bg-red-100/50' 
+                                                            <Badge
+                                                                key={key}
+                                                                className={`text-[9px] uppercase font-bold px-2 py-0.5 border-0 ${isSent
+                                                                        ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100/50'
+                                                                        : isFailed
+                                                                            ? 'bg-red-50 text-red-750 bg-red-50 hover:bg-red-100/50'
                                                                             : 'bg-gray-100 text-gray-600 hover:bg-gray-150'
-                                                                }`}
+                                                                    }`}
                                                             >
                                                                 {displayLabel}
                                                             </Badge>
@@ -433,8 +436,8 @@ export function PatientDetailClient({ patient }: { patient: any }) {
                 description={`Patient since ${format(new Date(patient.createdAt), "MMMM yyyy")}`}
             >
                 <div className="flex gap-2">
-                    <Button 
-                        onClick={() => router.push(`/billing?patientId=${patient.id}`)} 
+                    <Button
+                        onClick={() => router.push(`/billing?patientId=${patient.id}`)}
                         className="h-10 px-4 sm:px-5 gap-1.5 rounded-xl bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white shadow-md transition-all hover:shadow-lg border border-gray-800/50 font-bold text-[13px] cursor-pointer"
                     >
                         <Plus className="h-4 w-4 shrink-0" strokeWidth={2.5} />
@@ -473,16 +476,16 @@ export function PatientDetailClient({ patient }: { patient: any }) {
                                     ID: {patient.id.slice(0, 8).toUpperCase()}
                                 </p>
                                 <div className="flex gap-2 w-full">
-                                    <a 
-                                        href={`tel:${patient.phone}`} 
+                                    <a
+                                        href={`tel:${patient.phone}`}
                                         className="flex-1 flex items-center justify-center py-2 px-3 bg-white/80 border border-gray-100 rounded-xl text-[12px] font-bold text-gray-700 hover:text-cyan-700 hover:bg-cyan-50/35 hover:border-cyan-150 transition-all shadow-sm group gap-1.5"
                                     >
                                         <Phone className="h-3.5 w-3.5 text-cyan-600 transition-transform group-hover:scale-110" />
                                         Call
                                     </a>
                                     {patient.email && (
-                                        <a 
-                                            href={`mailto:${patient.email}`} 
+                                        <a
+                                            href={`mailto:${patient.email}`}
                                             className="flex-1 flex items-center justify-center py-2 px-3 bg-white/80 border border-gray-100 rounded-xl text-[12px] font-bold text-gray-700 hover:text-cyan-700 hover:bg-cyan-50/35 hover:border-cyan-150 transition-all shadow-sm group gap-1.5"
                                         >
                                             <Mail className="h-3.5 w-3.5 text-cyan-600 transition-transform group-hover:scale-110" />
@@ -551,7 +554,7 @@ export function PatientDetailClient({ patient }: { patient: any }) {
                                     className="flex-1 min-h-[120px] w-full rounded-xl border border-gray-200/60 bg-white/40 px-4 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/20 shadow-xs transition-all focus:bg-white placeholder:text-gray-400 resize-none text-gray-700 leading-relaxed scrollbar-thin"
                                 />
                             </div>
-                            
+
                             <div className="space-y-3 pt-2">
                                 {patient.allergies && patient.allergies.length > 0 && (
                                     <div className="bg-red-50/40 rounded-xl border border-red-100/50 p-3">
@@ -629,8 +632,8 @@ export function PatientDetailClient({ patient }: { patient: any }) {
                                 <FileText className="h-4 w-4 text-cyan-600" />
                                 <CardTitle className="text-sm sm:text-[16px] font-bold text-gray-800">Payments</CardTitle>
                             </div>
-                            <Button 
-                                onClick={() => router.push(`/billing?patientId=${patient.id}`)} 
+                            <Button
+                                onClick={() => router.push(`/billing?patientId=${patient.id}`)}
                                 className="h-9 w-9 sm:w-auto px-0 sm:px-3.5 gap-0 sm:gap-1.5 rounded-xl bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white border border-gray-800/50 font-bold text-[12px] cursor-pointer shadow-sm transition-all flex items-center justify-center"
                             >
                                 <Plus className="h-3.5 w-3.5 shrink-0" />

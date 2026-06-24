@@ -37,7 +37,8 @@ export async function GET(req: Request) {
     for (const appt of appointments) {
         if (!appt.patient.phone) continue
 
-        const message = `Reminder: You have an appointment with Dr. ${appt.doctor.lastName} tomorrow at ${appt.scheduledAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.`
+        const prettyTime = appt.scheduledAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        const message = `Hi ${appt.patient.firstName}, this is a reminder for your ${appt.type || "consultation"} appointment at ${appt.clinic.name || "our clinic"} tomorrow at ${prettyTime}.\nFrom Medineva`
 
 
         const notification = await prisma.notification.create({
@@ -56,11 +57,12 @@ export async function GET(req: Request) {
         const res = await sendSMS({
             to: appt.patient.phone,
             body: message,
+            templateId: process.env.MSG91_REMINDER_TEMPLATE_ID,
             variables: {
                 VAR1: appt.patient.firstName,
                 VAR2: appt.type || "consultation",
                 VAR3: appt.clinic.name || "our clinic",
-                VAR4: "tomorrow at " + appt.scheduledAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                VAR4: "tomorrow at " + prettyTime
             }
         })
 

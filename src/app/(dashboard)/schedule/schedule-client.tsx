@@ -224,8 +224,12 @@ export function ScheduleClient({ clinicId, initialAppointments }: {
 
         setIsLoading(true)
         try {
-            await sendManualReminder(appointmentId)
-            alert("Reminder sent successfully!")
+            const res = await sendManualReminder(appointmentId)
+            if (res && res.success) {
+                alert("Reminder sent successfully!")
+            } else {
+                alert("Failed to send reminder. Check MSG91 status/logs.")
+            }
         } catch (error) {
             console.error("Failed to send reminder", error)
             alert("Failed to send reminder.")

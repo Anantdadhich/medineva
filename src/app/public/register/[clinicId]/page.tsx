@@ -28,45 +28,46 @@ export default async function PublicRegistrationPage(props: { params: Promise<{ 
     }
 
     return (
-        <div className="min-h-screen flex flex-col bg-slate-50 relative overflow-hidden selection:bg-cyan-100">
-            {/* Soft Background gradients for a premium feel even on public pages */}
-            <div className="absolute top-0 w-full h-64 bg-gradient-to-b from-cyan-600 to-cyan-800" />
+        <div className="min-h-screen flex flex-col bg-[#eef2f6] relative selection:bg-cyan-100">
+            <div className="flex-1 flex flex-col items-center justify-center p-2 sm:p-6 lg:p-8">
+                {/* Clean branding at top of card */}
+                <div className="w-full max-w-3xl bg-white rounded-xl sm:rounded-2xl border border-[#e2e8f0] shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden mb-8">
 
-            {/* Glass decoration */}
-            <div className="absolute top-10 right-10 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute top-20 left-10 w-48 h-48 bg-cyan-400/20 rounded-full blur-3xl pointer-events-none" />
-
-            <div className="relative z-10 flex-1 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
-
-                {/* Branding Header */}
-                <div className="mb-8 text-center">
-                    <div className="inline-flex items-center justify-center p-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-lg mb-4">
-                        <Image
-                            src="/pmslogo.png"
-                            alt="Medineva Logo"
-                            width={48}
-                            height={48}
-                            className="rounded-xl drop-shadow-md"
-                        />
-                    </div>
-                    <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight drop-shadow-md">
-                        {clinic.name || "Clinic"} Patient Intake Form
-                    </h1>
-                    <p className="text-cyan-100/80 mt-2 font-medium">
-                        Fast, secure, and touch-free registration
-                    </p>
-                </div>
-
-                {/* Form Container */}
-                <div className="w-full max-w-xl bg-white/80 backdrop-blur-3xl p-6 sm:p-8 rounded-[32px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-white">
-                    <div className="mb-6 pb-6 border-b border-gray-100">
-                        <h2 className="text-xl font-bold text-gray-900">Personal Details</h2>
-                        <p className="text-[14px] text-gray-500 mt-1 font-medium">
-                            Please fill in your information to speed up your check-in process.
-                        </p>
+                    {/* Card Header matching screenshot */}
+                    <div className="px-5 py-4 sm:px-6 sm:py-5 border-b border-[#f1f5f9] flex items-start justify-between gap-4">
+                        <div className="min-w-0 flex-1">
+                            <h1 className="text-lg sm:text-2xl font-semibold text-[#0f172a]">
+                                Patient information
+                            </h1>
+                            <p className="text-[12px] sm:text-[13px] text-gray-500 font-medium mt-0.5 break-words">
+                                Registration for <span className="font-bold text-green-600">{clinic.name}</span>
+                            </p>
+                        </div>
+                        <div className="shrink-0">
+                            {clinic.logo ? (
+                                <Image
+                                    src={clinic.logo}
+                                    alt={`${clinic.name} Logo`}
+                                    width={40}
+                                    height={40}
+                                    className="rounded-lg object-contain"
+                                />
+                            ) : (
+                                <Image
+                                    src="/pmslogo.png"
+                                    alt="Medineva Logo"
+                                    width={32}
+                                    height={32}
+                                    className="rounded-lg opacity-85"
+                                />
+                            )}
+                        </div>
                     </div>
 
-                    <PublicPatientForm clinicId={params.clinicId} />
+                    {/* Card Body */}
+                    <div className="p-6 sm:p-8">
+                        <PublicPatientForm clinicId={params.clinicId} />
+                    </div>
                 </div>
             </div>
         </div>
