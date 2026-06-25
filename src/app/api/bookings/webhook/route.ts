@@ -52,6 +52,23 @@ export async function POST(req: NextRequest) {
             )
         }
 
+        // Find the first active doctor/admin user for this clinic to assign the booking
+        const defaultDoctor = await prisma.user.findFirst({
+            where: {
+                clinicId: clinic.id,
+                role: { in: ["DOCTOR", "ADMIN"] },
+                isActive: true
+            }
+        })
+
+        if (!defaultDoctor) {
+            console.error("No active doctor or admin found in clinic to assign booking")
+            return NextResponse.json(
+                { success: false, error: "No active staff found in clinic to assign booking" },
+                { status: 500 }
+            )
+        }
+
         console.log("Processing for clinic:", clinic.id, clinic.name)
 
         // Check if patient exists by phone number
@@ -64,6 +81,15 @@ export async function POST(req: NextRequest) {
             }
         })
 
+        // Calculate dateOfBirth from age (since Patient schema requires dateOfBirth and has no age column)
+        const calculatedDob = new Date()
+        if (age) {
+            calculatedDob.setFullYear(calculatedDob.getFullYear() - parseInt(age))
+        } else {
+            // Default fallback if age is missing (e.g. 30 years old)
+            calculatedDob.setFullYear(calculatedDob.getFullYear() - 30)
+        }
+
         // Create or update patient
         if (patient) {
             console.log("Updating existing patient:", patient.id)
@@ -72,7 +98,7 @@ export async function POST(req: NextRequest) {
                 data: {
                     firstName,
                     lastName,
-                    ...(age && { age: parseInt(age) }),
+                    dateOfBirth: calculatedDob,
                     ...(gender && { gender }),
                     ...(address && { address }),
                 }
@@ -84,7 +110,7 @@ export async function POST(req: NextRequest) {
                     firstName,
                     lastName,
                     phone: formattedPhone,
-                    ...(age && { age: parseInt(age) }),
+                    dateOfBirth: calculatedDob,
                     ...(gender && { gender }),
                     ...(address && { address }),
                     clinicId: clinic.id,
@@ -123,7 +149,7 @@ export async function POST(req: NextRequest) {
         // Create appointment
         const appointment = await prisma.appointment.create({
             data: {
-                doctorId: "",
+                doctorId: defaultDoctor.id,
                 patientId: patient.id,
                 clinicId: clinic.id,
                 scheduledAt: appointmentDate,

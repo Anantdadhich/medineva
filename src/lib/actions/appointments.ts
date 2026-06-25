@@ -23,7 +23,7 @@ export async function getAppointments(
     if (!user || !user.hasAccess || user.clinicId !== clinicId) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`appointments-get-${user.id}`)) {
+    if (!await checkRateLimit(`appointments-get-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -98,12 +98,19 @@ export async function createAppointment(
     if (!user || !user.hasAccess || user.clinicId !== clinicId) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`appointments-create-${user.id}`)) {
+    if (!await checkRateLimit(`appointments-create-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
 
     const validated = appointmentFormSchema.parse(data)
+
+    const patient = await prisma.patient.findUnique({
+        where: { id: validated.patientId }
+    })
+    if (!patient || patient.clinicId !== clinicId) {
+        throw new Error("Unauthorized: Patient does not belong to this clinic")
+    }
 
     const appointment = await prisma.appointment.create({
         data: {
@@ -241,7 +248,7 @@ export async function updateAppointmentStatus(
     if (!user || !user.hasAccess) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`appointments-status-${user.id}`)) {
+    if (!await checkRateLimit(`appointments-status-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -272,7 +279,7 @@ export async function getUpcomingAppointments(clinicId: string, limit = 5) {
     if (!user || !user.hasAccess || user.clinicId !== clinicId) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`appointments-upcoming-${user.id}`)) {
+    if (!await checkRateLimit(`appointments-upcoming-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -300,7 +307,7 @@ export async function getTodayAppointments(clinicId: string) {
     if (!user || !user.hasAccess || user.clinicId !== clinicId) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`appointments-today-${user.id}`)) {
+    if (!await checkRateLimit(`appointments-today-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -342,7 +349,7 @@ export async function updateAppointment(
     if (!user || !user.hasAccess) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`appointments-update-${user.id}`)) {
+    if (!await checkRateLimit(`appointments-update-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -357,6 +364,12 @@ export async function updateAppointment(
     if (data.notes !== undefined) updateData.notes = data.notes
     if (data.duration !== undefined) updateData.duration = data.duration
     if (data.doctorId !== undefined) {
+        const doctor = await prisma.user.findUnique({
+            where: { id: data.doctorId }
+        })
+        if (!doctor || doctor.clinicId !== user.clinicId) {
+            throw new Error("Unauthorized: Doctor does not belong to this clinic")
+        }
         updateData.doctor = { connect: { id: data.doctorId } }
     }
 
@@ -381,7 +394,7 @@ export async function getPatientAppointments(patientId: string) {
     if (!user || !user.hasAccess) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`appointments-patient-${user.id}`)) {
+    if (!await checkRateLimit(`appointments-patient-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -406,7 +419,7 @@ export async function deleteAppointment(id: string) {
     if (!user || !user.hasAccess) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`appointments-delete-${user.id}`)) {
+    if (!await checkRateLimit(`appointments-delete-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -431,7 +444,7 @@ export async function sendManualReminder(appointmentId: string) {
     if (!user || !user.hasAccess) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`appointments-reminder-${user.id}`)) {
+    if (!await checkRateLimit(`appointments-reminder-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 

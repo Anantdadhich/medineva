@@ -1,6 +1,6 @@
-# Dental PMS (Patient Management System)
+# Medineva PMS (Patient Management System)
 
-A modern, comprehensive, and state-of-the-art clinic management solution designed specifically for dental professionals. This application streamlines patient workflows, scheduling, billing, and clinical record-keeping with a premium, responsive UI.
+A modern, comprehensive, and state-of-the-art clinic management solution designed specifically for medical and healthcare professionals. This application streamlines patient workflows, scheduling, billing, and clinical record-keeping with a premium, responsive UI.
 
 ## Key Features
 
@@ -81,7 +81,7 @@ Open [http://localhost:3000](http://localhost:3000) to see your local instance.
 
 ```text
 src/
-├── app/             # Next.js App Router (Pages & API)
+│── app/             # Next.js App Router (Pages & API)
 ├── components/      # Reusable UI components
 │   ├── ui/         # Base Shadcn/UI components
 │   ├── dashboard/  # Dashboard specific charts & cards
@@ -99,4 +99,4 @@ src/
 Individual/Commercial license as per project terms.
 
 ---
-Built with ❤️ for Dental Excellence.
+Built with ❤️ for Clinical Excellence.

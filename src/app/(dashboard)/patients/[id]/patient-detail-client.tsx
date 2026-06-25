@@ -505,7 +505,7 @@ export function PatientDetailClient({ patient }: { patient: any }) {
                                     <p className="text-[14px] font-bold text-gray-800 mt-0.5">{patient.gender || "Unknown"}</p>
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Birthday</p>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">DOB</p>
                                     <p className="text-[14px] font-bold text-gray-800 mt-0.5">{format(new Date(patient.dateOfBirth), "dd MMM yyyy")}</p>
                                 </div>
                                 <div>

@@ -19,57 +19,57 @@ export async function verifyAccessCodeAction(code: string) {
             return { success: false, error: "You must be logged in to verify an access code." }
         }
 
-        if (!checkRateLimit(`access-codes-verify-${user.id}`)) {
+        if (!await checkRateLimit(`access-codes-verify-${user.id}`)) {
             return { success: false, error: "Too many verification attempts. Please try again later." }
         }
 
         const trimmedCode = code.trim().toUpperCase()
 
-        // Find the code
-        const accessCode = await prisma.accessCode.findUnique({
-            where: { code: trimmedCode },
-        })
+        // Atomically verify and claim the access code inside an interactive transaction
+        await prisma.$transaction(async (tx) => {
+            const currentCode = await tx.accessCode.findUnique({
+                where: { code: trimmedCode },
+            })
 
-        if (!accessCode) {
-            return { success: false, error: "Invalid access code. Please check and try again." }
-        }
+            if (!currentCode) {
+                throw new Error("Invalid access code. Please check and try again.")
+            }
 
-        if (accessCode.isUsed) {
-            return { success: false, error: "This access code has already been used." }
-        }
+            if (currentCode.isUsed) {
+                throw new Error("This access code has already been used.")
+            }
 
-        // Atomically update user access status and claim the access code
-        await prisma.$transaction([
-            prisma.user.update({
+            await tx.user.update({
                 where: { id: user.id },
                 data: { hasAccess: true },
-            }),
-            prisma.accessCode.update({
-                where: { id: accessCode.id },
+            })
+
+            await tx.accessCode.update({
+                where: { id: currentCode.id },
                 data: {
                     isUsed: true,
                     usedById: user.id,
                 },
-            }),
-        ])
+            })
+        })
 
         revalidatePath("/")
         revalidatePath("/dashboard")
         return { success: true }
     } catch (error: any) {
         console.error("Error verifying access code:", error)
-        return { success: false, error: "An unexpected error occurred. Please try again later." }
+        return { success: false, error: error.message || "An unexpected error occurred. Please try again later." }
     }
 }
 
 export async function generateAccessCodesAction(count: number) {
     try {
         const user = await getCurrentUser()
-        if (!user || !isAdmin(user.email)) {
+        if (!user || !isAdmin(user.email, user.role)) {
             throw new Error("Unauthorized: Only admins can generate access codes.")
         }
 
-        if (!checkRateLimit(`access-codes-generate-${user.id}`)) {
+        if (!await checkRateLimit(`access-codes-generate-${user.id}`)) {
             throw new Error("Rate limit exceeded")
         }
 
@@ -117,11 +117,11 @@ export async function generateAccessCodesAction(count: number) {
 export async function getAccessCodesAction() {
     try {
         const user = await getCurrentUser()
-        if (!user || !isAdmin(user.email)) {
+        if (!user || !isAdmin(user.email, user.role)) {
             throw new Error("Unauthorized: Only admins can view access codes.")
         }
 
-        if (!checkRateLimit(`access-codes-get-${user.id}`)) {
+        if (!await checkRateLimit(`access-codes-get-${user.id}`)) {
             throw new Error("Rate limit exceeded")
         }
 

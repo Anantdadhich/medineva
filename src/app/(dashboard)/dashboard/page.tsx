@@ -47,19 +47,7 @@ export default async function DashboardPage() {
     }
 
     const clinicId = user.clinicId
-    const [
-        stats,
-        upcomingAppointments,
-        recentActivity,
-        revenueDataMonthly,
-        revenueDataWeekly,
-        appointmentStatusData,
-        recentMessages,
-        patientGrowthDataMonthly,
-        patientGrowthDataWeekly,
-        topServicesData,
-        monthlyComparisonData
-    ] = await Promise.all([
+    const results = await Promise.allSettled([
         getDashboardStats(clinicId),
         getUpcomingAppointments(clinicId),
         getRecentActivity(clinicId),
@@ -73,6 +61,23 @@ export default async function DashboardPage() {
         getMonthlyComparisonData(clinicId)
     ])
 
+    const stats = results[0].status === "fulfilled" ? results[0].value : [
+        { title: "Patients", value: "0", change: "Total registered", trend: "neutral", description: "Active patients", progress: 0 },
+        { title: "Appts", value: "0", change: "0 completed", trend: "neutral", description: "Scheduled today", progress: 0 },
+        { title: "Revenue", value: 0, isCurrency: true, change: "0%", trend: "neutral", description: "vs last month", progress: 0 },
+        { title: "Pending", value: "0", change: "Awaiting payment", trend: "neutral", description: "Outstanding", progress: 0 }
+    ]
+    const upcomingAppointments = results[1].status === "fulfilled" ? results[1].value : []
+    const recentActivity = results[2].status === "fulfilled" ? results[2].value : []
+    const revenueDataMonthly = results[3].status === "fulfilled" ? results[3].value : []
+    const revenueDataWeekly = results[4].status === "fulfilled" ? results[4].value : []
+    const appointmentStatusData = results[5].status === "fulfilled" ? results[5].value : []
+    const recentMessages = results[6].status === "fulfilled" ? results[6].value : []
+    const patientGrowthDataMonthly = results[7].status === "fulfilled" ? results[7].value : []
+    const patientGrowthDataWeekly = results[8].status === "fulfilled" ? results[8].value : []
+    const topServicesData = results[9].status === "fulfilled" ? results[9].value : []
+    const monthlyComparisonData = results[10].status === "fulfilled" ? results[10].value : []
+
     return (
         <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col gap-6 relative">
             {/* Global Ambient Background Glows */}
@@ -83,7 +88,7 @@ export default async function DashboardPage() {
 
             <Header
                 title="Dashboard Overview"
-                description={`Welcome back, Dr ${user.firstName}. Detailed information about your clinic's health.`}
+                description="Medineva Practice Management Suite. Detailed information about your clinic's health."
                 clinicId={clinicId}
             />
 

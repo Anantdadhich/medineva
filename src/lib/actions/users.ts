@@ -11,7 +11,7 @@ export async function getDoctors(clinicId: string) {
     if (!currentUser || !currentUser.hasAccess || currentUser.clinicId !== clinicId) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`users-get-doctors-${currentUser.id}`)) {
+    if (!await checkRateLimit(`users-get-doctors-${currentUser.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -38,7 +38,7 @@ export async function getUsers(clinicId: string, role?: UserRole) {
     if (!currentUser || !currentUser.hasAccess || currentUser.clinicId !== clinicId) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`users-get-${currentUser.id}`)) {
+    if (!await checkRateLimit(`users-get-${currentUser.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 

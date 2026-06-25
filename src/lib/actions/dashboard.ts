@@ -1,11 +1,15 @@
 import prisma from "@/lib/prisma"
 import { startOfMonth, endOfMonth, subMonths, format, startOfYear, endOfYear, subYears } from "date-fns"
 import { getCurrentUser } from "@/lib/auth"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 async function validateClinicAccess(clinicId: string) {
     const user = await getCurrentUser()
     if (!user || !user.hasAccess || user.clinicId !== clinicId) {
         throw new Error("Unauthorized")
+    }
+    if (!await checkRateLimit(`dashboard-${user.id}`)) {
+        throw new Error("Rate limit exceeded")
     }
 }
 

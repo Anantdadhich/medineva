@@ -53,7 +53,7 @@ export async function getInvoices(
     if (!user || !user.hasAccess || user.clinicId !== clinicId) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`invoices-get-${user.id}`)) {
+    if (!await checkRateLimit(`invoices-get-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -83,7 +83,7 @@ export async function getInvoiceById(id: string) {
     if (!user || !user.hasAccess) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`invoices-get-by-id-${user.id}`)) {
+    if (!await checkRateLimit(`invoices-get-by-id-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -118,12 +118,43 @@ export async function createInvoice(clinicId: string, data: CreateInvoiceValues)
     if (!user || !user.hasAccess || user.clinicId !== clinicId) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`invoices-create-${user.id}`)) {
+    if (!await checkRateLimit(`invoices-create-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
     // Server-side validation
     const validated = createInvoiceSchema.parse(data)
+
+    // Verify patient belongs to the clinic to prevent IDOR cross-tenant mapping
+    const patient = await prisma.patient.findUnique({
+        where: { id: validated.patientId }
+    })
+    if (!patient || patient.clinicId !== clinicId) {
+        throw new Error("Unauthorized: Patient does not belong to this clinic")
+    }
+
+    // Verify appointment belongs to the clinic and patient if provided
+    if (validated.appointmentId) {
+        const appointment = await prisma.appointment.findUnique({
+            where: { id: validated.appointmentId }
+        })
+        if (!appointment || appointment.clinicId !== clinicId || appointment.patientId !== validated.patientId) {
+            throw new Error("Unauthorized: Appointment not found in this clinic")
+        }
+    }
+
+    // Verify clinicalRecordIds mapped on line items belong to the same clinic and patient
+    for (const item of validated.items) {
+        if (item.clinicalRecordId) {
+            const clinicalRecord = await prisma.clinicalRecord.findUnique({
+                where: { id: item.clinicalRecordId },
+                include: { patient: true }
+            })
+            if (!clinicalRecord || clinicalRecord.patient.clinicId !== clinicId || clinicalRecord.patientId !== validated.patientId) {
+                throw new Error("Unauthorized: Invalid clinical record mapping")
+            }
+        }
+    }
 
     const subtotal = validated.items.reduce(
         (sum, item) => sum + item.unitPrice * item.quantity,
@@ -178,7 +209,7 @@ export async function recordPayment(data: PaymentFormValues) {
     if (!user || !user.hasAccess) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`invoices-record-payment-${user.id}`)) {
+    if (!await checkRateLimit(`invoices-record-payment-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -242,7 +273,7 @@ export async function generateInvoiceFromAppointment(
     if (!user || !user.hasAccess || user.clinicId !== clinicId) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`invoices-generate-${user.id}`)) {
+    if (!await checkRateLimit(`invoices-generate-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -299,7 +330,7 @@ export async function updateInvoice(
     if (!user || !user.hasAccess) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`invoices-update-${user.id}`)) {
+    if (!await checkRateLimit(`invoices-update-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -386,7 +417,7 @@ export async function updateInvoiceItems(
     if (!user || !user.hasAccess) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`invoices-items-update-${user.id}`)) {
+    if (!await checkRateLimit(`invoices-items-update-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -458,7 +489,7 @@ export async function deleteInvoice(invoiceId: string) {
     if (!user || !user.hasAccess) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`invoices-delete-${user.id}`)) {
+    if (!await checkRateLimit(`invoices-delete-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 

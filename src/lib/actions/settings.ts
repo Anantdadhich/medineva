@@ -20,7 +20,7 @@ export async function updateClinicSettings(clinicId: string, userId: string, dat
     if (!user || !user.hasAccess || user.clinicId !== clinicId || user.id !== userId) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`settings-update-${user.id}`)) {
+    if (!await checkRateLimit(`settings-update-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 

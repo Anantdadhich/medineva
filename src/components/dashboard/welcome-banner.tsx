@@ -3,9 +3,26 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Calendar, Users } from "lucide-react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 
 export function WelcomeBanner({ userName }: { userName: string }) {
+    const [greeting, setGreeting] = useState("Welcome back")
+
+    useEffect(() => {
+        const hour = new Date().getHours()
+        if (hour < 12) {
+            setGreeting("Good morning")
+        } else if (hour < 17) {
+            setGreeting("Good afternoon")
+        } else {
+            setGreeting("Good evening")
+        }
+    }, [])
+
+    const docName = userName?.trim().replace(/^Dr\.\s+/i, "") || "Doctor"
+    const firstName = docName.split(" ")[0]
+
     return (
         <Card className="col-span-full lg:col-span-2 overflow-hidden bg-white/70 backdrop-blur-2xl border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.02)] relative min-h-fit sm:min-h-[220px]">
             {/* Background Decoration */}
@@ -16,8 +33,7 @@ export function WelcomeBanner({ userName }: { userName: string }) {
 
             <CardContent className="relative z-10 p-4 sm:p-8 flex flex-col justify-center h-full">
                 <h2 className="text-[18px] sm:text-[28px] md:text-[32px] font-bold text-gray-900 leading-tight tracking-tight mb-1.5">
-                    Welcome to Medineva <br className="hidden sm:inline" />
-                    Management Dashboard
+                    {greeting}, Dr. {firstName}
                 </h2>
                 <p className="text-[12px] sm:text-[15px] text-gray-500 font-medium mb-4 sm:mb-8 max-w-md">
                     Detailed information about your clinic's health, today's schedule, and recent patient activity.

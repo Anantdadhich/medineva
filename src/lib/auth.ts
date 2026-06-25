@@ -1,7 +1,8 @@
 import { auth, currentUser } from '@clerk/nextjs/server'
 import prisma from '@/lib/prisma'
 
-export function isAdmin(email: string | undefined): boolean {
+export function isAdmin(email: string | undefined, role?: string): boolean {
+    if (role === 'SUPERADMIN' || role === 'ADMIN') return true
     if (!email) return false
     const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(e => e.trim().toLowerCase()) || []
     return adminEmails.includes(email.toLowerCase())
@@ -65,7 +66,7 @@ export async function getCurrentUser() {
         }
     }
 
-    if (user && isAdmin(user.email) && !user.hasAccess) {
+    if (user && isAdmin(user.email, user.role) && !user.hasAccess) {
         try {
             user = await prisma.user.update({
                 where: { id: user.id },

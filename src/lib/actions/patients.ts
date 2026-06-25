@@ -50,7 +50,7 @@ export async function getPatients(clinicId: string, query?: string) {
     if (!user || !user.hasAccess || user.clinicId !== clinicId) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`patients-get-${user.id}`)) {
+    if (!await checkRateLimit(`patients-get-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -113,7 +113,7 @@ export async function getPatientById(id: string) {
     if (!user || !user.hasAccess) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`patients-get-by-id-${user.id}`)) {
+    if (!await checkRateLimit(`patients-get-by-id-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -154,7 +154,7 @@ export async function createPatient(clinicId: string, data: PatientFormValues) {
     if (!user || !user.hasAccess || user.clinicId !== clinicId) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`patients-create-${user.id}`)) {
+    if (!await checkRateLimit(`patients-create-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -180,7 +180,7 @@ export async function updatePatient(id: string, data: Partial<PatientFormValues>
     if (!user || !user.hasAccess) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`patients-update-${user.id}`)) {
+    if (!await checkRateLimit(`patients-update-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -212,7 +212,7 @@ export async function deletePatient(id: string) {
     if (!user || !user.hasAccess) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`patients-delete-${user.id}`)) {
+    if (!await checkRateLimit(`patients-delete-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -255,7 +255,7 @@ export async function importPatients(clinicId: string, patients: any[]) {
     if (!user || !user.hasAccess || user.clinicId !== clinicId) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`patients-import-${user.id}`)) {
+    if (!await checkRateLimit(`patients-import-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -433,7 +433,7 @@ export async function exportPatients(clinicId: string, startDate?: Date, endDate
     if (!user || !user.hasAccess || user.clinicId !== clinicId) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`patients-export-${user.id}`)) {
+    if (!await checkRateLimit(`patients-export-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 

@@ -22,7 +22,7 @@ export async function getClinicalRecords(patientId: string) {
     if (!user || !user.hasAccess) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`clinical-records-get-${user.id}`)) {
+    if (!await checkRateLimit(`clinical-records-get-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -49,7 +49,7 @@ export async function getClinicalRecordsByAppointment(appointmentId: string) {
     if (!user || !user.hasAccess) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`clinical-records-appointment-get-${user.id}`)) {
+    if (!await checkRateLimit(`clinical-records-appointment-get-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -78,7 +78,7 @@ export async function createClinicalRecord(
     if (!user || !user.hasAccess || user.id !== userId) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`clinical-records-create-${user.id}`)) {
+    if (!await checkRateLimit(`clinical-records-create-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -86,12 +86,19 @@ export async function createClinicalRecord(
     if (!patient || patient.clinicId !== user.clinicId) {
         throw new Error("Unauthorized")
     }
+    const appointment = await prisma.appointment.findUnique({
+        where: { id: data.appointmentId }
+    })
+    if (!appointment || appointment.clinicId !== user.clinicId || appointment.patientId !== data.patientId) {
+        throw new Error("Unauthorized: Appointment not found in this clinic")
+    }
+
     // Get the procedure to get the standard cost
     const procedure = await prisma.treatmentCatalog.findUnique({
         where: { id: data.procedureId },
     })
 
-    if (!procedure) {
+    if (!procedure || procedure.clinicId !== user.clinicId) {
         throw new Error("Treatment not found")
     }
 
@@ -140,7 +147,7 @@ export async function updateClinicalRecord(
     if (!user || !user.hasAccess || user.id !== userId) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`clinical-records-update-${user.id}`)) {
+    if (!await checkRateLimit(`clinical-records-update-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -191,7 +198,7 @@ export async function deleteClinicalRecord(id: string, userId: string) {
     if (!user || !user.hasAccess || user.id !== userId) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`clinical-records-delete-${user.id}`)) {
+    if (!await checkRateLimit(`clinical-records-delete-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -226,7 +233,7 @@ export async function getToothHistory(patientId: string, toothNumber: string) {
     if (!user || !user.hasAccess) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`clinical-records-tooth-${user.id}`)) {
+    if (!await checkRateLimit(`clinical-records-tooth-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 

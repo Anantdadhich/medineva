@@ -58,7 +58,7 @@ export function Sidebar({ className, isAdmin = false }: SidebarProps) {
             variant="floating"
             collapsible="icon"
             className={cn(
-                // Container: transparent so floating inner shows; no harsh border on desktop
+
                 "border-0 bg-transparent",
                 className
             )}
@@ -69,10 +69,10 @@ export function Sidebar({ className, isAdmin = false }: SidebarProps) {
                     onClick={() => {
                         if (isMobile) setOpenMobile(false)
                     }}
-                    className="flex min-w-0 items-center gap-3 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center"
+                    className="flex min-w-0 items-center gap-3 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center group"
                 >
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-900 shadow-md shadow-slate-900/15 ring-1 ring-white/15 transition-transform duration-200 hover:scale-[1.02]">
-                        <Stethoscope className="h-[21px] w-[21px] text-cyan-400" strokeWidth={2.25} />
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-900 shadow-md shadow-cyan-950/10 ring-1 ring-cyan-500/20 transition-transform duration-300 group-hover:scale-105">
+                        <Stethoscope className="h-[21px] w-[21px] text-cyan-400 transition-transform duration-500 group-hover:rotate-[15deg]" strokeWidth={2.25} />
                     </div>
                     <div className="min-w-0 group-data-[collapsible=icon]:hidden">
                         <p className="truncate text-[17px] font-bold tracking-tight text-slate-900">
@@ -115,8 +115,8 @@ export function Sidebar({ className, isAdmin = false }: SidebarProps) {
                                             : "text-slate-600 hover:text-slate-900"
                                     )}
                                 >
-                                    <Link 
-                                        href={item.href} 
+                                    <Link
+                                        href={item.href}
                                         className="flex w-full items-center gap-3"
                                         onClick={() => {
                                             if (isMobile) setOpenMobile(false)
@@ -166,8 +166,8 @@ export function Sidebar({ className, isAdmin = false }: SidebarProps) {
                                             : "text-slate-600 hover:text-slate-900"
                                     )}
                                 >
-                                    <Link 
-                                        href="/admin/codes" 
+                                    <Link
+                                        href="/admin/codes"
                                         className="flex w-full items-center gap-3"
                                         onClick={() => {
                                             if (isMobile) setOpenMobile(false)

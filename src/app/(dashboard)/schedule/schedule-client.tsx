@@ -228,7 +228,7 @@ export function ScheduleClient({ clinicId, initialAppointments }: {
             if (res && res.success) {
                 alert("Reminder sent successfully!")
             } else {
-                alert("Failed to send reminder. Check MSG91 status/logs.")
+                alert("Failed to send SMS reminder. Please check your SMS provider configurations or patient phone number format.")
             }
         } catch (error) {
             console.error("Failed to send reminder", error)

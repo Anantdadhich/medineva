@@ -15,7 +15,13 @@ export async function POST(req: Request) {
     const bodyText = await req.text()
 
 
-    if (process.env.QSTASH_CURRENT_SIGNING_KEY) {
+    const currentSigningKey = process.env.QSTASH_CURRENT_SIGNING_KEY
+    if (!currentSigningKey && process.env.NODE_ENV === 'production') {
+      console.error("QStash signing key configuration missing in production!")
+      return NextResponse.json({ error: 'Signing key configuration missing' }, { status: 500 })
+    }
+
+    if (currentSigningKey) {
       const signature = req.headers.get('Upstash-Signature')
       if (!signature) {
         return NextResponse.json({ error: 'Missing signature' }, { status: 401 })

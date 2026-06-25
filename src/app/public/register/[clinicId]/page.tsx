@@ -40,7 +40,7 @@ export default async function PublicRegistrationPage(props: { params: Promise<{ 
                                 Patient information
                             </h1>
                             <p className="text-[12px] sm:text-[13px] text-gray-500 font-medium mt-0.5 break-words">
-                                Registration for <span className="font-bold text-green-600">{clinic.name}</span>
+                                Registration for <span className="font-bold text-cyan-600">{clinic.name}</span>
                             </p>
                         </div>
                         <div className="shrink-0">

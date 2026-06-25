@@ -202,7 +202,7 @@ export function PublicPatientForm({ clinicId }: PublicPatientFormProps) {
                         <Input
                             id="email"
                             type="email"
-                            placeholder="Enter mail"
+                            placeholder="Enter email address"
                             disabled={isLoading}
                             className="h-11 rounded-lg border border-[#e2e8f0] bg-white px-3.5 text-[15px] text-gray-900 placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-cyan-500/20 focus-visible:border-cyan-500 focus-visible:ring-offset-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all disabled:opacity-50"
                             {...register("email")}
@@ -256,7 +256,7 @@ export function PublicPatientForm({ clinicId }: PublicPatientFormProps) {
                 {/* Info Text */}
                 <div className="flex items-center gap-2 text-[13px] text-gray-500">
                     <Info className="h-4.5 w-4.5 text-gray-400 shrink-0" strokeWidth={2.2} />
-                    <span>Fill all fields that have asterisk.</span>
+                    <span>Please complete all fields marked with an asterisk (*).</span>
                 </div>
 
                 {/* Actions */}

@@ -20,27 +20,32 @@ export function CircularProgressStatCard({ title, value, progressValue, label, d
     let colorClass = "text-slate-700"
     let bgTrackClass = "text-slate-100"
     let labelColorClass = "text-slate-800"
+    let hoverShadowClass = "hover:shadow-[0_12px_40px_rgba(148,163,184,0.15)] hover:border-slate-200/80"
 
     if (lowerTitle.includes("patient")) {
         colorClass = "text-cyan-500"
         bgTrackClass = "text-cyan-100/40"
         labelColorClass = "text-cyan-600 font-black"
+        hoverShadowClass = "hover:shadow-[0_12px_40px_rgba(6,182,212,0.15)] hover:border-cyan-200"
     } else if (lowerTitle.includes("appt") || lowerTitle.includes("appointment")) {
         colorClass = "text-indigo-500"
         bgTrackClass = "text-indigo-100/40"
         labelColorClass = "text-indigo-600 font-black"
+        hoverShadowClass = "hover:shadow-[0_12px_40px_rgba(99,102,241,0.15)] hover:border-indigo-200"
     } else if (lowerTitle.includes("revenue") || lowerTitle.includes("earning")) {
         colorClass = "text-emerald-500"
         bgTrackClass = "text-emerald-100/40"
         labelColorClass = "text-emerald-600 font-black"
+        hoverShadowClass = "hover:shadow-[0_12px_40px_rgba(16,185,129,0.15)] hover:border-emerald-200"
     } else if (lowerTitle.includes("pending") || lowerTitle.includes("outstanding")) {
         colorClass = "text-amber-500"
         bgTrackClass = "text-amber-100/40"
         labelColorClass = "text-amber-600 font-black"
+        hoverShadowClass = "hover:shadow-[0_12px_40px_rgba(245,158,11,0.15)] hover:border-amber-200"
     }
 
     return (
-        <Card className="flex flex-col min-[380px]:flex-row min-[380px]:items-center justify-between p-3.5 sm:p-4 bg-white/70 backdrop-blur-2xl border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.015)] rounded-[20px] gap-3 transition-all duration-300 ease-out hover:scale-[1.02] hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(0,0,0,0.03)] border hover:border-slate-200/80 cursor-pointer group">
+        <Card className={`flex flex-col min-[380px]:flex-row min-[380px]:items-center justify-between p-3.5 sm:p-4 bg-white/70 backdrop-blur-2xl border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.015)] rounded-[20px] gap-3 transition-all duration-300 ease-out hover:scale-[1.02] hover:-translate-y-0.5 border cursor-pointer group ${hoverShadowClass}`}>
             <div className="flex flex-col gap-1 min-w-0 flex-1">
                 <span className="text-[11px] min-[380px]:text-[13px] font-bold text-gray-400 uppercase tracking-wider truncate transition-colors group-hover:text-gray-500">{title}</span>
                 <span className="text-[20px] min-[380px]:text-[24px] sm:text-[28px] font-black text-gray-900 leading-none mt-1 truncate">{value}</span>

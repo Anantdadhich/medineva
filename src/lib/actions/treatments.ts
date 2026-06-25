@@ -19,7 +19,7 @@ export async function getTreatments(clinicId: string, category?: string) {
     if (!user || !user.hasAccess || user.clinicId !== clinicId) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`treatments-get-${user.id}`)) {
+    if (!await checkRateLimit(`treatments-get-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -39,7 +39,7 @@ export async function getAllTreatments(clinicId: string) {
     if (!user || !user.hasAccess || user.clinicId !== clinicId) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`treatments-get-all-${user.id}`)) {
+    if (!await checkRateLimit(`treatments-get-all-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -55,7 +55,7 @@ export async function createTreatment(clinicId: string, data: TreatmentFormValue
     if (!user || !user.hasAccess || user.clinicId !== clinicId) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`treatments-create-${user.id}`)) {
+    if (!await checkRateLimit(`treatments-create-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -76,7 +76,7 @@ export async function updateTreatment(id: string, data: Partial<TreatmentFormVal
     if (!user || !user.hasAccess) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`treatments-update-${user.id}`)) {
+    if (!await checkRateLimit(`treatments-update-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -102,7 +102,7 @@ export async function deleteTreatment(id: string) {
     if (!user || !user.hasAccess) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`treatments-delete-${user.id}`)) {
+    if (!await checkRateLimit(`treatments-delete-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
@@ -125,7 +125,7 @@ export async function getTreatmentCategories(clinicId: string) {
     if (!user || !user.hasAccess || user.clinicId !== clinicId) {
         throw new Error("Unauthorized")
     }
-    if (!checkRateLimit(`treatments-categories-${user.id}`)) {
+    if (!await checkRateLimit(`treatments-categories-${user.id}`)) {
         throw new Error("Rate limit exceeded")
     }
 
