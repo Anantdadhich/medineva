@@ -33,8 +33,13 @@ import { AppointmentForm } from "@/components/appointments/appointment-form"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { PDFDownloadLink } from "@react-pdf/renderer"
 import { InvoicePDF } from "@/components/billing/invoice-pdf"
+import dynamic from "next/dynamic"
+
+const PDFDownloadLink = dynamic(
+    () => import("@react-pdf/renderer").then((mod) => mod.PDFDownloadLink),
+    { ssr: false }
+)
 import { recordPayment } from "@/lib/actions/invoices"
 import { updatePatient } from "@/lib/actions/patients"
 import { PAYMENT_METHODS } from "@/lib/validations/invoice"

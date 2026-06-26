@@ -28,15 +28,24 @@ import {
     Loader2,
     ChevronLeft,
     ChevronRight,
+    Calendar,
 } from "lucide-react"
 import { formatCurrency } from "@/lib/utils"
 import { PAYMENT_METHODS } from "@/lib/validations/invoice"
-import { PDFDownloadLink } from "@react-pdf/renderer"
+import { pdf } from "@react-pdf/renderer"
+import dynamic from "next/dynamic"
+
+const PDFDownloadLink = dynamic(
+    () => import("@react-pdf/renderer").then((mod) => mod.PDFDownloadLink),
+    { ssr: false }
+)
 
 import { recordPayment } from "@/lib/actions/invoices"
 import { CreateInvoiceDialog } from "@/components/billing/create-invoice-dialog"
 import { useSearchParams, useRouter } from "next/navigation"
 import { InvoicePDF } from "@/components/billing/invoice-pdf"
+import { generateExecutiveReportPayload } from "@/lib/actions/reports"
+import { ClinicExecutiveReportPDF } from "@/components/billing/executive-report-pdf"
 
 interface BillingClientProps {
     initialInvoices: any[]
@@ -53,6 +62,48 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
     const [paymentMethod, setPaymentMethod] = useState("CASH")
     const [isLoading, setIsLoading] = useState(false)
     const [isCreateInvoiceOpen, setIsCreateInvoiceOpen] = useState(false)
+    const [startDateStr, setStartDateStr] = useState<string>(() => {
+        const d = new Date()
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-01`
+    })
+    const [endDateStr, setEndDateStr] = useState<string>(() => {
+        const d = new Date()
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+    })
+    const [isDownloadingReport, setIsDownloadingReport] = useState<boolean>(false)
+
+    const handleDownloadReport = async () => {
+        if (!startDateStr || !endDateStr) {
+            alert("Please select both start and end dates.")
+            return
+        }
+        setIsDownloadingReport(true)
+        try {
+            const data = await generateExecutiveReportPayload({
+                clinicId,
+                startDate: startDateStr,
+                endDate: endDateStr,
+            })
+
+            const clinicName = invoices[0]?.clinic?.name || "Medineva Clinic"
+            const docElement = <ClinicExecutiveReportPDF data={data} clinicName={clinicName} />
+            const blob = await pdf(docElement).toBlob()
+
+            const downloadUrl = URL.createObjectURL(blob)
+            const executionAnchor = document.createElement("a")
+            executionAnchor.href = downloadUrl
+            executionAnchor.download = `Medineva_Executive_Report_${startDateStr}_to_${endDateStr}.pdf`
+            document.body.appendChild(executionAnchor)
+            executionAnchor.click()
+            document.body.removeChild(executionAnchor)
+            URL.revokeObjectURL(downloadUrl)
+        } catch (err) {
+            console.error("Failed to stream clinic performance matrix PDF", err)
+            alert("Failed to download executive PDF report. Please try again.")
+        } finally {
+            setIsDownloadingReport(false)
+        }
+    }
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1)
@@ -194,13 +245,99 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
             <Header
                 title="Billing"
                 description="Manage invoices and payments"
+                clinicId={clinicId}
                 action={{
                     label: "New Invoice",
                     onClick: () => setIsCreateInvoiceOpen(true),
                 }}
-            />
+            >
+                <div className="hidden md:flex items-center gap-2 sm:gap-3">
+                    {/* From Date Input */}
+                    <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-50 border border-gray-200/80 rounded-xl px-2 sm:px-3 py-1.5 text-sm text-gray-700 h-9 sm:h-10 hover:bg-slate-100/50 transition-colors">
+                        <span className="text-[11px] text-gray-400 font-bold uppercase">From</span>
+                        <input
+                            type="date"
+                            value={startDateStr}
+                            onChange={(e) => setStartDateStr(e.target.value)}
+                            className="bg-transparent text-gray-700 font-semibold focus:outline-none cursor-pointer text-[12px] sm:text-[13px] border-none p-0 w-24 sm:w-28"
+                        />
+                    </div>
+
+                    {/* To Date Input */}
+                    <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-50 border border-gray-200/80 rounded-xl px-2 sm:px-3 py-1.5 text-sm text-gray-700 h-9 sm:h-10 hover:bg-slate-100/50 transition-colors">
+                        <span className="text-[11px] text-gray-400 font-bold uppercase">To</span>
+                        <input
+                            type="date"
+                            value={endDateStr}
+                            onChange={(e) => setEndDateStr(e.target.value)}
+                            className="bg-transparent text-gray-700 font-semibold focus:outline-none cursor-pointer text-[12px] sm:text-[13px] border-none p-0 w-24 sm:w-28"
+                        />
+                    </div>
+
+                    {/* Download summary report button */}
+                    <Button
+                        onClick={handleDownloadReport}
+                        disabled={isDownloadingReport}
+                        variant="outline"
+                        className="h-9 sm:h-10 rounded-xl flex items-center justify-center gap-1.5 sm:gap-2 border-gray-200 bg-white hover:bg-slate-50 text-gray-700 font-semibold text-[12px] sm:text-[13px]"
+                    >
+                        {isDownloadingReport ? (
+                            <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400 animate-spin" />
+                        ) : (
+                            <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-450" />
+                        )}
+                        <span className="hidden md:inline">Download Performance Summary</span>
+                        <span className="md:hidden">Summary</span>
+                    </Button>
+                </div>
+            </Header>
 
             <div className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto space-y-6">
+                {/* Mobile Report Panel (Visible only on mobile screens) */}
+                <div className="md:hidden flex flex-col gap-3 bg-white/70 backdrop-blur-2xl border border-white/60 p-4 rounded-[20px] shadow-[0_4px_24px_rgba(0,0,0,0.015)]">
+                    <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Clinic Performance Summary</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                        {/* From Date Input */}
+                        <div className="flex flex-col gap-1 bg-slate-50 border border-gray-200/80 rounded-xl px-3 py-1.5 text-sm text-gray-700">
+                            <span className="text-[10px] text-gray-450 font-bold uppercase">From</span>
+                            <input
+                                type="date"
+                                value={startDateStr}
+                                onChange={(e) => setStartDateStr(e.target.value)}
+                                className="bg-transparent text-gray-800 font-bold focus:outline-none cursor-pointer text-[13px] border-none p-0 w-full"
+                            />
+                        </div>
+
+                        {/* To Date Input */}
+                        <div className="flex flex-col gap-1 bg-slate-50 border border-gray-200/80 rounded-xl px-3 py-1.5 text-sm text-gray-700">
+                            <span className="text-[10px] text-gray-450 font-bold uppercase">To</span>
+                            <input
+                                type="date"
+                                value={endDateStr}
+                                onChange={(e) => setEndDateStr(e.target.value)}
+                                className="bg-transparent text-gray-800 font-bold focus:outline-none cursor-pointer text-[13px] border-none p-0 w-full"
+                            />
+                        </div>
+                    </div>
+                    
+                    {/* Download Button */}
+                    <Button
+                        onClick={handleDownloadReport}
+                        disabled={isDownloadingReport}
+                        variant="outline"
+                        className="w-full h-10 rounded-xl flex items-center justify-center gap-2 border-gray-200 bg-white hover:bg-slate-50 text-gray-700 font-semibold text-[13px]"
+                    >
+                        {isDownloadingReport ? (
+                            <Loader2 className="h-4 w-4 text-gray-400 animate-spin" />
+                        ) : (
+                            <Download className="h-4 w-4 text-gray-450" />
+                        )}
+                        <span>Download Performance Summary</span>
+                    </Button>
+                </div>
+
                 {/* Stats Grid */}
                 <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
                     {stats.map((stat) => (
@@ -257,7 +394,8 @@ export function BillingClient({ initialInvoices, clinicId }: BillingClientProps)
                                 </div>
                             </div>
                         </div>
-                    </CardHeader>                    <CardContent>
+                    </CardHeader>
+                    <CardContent className="p-4 sm:p-6 pt-4 sm:pt-6">
                         {paginatedInvoices.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
                                 <div className="h-14 w-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center shadow-sm mb-4">
