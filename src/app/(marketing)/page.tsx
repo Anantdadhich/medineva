@@ -12,6 +12,9 @@ import {
     LayoutDashboard,
     Settings,
     QrCode,
+    Zap,
+    Bell,
+    MoreHorizontal,
 } from "lucide-react"
 import Link from "next/link"
 import { NoiseTexture } from '@/components/ui/noisetexture';
@@ -19,20 +22,20 @@ import { cn } from '@/lib/utils';
 
 const PMS_FEATURES = [
     {
-        title: "Simple Daily View",
-        desc: "See all your patients, today’s appointments, and clinic earnings in one place. Everything is clear and easy, so you stay relaxed.",
+        title: "All-in-One Daily Dashboard",
+        desc: "See your appointments, check-in status, and today's collections in one clean view. Zero clutter, zero stress.",
         iconColor: "blue" as const,
         icon: LayoutDashboard,
     },
     {
-        title: "Easy Patient Check-In",
-        desc: "Patients scan a code with their phone and enter their details themselves. No paper, no writing, no waiting.",
+        title: "Instant Monthly Reports",
+        desc: "Track your practice earnings, top-performing procedures, and outstanding collections in 2 simple clicks.",
         iconColor: "cyan" as const,
-        icon: QrCode,
+        icon: ShieldCheck,
     },
     {
-        title: "Quick Billing",
-        desc: "Make bills easily while checking the patient. You can see who has paid and who hasn’t, without any confusion.",
+        title: "3-Click Patient Billing",
+        desc: "Create and print professional bills immediately during checkout. Apply custom discounts and print receipt PDFs instantly.",
         iconColor: "orange" as const,
         icon: Receipt,
     },
@@ -40,34 +43,34 @@ const PMS_FEATURES = [
 
 const STATS = [
     {
-        value: "Very Easy",
-        label: "Everything you need to run your clinic is in one simple screen",
+        value: "Super Simple",
+        label: "Designed specifically for doctors. No complicated training or computer degrees required.",
         icon: Calendar,
     },
     {
-        value: "Clean & Paper-Free",
-        label: "No more paper work. Patients can check in using their phone, making your clinic look modern and neat",
+        value: "100% Paperless",
+        label: "Patients scan a QR code at your reception to register themselves. No manual forms to file.",
         icon: ShieldCheck,
     },
     {
-        value: "Quick to Learn",
-        label: "Your staff can learn and start using it in just a few minutes",
+        value: "Staff Ready",
+        label: "Your receptionist can learn the system and start booking appointments in under 5 minutes.",
         icon: Users,
     },
 ];
 
 const FAQ_DATA = [
     {
-        q: "Do I need computer knowledge to use this?",
-        a: "No, not at all. If you can use a phone or open a website, you can use this easily. Setting it up is simple and takes just a few minutes.",
+        q: "Do I need special computer training to use this?",
+        a: "Not at all. If you can send an email or open a website, you can use Medineva. The interface is clean, uses large buttons, and displays everything on a single screen so you don't get lost.",
     },
     {
-        q: "What can this system do?",
-        a: "It helps you manage appointments, store patient details, send reminders, create bills, plan treatments, and handle patient entry without paper.",
+        q: "How does it help me manage my clinic?",
+        a: "It does four main things: schedules patient visits, stores checkup histories and prescriptions, texts automated visit reminders to patients, and handles quick print-ready invoicing.",
     },
     {
-        q: "How does patient check-in work?",
-        a: "You print a small code and keep it at your clinic. Patients scan it with their phone and fill in their details. It comes directly to you, so no writing or waiting is needed.",
+        q: "What is QR Self Check-In and how does it save me time?",
+        a: "We provide a printable QR code for your reception desk. Arriving patients scan it on their phone, fill in their name and details, and they instantly appear on your screen. Your receptionist doesn't have to write anything down or type it in.",
     },
 ];
 
@@ -137,7 +140,12 @@ const AccordionItem = ({ q, a }: { q: string; a: string }) => {
 }
 
 const HeroSection = () => (
-    <section className="relative overflow-hidden bg-gradient-to-br from-amber-50/50 via-rose-50/30 to-cyan-50/50 pt-12 pb-16 md:pt-16 md:pb-24">
+    <section
+        className="relative overflow-hidden pt-12 pb-16 md:pt-16 md:pb-24"
+        style={{
+            background: "radial-gradient(circle at 50% 0%, rgba(200, 240, 255, 0.4) 0%, rgba(255, 240, 200, 0.4) 30%, transparent 70%)"
+        }}
+    >
 
         <div className="relative mx-auto max-w-[1400px] px-4 sm:px-6 md:px-8 text-center">
 
@@ -273,123 +281,308 @@ const HeroSection = () => (
     </section>
 )
 
+function MiniBars() {
+    const heights = [10, 14, 8, 18, 22, 16, 12];
+    return (
+        <div className="flex items-end gap-1">
+            {heights.map((h, i) => (
+                <span key={i} className={"w-1.5 rounded-sm " + (i === 4 ? "bg-blue-600" : "bg-blue-100")} style={{ height: h + "px" }} />
+            ))}
+        </div>
+    );
+}
+
+function LineChart() {
+    return (
+        <svg viewBox="0 0 500 160" className="mt-3 w-full">
+            <defs>
+                <pattern id="grid" width="50" height="32" patternUnits="userSpaceOnUse">
+                    <path d="M 50 0 L 0 0 0 32" fill="none" stroke="rgba(229, 231, 235, 0.5)" strokeWidth="0.5" />
+                </pattern>
+            </defs>
+            <rect width="500" height="160" fill="url(#grid)" />
+            <rect x="210" y="0" width="30" height="160" fill="rgba(37, 99, 235, 0.08)" />
+            <line x1="0" y1="90" x2="500" y2="90" stroke="#fb923c" strokeDasharray="4 4" strokeWidth="1" />
+            <polyline fill="none" stroke="#2563eb" strokeWidth="2" points="0,120 50,100 100,110 150,80 200,90 225,70 270,95 320,75 370,55 420,40 470,30 500,20" />
+            {[0, 50, 100, 150, 200, 225, 270, 320, 370, 420, 470].map((x, i) => (
+                <circle key={i} cx={x} cy={[120, 100, 110, 80, 90, 70, 95, 75, 55, 40, 30][i]} r="3" fill="white" stroke="#2563eb" strokeWidth="1.5" />
+            ))}
+        </svg>
+    );
+}
+
+function DumbbellChart() {
+    const pts = [40, 28, 36, 22, 30, 18, 26, 14];
+    return (
+        <svg viewBox="0 0 160 60" className="w-32">
+            {pts.map((p, i) => {
+                const x = 10 + i * 20;
+                return (
+                    <g key={i}>
+                        <line x1={x} y1={p} x2={x} y2={55} stroke="#fee2e2" strokeWidth="2" />
+                        <circle cx={x} cy={p} r="4" fill="#ef4444" />
+                        <circle cx={x} cy={55} r="4" fill="#ef4444" />
+                    </g>
+                );
+            })}
+        </svg>
+    );
+}
+
+function BarChart() {
+    const heights = [8, 14, 22, 28, 36, 30, 42, 38, 30, 24, 18, 12];
+    return (
+        <div className="flex items-end gap-1">
+            {heights.map((h, i) => (
+                <span key={i} className={"w-2 rounded-sm " + (i === 6 ? "bg-[#fb923c]" : "bg-gray-200")} style={{ height: h + "px" }} />
+            ))}
+        </div>
+    );
+}
+
+function MiniWindow({ className = "", children }: { className?: string; children?: React.ReactNode }) {
+    return (
+        <div className={"rounded-lg border border-gray-200/60 bg-white shadow-sm " + className}>
+            <div className="flex items-center gap-1 border-b border-gray-150/40 px-2 py-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-gray-200" />
+                <span className="h-1.5 w-1.5 rounded-full bg-gray-200" />
+                <span className="h-1.5 w-1.5 rounded-full bg-gray-200" />
+            </div>
+            <div className="p-3">{children}</div>
+        </div>
+    );
+}
+
+function VisualOne() {
+    return (
+        <div className="relative h-full w-full">
+            <div className="absolute right-6 top-6 h-32 w-32 rounded-full bg-[radial-gradient(circle,#c4b5fd_0%,transparent_70%)] opacity-70" />
+            <div className="absolute left-6 sm:left-10 top-8 w-44 sm:w-56">
+                <MiniWindow>
+                    <div className="h-1.5 w-20 rounded-full bg-gray-200" />
+                    <div className="mt-2 h-1.5 w-32 rounded-full bg-gray-100" />
+                    <div className="mt-4 h-5 w-16 rounded-md bg-[#2563eb]" />
+                </MiniWindow>
+            </div>
+            <div className="absolute right-4 sm:right-8 bottom-4 w-24 sm:w-28">
+                <MiniWindow>
+                    <div className="h-1.5 w-16 rounded-full bg-gray-200" />
+                    <div className="mt-2 h-1.5 w-20 rounded-full bg-gray-100" />
+                    <div className="mt-3 h-4 w-12 rounded-md bg-[#2563eb]" />
+                </MiniWindow>
+            </div>
+        </div>
+    );
+}
+
+function VisualTwo() {
+    return (
+        <div className="relative h-full w-full">
+            <div className="absolute inset-x-4 sm:inset-x-12 top-10">
+                <MiniWindow>
+                    <div className="flex items-center justify-between">
+                        <div className="h-1.5 w-16 rounded-full bg-gray-200" />
+                        <div className="h-3 w-10 rounded-md bg-[#2563eb]" />
+                    </div>
+                    <div className="mt-3 grid grid-cols-4 gap-2">
+                        {Array.from({ length: 4 }).map((_, i) => (
+                            <div key={i} className="h-12 rounded-md bg-gray-100" />
+                        ))}
+                    </div>
+                    <div className="mt-2 space-y-1.5">
+                        <div className="h-1.5 w-full rounded-full bg-gray-100" />
+                        <div className="h-1.5 w-3/4 rounded-full bg-gray-100" />
+                    </div>
+                </MiniWindow>
+            </div>
+        </div>
+    );
+}
+
+function VisualThree() {
+    return (
+        <div className="relative h-full w-full">
+            <div className="absolute inset-0 opacity-20" style={{
+                background: "repeating-linear-gradient(0deg, #4ade80 0 1px, transparent 1px 14px), repeating-linear-gradient(90deg, #4ade80 0 1px, transparent 1px 14px)"
+            }} />
+            <div className="absolute inset-x-4 sm:inset-x-6 top-5">
+                <MiniWindow>
+                    <div className="border-b border-gray-100 pb-1.5 mb-2">
+                        <span className="text-[10px] font-bold text-gray-800 uppercase tracking-wider">Patient Self Check-In</span>
+                    </div>
+                    <div className="space-y-1.5 text-[9px] text-left">
+                        <div>
+                            <div className="mb-0.5 text-gray-400">Full Name</div>
+                            <div className="h-5 px-1.5 rounded border border-gray-150 bg-gray-50 flex items-center text-gray-700">John Doe</div>
+                        </div>
+                        <div>
+                            <div className="mb-0.5 text-gray-400">Phone Number</div>
+                            <div className="h-5 px-1.5 rounded border border-gray-150 bg-gray-50 flex items-center text-gray-700">+91 99111 33114</div>
+                        </div>
+                        <div className="h-5 rounded bg-blue-600 text-white font-bold flex items-center justify-center text-[9px] mt-2">
+                            Submit Check-In
+                        </div>
+                    </div>
+                </MiniWindow>
+            </div>
+        </div>
+    );
+}
+
+function VisualFour() {
+    return (
+        <div className="relative h-full w-full">
+            <div className="absolute inset-0" style={{
+                background: "repeating-linear-gradient(90deg, #fca5a5 0 1px, transparent 1px 18px), repeating-linear-gradient(0deg, #fca5a5 0 1px, transparent 1px 18px)",
+                opacity: 0.2,
+                maskImage: "radial-gradient(circle at center, black, transparent 70%)",
+            }} />
+            <div className="absolute inset-x-0 top-6 flex justify-center gap-2">
+                <div className="h-20 w-16 rounded-md border border-gray-150 bg-white" />
+                <div className="h-24 w-16 rounded-md border border-gray-200 bg-white shadow-md flex items-center justify-center">
+                    <Bell className="h-5 w-5 text-[#2563eb]" />
+                </div>
+                <div className="h-20 w-16 rounded-md border border-gray-150 bg-white" />
+            </div>
+        </div>
+    );
+}
+
+function VisualFive() {
+    return (
+        <div className="relative h-full w-full">
+            <div className="absolute inset-0 opacity-20" style={{
+                background: "radial-gradient(circle, #60a5fa 1px, transparent 1.5px) 0 0 / 10px 10px",
+            }} />
+            <div className="absolute inset-x-4 sm:inset-x-6 top-6">
+                <MiniWindow>
+                    <div className="flex justify-between items-center border-b border-gray-100 pb-1.5 mb-2">
+                        <span className="text-[9px] font-bold text-gray-800">Invoice INV-2601</span>
+                        <span className="text-[8px] font-bold text-emerald-650 bg-emerald-50 px-1 rounded">PAID</span>
+                    </div>
+                    <div className="space-y-1 text-[8px] text-gray-650 text-left">
+                        <div className="flex justify-between">
+                            <span>Consultation</span>
+                            <span>Rs. 500</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span>Dental Scaling</span>
+                            <span>Rs. 1,500</span>
+                        </div>
+                        <div className="flex justify-between border-t border-gray-100 pt-1 font-bold text-gray-800">
+                            <span>Total Paid</span>
+                            <span>Rs. 2,000</span>
+                        </div>
+                    </div>
+                </MiniWindow>
+            </div>
+        </div>
+    );
+}
+
+function VisualSix() {
+    return (
+        <div className="relative h-full w-full">
+            <div className="absolute inset-0 opacity-20" style={{
+                background: "repeating-linear-gradient(45deg, #f59e0b 0 1px, transparent 1px 15px)"
+            }} />
+            <div className="absolute inset-x-4 sm:inset-x-6 top-8">
+                <MiniWindow>
+                    <div className="flex items-center justify-between border-b border-gray-100 pb-2 mb-2">
+                        <span className="text-[10px] font-bold text-gray-800">Growth Report</span>
+                        <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">+24%</span>
+                    </div>
+                    <div className="space-y-1.5">
+                        <div className="flex justify-between text-[9px] text-gray-500">
+                            <span>Patient Registrations</span>
+                            <span className="font-semibold text-gray-800">120</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-amber-500 rounded-full" style={{ width: "75%" }} />
+                        </div>
+                        <div className="flex justify-between text-[9px] text-gray-500 pt-1">
+                            <span>Revenue Target</span>
+                            <span className="font-semibold text-gray-800">Rs. 85,000</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-blue-500 rounded-full" style={{ width: "90%" }} />
+                        </div>
+                    </div>
+                </MiniWindow>
+            </div>
+        </div>
+    );
+}
+
+function FeatureCard({ title, desc, visual, tint }: { title: string; desc: string; visual: React.ReactNode; tint: string }) {
+    return (
+        <div className="overflow-hidden rounded-[24px] border border-gray-150 bg-white shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col h-full">
+            <div className={cn("relative h-52 shrink-0 overflow-hidden bg-gradient-to-b border-b border-gray-100/50", tint)}>
+                {/* Premium SaaS Grid Dot Overlay */}
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
+                <div className="absolute inset-0 flex items-center justify-center">{visual}</div>
+            </div>
+            <div className="p-6 text-left flex-1 flex flex-col justify-between">
+                <div>
+                    <h3 className="text-[16px] sm:text-[17px] font-bold text-gray-900 tracking-tight">{title}</h3>
+                    <p className="mt-2 text-[13.5px] leading-relaxed text-gray-550 font-normal">{desc}</p>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 const FeaturesSection = () => (
-    <section id="capabilities" className="scroll-mt-28 bg-white py-16 md:py-32 overflow-hidden">
+    <section id="capabilities" className="scroll-mt-28 bg-amber-50/50 py-16 md:py-32 overflow-hidden">
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6 md:px-8">
             <div className="mb-4 md:mb-5 text-center">
                 <span className="inline-block rounded-full bg-gray-100 px-4 py-1.5 md:px-5 md:py-2 text-[13px] md:text-[14px] font-medium text-gray-600">
-                    Made for everyday clinics
+                    <Zap className="inline-block mr-1 h-3.5 w-3.5 fill-current text-blue-500" /> Real Features. Real Practice
                 </span>
             </div>
-            <h2 className="mb-12 md:mb-20 text-center text-[28px] sm:text-[32px] md:text-[48px] font-normal tracking-tight px-2">
-                Everything you need, in one simple place
+            <h2 className="mb-12 md:mb-20 text-center text-[28px] sm:text-[32px] md:text-[48px] font-normal tracking-tight text-gray-900 px-2 leading-tight">
+                Everything you need
+                <br />
+                to run a paper-free clinic
             </h2>
 
-            <div className="mx-auto grid max-w-6xl items-center gap-10 lg:gap-16 lg:grid-cols-2">
-                <div className="space-y-3 md:space-y-4">
-
-                    <div className="flex cursor-pointer items-start gap-4 md:gap-5 rounded-[20px] md:rounded-[24px] border border-transparent p-4 sm:p-5 md:p-6 transition-colors hover:border-gray-100/50 hover:bg-gray-50">
-                        <div className="flex h-10 w-10 md:h-12 md:w-12 shrink-0 items-center justify-center rounded-[12px] md:rounded-[16px] bg-gray-900 shadow-sm">
-                            <Calendar className="text-white h-5 w-5 md:h-6 md:w-6" />
-                        </div>
-                        <div className="min-w-0">
-                            <h3 className="mb-1.5 text-[16px] md:text-[17px] font-medium truncate">Easy Appointment View</h3>
-                            <p className="text-[13px] md:text-[14px] leading-relaxed text-gray-500">
-                                See all your appointments clearly for the day or week. Add or change bookings quickly without any confusion.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="flex cursor-pointer items-start gap-4 md:gap-5 rounded-[20px] md:rounded-[24px] border border-blue-100/50 bg-blue-50/50 p-4 sm:p-5 md:p-6 transition-colors">
-                        <div className="flex h-10 w-10 md:h-12 md:w-12 shrink-0 items-center justify-center rounded-[12px] md:rounded-[16px] bg-blue-500 shadow-sm">
-                            <Users className="text-white h-5 w-5 md:h-6 md:w-6" />
-                        </div>
-                        <div className="min-w-0">
-                            <h3 className="mb-1.5 text-[16px] md:text-[17px] font-medium truncate">Patient Records</h3>
-                            <p className="text-[13px] md:text-[14px] leading-relaxed text-gray-600">
-                                Keep all patient details, history, and notes safely in one place. No files or papers needed.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="flex cursor-pointer items-start gap-4 md:gap-5 rounded-[20px] md:rounded-[24px] border border-transparent p-4 sm:p-5 md:p-6 transition-colors hover:border-gray-100/50 hover:bg-gray-50">
-                        <div className="flex h-10 w-10 md:h-12 md:w-12 shrink-0 items-center justify-center rounded-[12px] md:rounded-[16px] bg-amber-100">
-                            <QrCode className="text-amber-700 h-5 w-5 md:h-6 md:w-6" />
-                        </div>
-                        <div className="min-w-0">
-                            <h3 className="mb-1.5 text-[16px] md:text-[17px] font-medium truncate">Quick Patient Entry</h3>
-                            <p className="text-[13px] md:text-[14px] leading-relaxed text-gray-500">
-                                Patients scan a code and enter their details on their phone. No writing, no waiting at reception.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="flex cursor-pointer items-start gap-4 md:gap-5 rounded-[20px] md:rounded-[24px] border border-transparent p-4 sm:p-5 md:p-6 transition-colors hover:border-gray-100/50 hover:bg-gray-50">
-                        <div className="flex h-10 w-10 md:h-12 md:w-12 shrink-0 items-center justify-center rounded-[12px] md:rounded-[16px] bg-emerald-100">
-                            <MessageSquare className="text-emerald-700 h-5 w-5 md:h-6 md:w-6" />
-                        </div>
-                        <div className="min-w-0">
-                            <h3 className="mb-1.5 text-[16px] md:text-[17px] font-medium truncate">Automatic Reminders</h3>
-                            <p className="text-[13px] md:text-[14px] leading-relaxed text-gray-500">
-                                Patients get simple message reminders for their visits, so fewer people forget or miss appointments.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="flex cursor-pointer items-start gap-4 md:gap-5 rounded-[20px] md:rounded-[24px] border border-transparent p-4 sm:p-5 md:p-6 transition-colors hover:border-gray-100/50 hover:bg-gray-50">
-                        <div className="flex h-10 w-10 md:h-12 md:w-12 shrink-0 items-center justify-center rounded-[12px] md:rounded-[16px] bg-violet-100">
-                            <Receipt className="text-violet-700 h-5 w-5 md:h-6 md:w-6" />
-                        </div>
-                        <div className="min-w-0">
-                            <h3 className="mb-1.5 text-[16px] md:text-[17px] font-medium truncate">Simple Billing</h3>
-                            <p className="text-[13px] md:text-[14px] leading-relaxed text-gray-500">
-                                Create bills in seconds and easily see payments. No calculations or confusion.
-                            </p>
-                        </div>
-                    </div>
-
-                </div>
-
-                {/* Right side graphic card */}
-                <div className="relative min-h-[380px] md:min-h-[480px] rounded-[24px] md:rounded-[32px] border border-gray-100/50 bg-gray-50/80 p-5 sm:p-6 md:p-10 mt-8 lg:mt-0 overflow-hidden">
-                    <div className="absolute right-4 top-4 md:right-10 md:top-10 flex h-12 w-12 md:h-16 md:w-16 items-center justify-center rounded-[16px] md:rounded-[20px] bg-gradient-to-br from-cyan-400 to-blue-500 shadow-lg z-10">
-                        <QrCode className="text-white h-6 w-6 md:h-7 md:w-7" />
-                    </div>
-
-                    <div className="mt-16 md:mt-24 space-y-3 md:space-y-4 relative z-20">
-
-                        <div className="relative flex items-center gap-3 md:gap-4 rounded-[16px] md:rounded-[20px] border border-gray-100/50 bg-white p-4 md:p-5 shadow-sm">
-                            <div className="h-10 w-10 md:h-12 md:w-12 shrink-0 rounded-full bg-gradient-to-br from-rose-200 to-rose-300" />
-                            <div className="min-w-0 flex-1">
-                                <p className="mb-0.5 text-[14px] md:text-[15px] font-medium truncate">New patient</p>
-                                <p className="text-[12px] md:text-[13px] text-gray-500 line-clamp-2 md:line-clamp-none">Patient fills details by scanning the code at reception.</p>
-                            </div>
-                        </div>
-
-                        <div className="relative ml-0 sm:ml-4 md:ml-8 flex items-center gap-3 md:gap-4 rounded-[16px] md:rounded-[20px] border border-gray-100/50 bg-white p-4 md:p-5 shadow-sm">
-                            <div className="flex h-10 w-10 md:h-12 md:w-12 shrink-0 items-center justify-center rounded-[12px] md:rounded-[16px] bg-gradient-to-br from-cyan-400 to-blue-500 shadow-inner">
-                                <Stethoscope className="text-white h-5 w-5 md:h-6 md:w-6" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                                <p className="mb-0.5 text-[14px] md:text-[15px] font-medium truncate">During visit</p>
-                                <p className="text-[12px] md:text-[13px] text-blue-600 line-clamp-2 md:line-clamp-none">Doctor or staff updates patient details and notes easily.</p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-3 md:gap-4 rounded-[16px] md:rounded-[20px] border border-gray-100/50 bg-white/80 p-4 md:p-5 opacity-60 shadow-sm">
-                            <div className="h-10 w-10 md:h-12 md:w-12 shrink-0 rounded-full bg-gray-200" />
-                            <div className="min-w-0 flex-1">
-                                <p className="text-[14px] md:text-[15px] font-medium truncate">End of day</p>
-                                <p className="text-[12px] md:text-[13px] text-gray-500 line-clamp-2 md:line-clamp-none">All visits and payments are already updated automatically.</p>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div className="absolute bottom-4 right-4 md:bottom-10 md:right-10 flex h-12 w-12 md:h-16 md:w-16 items-center justify-center rounded-full bg-emerald-500 shadow-xl z-10">
-                        <ShieldCheck className="text-white h-6 w-6 md:h-7 md:w-7" />
-                    </div>
-                </div>
+            <div className="mx-auto max-w-6xl grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <FeatureCard
+                    title="Instant Patient History"
+                    desc="Never search paper files again. Look up a patient's name to view past prescriptions, checkup history, and billing records immediately."
+                    visual={<VisualOne />}
+                    tint="from-purple-50 to-white"
+                />
+                <FeatureCard
+                    title="Clean Booking Calendar"
+                    desc="Schedule patient visits, block slots, and see who is currently waiting at your reception desk in a single glance."
+                    visual={<VisualTwo />}
+                    tint="from-blue-50 to-white"
+                />
+                <FeatureCard
+                    title="Self-Service Patient Entry"
+                    desc="Let arriving patients scan a QR code at your desk to register themselves on their phone. Saves typing and receptionist time."
+                    visual={<VisualThree />}
+                    tint="from-green-50 to-white"
+                />
+                <FeatureCard
+                    title="Auto SMS Reminders"
+                    desc="Stop no-shows automatically. The system texts automated booking confirmations and next-day appointment reminders to your patients."
+                    visual={<VisualFour />}
+                    tint="from-red-50 to-white"
+                />
+                <FeatureCard
+                    title="Quick Clinic Invoicing"
+                    desc="Generate clean receipts during checkouts in 2 clicks. Add your logo, Tax ID/GSTIN registration, and print or export to PDF."
+                    visual={<VisualFive />}
+                    tint="from-blue-50 to-white"
+                />
+                <FeatureCard
+                    title="Track Collections & Earnings"
+                    desc="See how much your clinic collected today, monitor pending patient balances, and track your top-performing medical services."
+                    visual={<VisualSix />}
+                    tint="from-amber-50 to-white"
+                />
             </div>
         </div>
     </section>
@@ -467,7 +660,7 @@ const FaqSection = () => (
 
 export default function MarketingPage() {
     return (
-        <div className="min-h-screen bg-white font-sans text-gray-900 selection:bg-blue-100 overflow-x-hidden">
+        <div className="min-h-screen bg-amber-50/50 font-sans text-gray-900 selection:bg-blue-100 overflow-x-hidden">
             <main>
                 <HeroSection />
                 <FeaturesSection />

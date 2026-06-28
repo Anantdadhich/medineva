@@ -10,7 +10,7 @@ export default async function SettingsPage() {
         redirect("/sign-in")
     }
 
-    // Get clinic data (settings table might not exist yet)
+
     const clinic = await prisma.clinic.findUnique({
         where: { id: user.clinicId }
     })
@@ -19,7 +19,7 @@ export default async function SettingsPage() {
         throw new Error("Clinic not found")
     }
 
-    // Try to get settings, but don't fail if table doesn't exist
+
     let settings = null
     try {
         settings = await prisma.clinicSettings.findUnique({
@@ -39,6 +39,9 @@ export default async function SettingsPage() {
         currency: settings?.currency || "INR",
         defaultAppointmentDuration: settings?.defaultAppointmentDuration || 30,
         invoicePrefix: settings?.invoicePrefix || "INV",
+        logoUrl: settings?.logoUrl || "",
+        invoiceFooter: settings?.invoiceFooter || "",
+        taxId: settings?.taxId || "",
     }
 
     return <SettingsClient clinicId={user.clinicId} userId={user.id} initialSettings={initialSettings} />

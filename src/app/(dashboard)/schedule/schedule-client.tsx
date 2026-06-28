@@ -22,23 +22,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getTreatments } from "@/lib/actions/treatments"
 
 // Common treatment types
-const TREATMENT_TYPES = [
-    "General Consultation",
-    "Dental Cleaning",
-    "Root Canal Treatment",
-    "Tooth Extraction",
-    "Dental Filling",
-    "Crown & Bridge",
-    "Teeth Whitening",
-    "Orthodontic Consultation",
-    "Dental Implant",
-    "Gum Treatment",
-    "Wisdom Tooth Removal",
-    "Dental X-Ray",
-    "Emergency Treatment",
-    "Follow-up Visit",
-    "Other"
-]
+const APPOINTMENT_TYPE_LABELS: Record<string, string> = {
+    CHECKUP: "General Checkup",
+    TREATMENT: "Treatment",
+    CONSULTATION: "Consultation",
+    FOLLOW_UP: "Follow-up",
+    EMERGENCY: "Emergency",
+}
 
 
 interface Appointment {
@@ -92,6 +82,7 @@ export function ScheduleClient({ clinicId, initialAppointments }: {
     const [isNewAppointmentOpen, setIsNewAppointmentOpen] = useState(false)
     const [doctors, setDoctors] = useState<{ id: string; firstName: string; lastName: string }[]>([])
     const [patients, setPatients] = useState<{ id: string; firstName: string; lastName: string }[]>([])
+    const [treatments, setTreatments] = useState<{ id: string; name: string; standardCost: number; category?: string }[]>([])
     const [isLoading, setIsLoading] = useState(false)
     const scrollContainerRef = useRef<HTMLDivElement>(null)
     const router = useRouter()
@@ -116,6 +107,14 @@ export function ScheduleClient({ clinicId, initialAppointments }: {
             scheduledAt: new Date(apt.scheduledAt)
         })) as Appointment[]
     }, [initialAppointments])
+
+    const editSelectOptions = useMemo(() => {
+        const baseOptions = ["CHECKUP", "TREATMENT", "CONSULTATION", "FOLLOW_UP", "EMERGENCY"]
+        if (editForm.type && !baseOptions.includes(editForm.type)) {
+            baseOptions.push(editForm.type)
+        }
+        return baseOptions
+    }, [editForm.type])
 
     const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 })
     const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
@@ -169,12 +168,14 @@ export function ScheduleClient({ clinicId, initialAppointments }: {
     useEffect(() => {
         const loadData = async () => {
             try {
-                const [docs, pats] = await Promise.all([
+                const [docs, pats, treatmentsData] = await Promise.all([
                     getDoctors(clinicId),
-                    getPatients(clinicId, "").then(res => res)
+                    getPatients(clinicId, "").then(res => res),
+                    getTreatments(clinicId)
                 ])
                 setDoctors(docs)
                 setPatients(pats.map((p: any) => ({ id: p.id, firstName: p.firstName, lastName: p.lastName })))
+                setTreatments(treatmentsData)
             } catch (error) {
                 console.error("Failed to load form data", error)
             }
@@ -381,9 +382,9 @@ export function ScheduleClient({ clinicId, initialAppointments }: {
                                     <SelectValue placeholder="Select treatment" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {TREATMENT_TYPES.map((treatment) => (
+                                    {editSelectOptions.map((treatment) => (
                                         <SelectItem key={treatment} value={treatment}>
-                                            {treatment}
+                                            {APPOINTMENT_TYPE_LABELS[treatment] || treatment}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>

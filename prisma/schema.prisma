@@ -334,6 +334,7 @@ model ClinicSettings {
   invoicePrefix String  @default("INV")
   invoiceFooter String?
   taxRate       Decimal @default(0)
+  taxId         String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

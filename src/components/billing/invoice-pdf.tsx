@@ -12,7 +12,7 @@ import {
 import { formatCurrency } from "@/lib/utils"
 import { format } from "date-fns"
 
-// ... imports remain the same
+
 
 const styles = StyleSheet.create({
     page: {
@@ -22,7 +22,14 @@ const styles = StyleSheet.create({
         lineHeight: 1.5,
         color: "#1e293b",
     },
-    // Header Section (Split Layout)
+    logo: {
+        width: 100,
+        height: 35,
+        marginBottom: 8,
+        objectFit: "contain",
+        alignSelf: "flex-start",
+    },
+
     header: {
         flexDirection: "row",
         justifyContent: "space-between",
@@ -35,15 +42,16 @@ const styles = StyleSheet.create({
     brandColumn: {
         flexDirection: "column",
         maxWidth: '60%',
+        alignItems: 'flex-start',
     },
     clinicName: {
-        fontSize: 18, // Reduced to prevent overflow with long names
+        fontSize: 18,
         fontWeight: "bold",
         color: "#0f172a",
         marginBottom: 4,
-        textTransform: "uppercase", // Keep uppercase for style
+        textTransform: "uppercase",
         letterSpacing: 0.5,
-        lineHeight: 1.2, // Ensure multi-line names look good
+        lineHeight: 1.2,
     },
     clinicDetail: {
         fontSize: 10,
@@ -187,17 +195,17 @@ const styles = StyleSheet.create({
     },
 
     // Footer Note
+    pdfFooter: {
+        marginTop: 40,
+        borderTopWidth: 1,
+        borderTopColor: "#e2e8f0",
+        paddingTop: 15,
+        alignItems: "center",
+    },
     footerMessage: {
-        position: 'absolute',
-        bottom: 40,
-        left: 40,
-        right: 40,
         textAlign: "center",
         fontSize: 9,
         color: "#94a3b8",
-        borderTopWidth: 1,
-        borderTopColor: "#f1f5f9",
-        paddingTop: 10,
     }
 })
 
@@ -245,9 +253,15 @@ export function InvoicePDF({
                 {/* 1. Header: Brand (Left) & Meta (Right) */}
                 <View style={styles.header}>
                     <View style={styles.brandColumn}>
+                        {invoice.clinic?.clinicSettings?.logoUrl ? (
+                            <Image style={styles.logo} src={invoice.clinic?.clinicSettings?.logoUrl} />
+                        ) : null}
                         <Text style={styles.clinicName}>{safeClinicName}</Text>
                         <Text style={styles.clinicDetail}>{safeClinicAddress}</Text>
                         <Text style={styles.clinicDetail}>{safeClinicPhone} • {safeClinicEmail}</Text>
+                        {invoice.clinic?.clinicSettings?.taxId ? (
+                            <Text style={styles.clinicDetail}>Tax ID / GSTIN: {invoice.clinic?.clinicSettings?.taxId}</Text>
+                        ) : null}
                     </View>
                     <View style={styles.invoiceMetaColumn}>
                         <Text style={styles.invoiceTitle}>INVOICE</Text>
@@ -339,9 +353,16 @@ export function InvoicePDF({
                 </View>
 
                 {/* 5. Footer Message */}
-                <Text style={styles.footerMessage}>
-                    Thank you for choosing {safeClinicName}.
-                </Text>
+                <View style={styles.pdfFooter}>
+                    {invoice.clinic?.clinicSettings?.invoiceFooter ? (
+                        <Text style={[styles.footerMessage, { marginBottom: 6, color: '#475569', fontSize: 8 }]}>
+                            {invoice.clinic?.clinicSettings?.invoiceFooter}
+                        </Text>
+                    ) : null}
+                    <Text style={styles.footerMessage}>
+                        Thank you for choosing {safeClinicName}.
+                    </Text>
+                </View>
 
             </Page>
         </Document>

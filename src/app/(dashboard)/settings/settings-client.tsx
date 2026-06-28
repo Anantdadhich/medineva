@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Building2, Globe2, Loader2, Mail, MapPin, Phone, Save, User, Clock, Coins, Hash, type LucideIcon } from "lucide-react"
+import { Building2, Globe2, Loader2, Mail, MapPin, Phone, Save, User, Clock, Coins, Hash, FileText, Upload, Trash2, Image as ImageIcon, type LucideIcon } from "lucide-react"
 import { Header } from "@/components/layout/header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,6 +23,9 @@ interface SettingsClientProps {
         currency: string
         defaultAppointmentDuration: number
         invoicePrefix: string
+        logoUrl: string
+        invoiceFooter: string
+        taxId: string
     }
 }
 
@@ -56,6 +59,34 @@ export function SettingsClient({ clinicId, userId, initialSettings }: SettingsCl
     const [settings, setSettings] = useState(initialSettings)
     const [isSaving, setIsSaving] = useState(false)
     const { toast } = useToast()
+
+    const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        // Check if size is < 1MB (1,048,576 bytes)
+        if (file.size > 1024 * 1024) {
+            const sizeInMB = (file.size / (1024 * 1024)).toFixed(2)
+            toast({
+                variant: "destructive",
+                title: "Logo Image Too Large",
+                description: `Your selected image is ${sizeInMB}MB. Image files must be under 1MB because excessively large logos slow down client-side invoice rendering, increase PDF print download times, and degrade portal load speeds for your patients. Please resize or compress the image and try again.`,
+            })
+            return
+        }
+
+        const reader = new FileReader()
+        reader.onload = (event) => {
+            const base64String = event.target?.result as string
+            setSettings(prev => ({ ...prev, logoUrl: base64String }))
+            toast({
+                title: "Logo uploaded",
+                description: "Clinic logo loaded successfully.",
+            })
+        }
+        reader.readAsDataURL(file)
+        e.target.value = "" // Reset value so same file can be uploaded again
+    }
 
     const handleSave = async () => {
         setIsSaving(true)
@@ -130,6 +161,73 @@ export function SettingsClient({ clinicId, userId, initialSettings }: SettingsCl
                                         required
                                         className="h-12 rounded-[16px] border-slate-200/60 bg-white/60 pl-11 shadow-sm transition-all focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-cyan-500/10 focus-visible:border-cyan-500/70"
                                     />
+                                </div>
+                            </div>
+
+                            {/* Clinic Logo */}
+                            <div className="space-y-2 md:col-span-2">
+                                <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                                    Clinic Logo
+                                </Label>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                                    {/* Preview Block */}
+                                    <div className="flex items-center justify-center border border-dashed border-slate-200 bg-white/40 rounded-2xl h-28 p-2 overflow-hidden shadow-inner relative group">
+                                        {settings.logoUrl ? (
+                                            <>
+                                                <img
+                                                    src={settings.logoUrl}
+                                                    alt="Clinic Logo Preview"
+                                                    className="max-h-full max-w-full object-contain"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setSettings({ ...settings, logoUrl: "" })}
+                                                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-md cursor-pointer"
+                                                    title="Remove Logo"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center text-slate-400 text-xs">
+                                                <ImageIcon className="h-8 w-8 mb-1 text-slate-350 stroke-1" />
+                                                <span>No logo uploaded</span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Actions Block */}
+                                    <div className="md:col-span-2 flex flex-col gap-2">
+                                        <div className="flex flex-col sm:flex-row gap-2">
+                                            <div className="relative flex-1">
+                                                <Input
+                                                    id="logoUrl"
+                                                    type="text"
+                                                    value={settings.logoUrl}
+                                                    onChange={(e) => setSettings({ ...settings, logoUrl: e.target.value })}
+                                                    placeholder="Or paste image URL"
+                                                    className="h-11 rounded-[16px] border-slate-200/60 bg-white/60 pl-4 pr-4 shadow-sm transition-all focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-cyan-500/10 focus-visible:border-cyan-500/70 text-xs w-full"
+                                                />
+                                            </div>
+                                            <label 
+                                                htmlFor="logo-file-input"
+                                                className="h-11 rounded-xl bg-slate-900 px-4 text-xs font-bold text-white shadow-md hover:bg-slate-800 transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.01] active:scale-[0.99] w-full sm:w-auto shrink-0"
+                                            >
+                                                <Upload className="h-3.5 w-3.5" />
+                                                Upload Image
+                                            </label>
+                                            <input
+                                                id="logo-file-input"
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleLogoUpload}
+                                                className="hidden"
+                                            />
+                                        </div>
+                                        <p className="text-[10px] text-slate-400 leading-tight">
+                                            Recommended size: square or landscape layout. Must be under 1MB (PNG, JPG, or GIF formats).
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
 
@@ -293,6 +391,40 @@ export function SettingsClient({ clinicId, userId, initialSettings }: SettingsCl
                                     className="h-12 rounded-[16px] border-slate-200/60 bg-white/60 font-mono text-sm shadow-sm transition-all focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-cyan-500/10 focus-visible:border-cyan-500/70"
                                 />
                             </div>
+
+                            {/* Tax ID / GSTIN */}
+                            <div className="space-y-2">
+                                <Label
+                                    htmlFor="taxId"
+                                    className="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5"
+                                >
+                                    <Building2 className="h-3.5 w-3.5 text-slate-400" /> Tax ID / GSTIN
+                                </Label>
+                                <Input
+                                    id="taxId"
+                                    value={settings.taxId}
+                                    onChange={(e) => setSettings({ ...settings, taxId: e.target.value })}
+                                    placeholder="e.g. 29AAAAA0000A1Z5"
+                                    className="h-12 rounded-[16px] border-slate-200/60 bg-white/60 font-mono text-sm shadow-sm transition-all focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-cyan-500/10 focus-visible:border-cyan-500/70"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Invoice Footer Notes */}
+                        <div className="space-y-2">
+                            <Label
+                                htmlFor="invoiceFooter"
+                                className="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5"
+                            >
+                                <FileText className="h-3.5 w-3.5 text-slate-400" /> Default Invoice Footer Notes
+                            </Label>
+                            <textarea
+                                id="invoiceFooter"
+                                value={settings.invoiceFooter}
+                                onChange={(e) => setSettings({ ...settings, invoiceFooter: e.target.value })}
+                                placeholder="e.g. Payment due within 15 days. Transfer to HDFC Bank A/c: 1234567890 (IFSC: HDFC0000123)"
+                                className="flex min-h-[80px] w-full rounded-[16px] border border-slate-200/60 bg-white/60 focus-visible:bg-white px-4 py-3 text-sm transition-all focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-cyan-500/10 focus-visible:border-cyan-500/70 text-slate-800 placeholder:text-slate-400 resize-none shadow-sm"
+                            />
                         </div>
                     </div>
                 </div>

@@ -32,59 +32,9 @@ interface Treatment {
 }
 
 
-const DEFAULT_DENTAL_SERVICES: Treatment[] = [
-
-    { id: "default-1", name: "Routine Checkup", category: "Preventive Care" },
-    { id: "default-2", name: "Dental Cleaning (Scaling)", category: "Preventive Care" },
-    { id: "default-3", name: "Deep Cleaning", category: "Preventive Care" },
-    { id: "default-4", name: "Fluoride Treatment", category: "Preventive Care" },
-    { id: "default-5", name: "X-Ray", category: "Preventive Care" },
-    { id: "default-6", name: "OPG/Full Mouth X-Ray", category: "Preventive Care" },
-
-
-    { id: "default-7", name: "Tooth Filling (Composite)", category: "Restorative" },
-    { id: "default-8", name: "Tooth Filling (Amalgam)", category: "Restorative" },
-    { id: "default-9", name: "Root Canal Treatment (RCT)", category: "Restorative" },
-    { id: "default-10", name: "Crown/Cap", category: "Restorative" },
-    { id: "default-11", name: "Bridge", category: "Restorative" },
-    { id: "default-12", name: "Inlay/Onlay", category: "Restorative" },
-
-
-    { id: "default-13", name: "Teeth Whitening", category: "Cosmetic" },
-    { id: "default-14", name: "Veneer", category: "Cosmetic" },
-    { id: "default-15", name: "Smile Makeover", category: "Cosmetic" },
-    { id: "default-16", name: "Tooth Bonding", category: "Cosmetic" },
-
-
-    { id: "default-17", name: "Simple Extraction", category: "Extraction & Surgery" },
-    { id: "default-18", name: "Surgical Extraction", category: "Extraction & Surgery" },
-    { id: "default-19", name: "Wisdom Tooth Removal", category: "Extraction & Surgery" },
-    { id: "default-20", name: "Gum Surgery", category: "Extraction & Surgery" },
-
-
-    { id: "default-21", name: "Braces Consultation", category: "Orthodontics" },
-    { id: "default-22", name: "Metal Braces", category: "Orthodontics" },
-    { id: "default-23", name: "Ceramic Braces", category: "Orthodontics" },
-    { id: "default-24", name: "Invisalign/Clear Aligners", category: "Orthodontics" },
-    { id: "default-25", name: "Retainer", category: "Orthodontics" },
-
-
-    { id: "default-26", name: "Dental Implant", category: "Implants & Prosthetics" },
-    { id: "default-27", name: "Complete Denture", category: "Implants & Prosthetics" },
-    { id: "default-28", name: "Partial Denture", category: "Implants & Prosthetics" },
-    { id: "default-29", name: "Implant Crown", category: "Implants & Prosthetics" },
-
-
-    { id: "default-30", name: "Child Checkup", category: "Pediatric" },
-    { id: "default-31", name: "Pit & Fissure Sealant", category: "Pediatric" },
-    { id: "default-32", name: "Pulpotomy", category: "Pediatric" },
-    { id: "default-33", name: "Space Maintainer", category: "Pediatric" },
-
-
-    { id: "default-34", name: "Emergency Consultation", category: "Emergency" },
-    { id: "default-35", name: "Pain Relief", category: "Emergency" },
-    { id: "default-36", name: "Temporary Filling", category: "Emergency" },
-    { id: "default-37", name: "Tooth Re-implantation", category: "Emergency" },
+const DEFAULT_SERVICES: Treatment[] = [
+    { id: "default-1", name: "General Consultation", category: "General" },
+    { id: "default-2", name: "Checkup", category: "General" },
 ]
 
 export function PatientForm({
@@ -94,7 +44,7 @@ export function PatientForm({
     onCancel,
     isLoading,
 }: PatientFormProps) {
-    const [treatments, setTreatments] = useState<Treatment[]>(DEFAULT_DENTAL_SERVICES)
+    const [treatments, setTreatments] = useState<Treatment[]>(DEFAULT_SERVICES)
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -127,9 +77,15 @@ export function PatientForm({
         async function loadTreatments() {
             try {
                 const data = await getTreatments(clinicId)
+                const baseServices = [
+                    { id: "default-1", name: "General Consultation", category: "General" },
+                    { id: "default-2", name: "Checkup", category: "General" }
+                ]
                 if (data && data.length > 0) {
-
-                    setTreatments(data)
+                    const filteredData = data.filter((t: any) => t.name !== "General Consultation" && t.name !== "Checkup")
+                    setTreatments([...baseServices, ...filteredData])
+                } else {
+                    setTreatments(baseServices)
                 }
             } catch (error) {
                 console.error("Failed to load treatments:", error)

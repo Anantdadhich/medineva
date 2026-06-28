@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 import { Header } from "@/components/layout/header"
@@ -30,6 +30,7 @@ import { calculateAge, formatCurrency } from "@/lib/utils"
 import { sendManualReminder, createAppointment, updateAppointment, updateAppointmentStatus, deleteAppointment } from "@/lib/actions/appointments"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { AppointmentForm } from "@/components/appointments/appointment-form"
+import { getTreatments } from "@/lib/actions/treatments"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -44,23 +45,13 @@ import { recordPayment } from "@/lib/actions/invoices"
 import { updatePatient } from "@/lib/actions/patients"
 import { PAYMENT_METHODS } from "@/lib/validations/invoice"
 
-const TREATMENT_TYPES = [
-    "General Consultation",
-    "Dental Cleaning",
-    "Root Canal Treatment",
-    "Tooth Extraction",
-    "Dental Filling",
-    "Crown & Bridge",
-    "Teeth Whitening",
-    "Orthodontic Consultation",
-    "Dental Implant",
-    "Gum Treatment",
-    "Wisdom Tooth Removal",
-    "Dental X-Ray",
-    "Emergency Treatment",
-    "Follow-up Visit",
-    "Other"
-]
+const APPOINTMENT_TYPE_LABELS: Record<string, string> = {
+    CHECKUP: "General Checkup",
+    TREATMENT: "Treatment",
+    CONSULTATION: "Consultation",
+    FOLLOW_UP: "Follow-up",
+    EMERGENCY: "Emergency",
+}
 
 export function PatientDetailClient({ patient }: { patient: any }) {
     const router = useRouter()
@@ -136,6 +127,28 @@ export function PatientDetailClient({ patient }: { patient: any }) {
         notes: "",
         status: "SCHEDULED" as any
     })
+
+    const [treatments, setTreatments] = useState<{ id: string; name: string; standardCost: number; category?: string }[]>([])
+
+    useEffect(() => {
+        const loadTreatments = async () => {
+            try {
+                const data = await getTreatments(patient.clinicId)
+                setTreatments(data)
+            } catch (error) {
+                console.error("Failed to load treatments", error)
+            }
+        }
+        loadTreatments()
+    }, [patient.clinicId])
+
+    const editSelectOptions = useMemo(() => {
+        const baseOptions = ["CHECKUP", "TREATMENT", "CONSULTATION", "FOLLOW_UP", "EMERGENCY"]
+        if (editForm.type && !baseOptions.includes(editForm.type)) {
+            baseOptions.push(editForm.type)
+        }
+        return baseOptions
+    }, [editForm.type])
 
     const handleEditClick = (apt: any, e: React.MouseEvent) => {
         e.stopPropagation()
@@ -838,9 +851,9 @@ export function PatientDetailClient({ patient }: { patient: any }) {
                                     <SelectValue placeholder="Select treatment" />
                                 </SelectTrigger>
                                 <SelectContent className="rounded-xl border border-gray-100 bg-white shadow-xl">
-                                    {TREATMENT_TYPES.map((treatment) => (
+                                    {editSelectOptions.map((treatment) => (
                                         <SelectItem key={treatment} value={treatment} className="rounded-lg hover:bg-cyan-50 cursor-pointer">
-                                            {treatment}
+                                            {APPOINTMENT_TYPE_LABELS[treatment] || treatment}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>

@@ -50,8 +50,7 @@ export function TreatmentsClient({ initialTreatments, clinicId }: TreatmentsClie
         name: "",
         description: "",
         standardCost: "",
-        category: "",
-        duration: "",
+        category: "General",
     })
 
     const groupedTreatments = treatments.reduce((acc, treatment) => {
@@ -70,8 +69,7 @@ export function TreatmentsClient({ initialTreatments, clinicId }: TreatmentsClie
                 name: treatment.name,
                 description: treatment.description || "",
                 standardCost: String(treatment.standardCost),
-                category: treatment.category,
-                duration: treatment.duration ? String(treatment.duration) : "",
+                category: treatment.category || "General",
             })
         } else {
             setEditingTreatment(null)
@@ -80,8 +78,7 @@ export function TreatmentsClient({ initialTreatments, clinicId }: TreatmentsClie
                 name: "",
                 description: "",
                 standardCost: "",
-                category: "",
-                duration: "",
+                category: "General",
             })
         }
         setIsDialogOpen(true)
@@ -98,7 +95,6 @@ export function TreatmentsClient({ initialTreatments, clinicId }: TreatmentsClie
                 description: formData.description || undefined,
                 standardCost: parseFloat(formData.standardCost),
                 category: formData.category,
-                duration: formData.duration ? parseInt(formData.duration) : undefined,
             }
 
             if (editingTreatment) {
@@ -300,27 +296,16 @@ export function TreatmentsClient({ initialTreatments, clinicId }: TreatmentsClie
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="category" className="text-gray-700 font-semibold text-[13px]">Category *</Label>
-                                <select
+                                <Input
                                     id="category"
-                                    className="flex h-11 w-full rounded-xl border border-gray-200/60 bg-white/60 focus:bg-white px-3 py-2 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-cyan-500/20 text-gray-800"
+                                    placeholder="General"
                                     value={formData.category}
                                     onChange={(e) =>
                                         setFormData({ ...formData, category: e.target.value })
                                     }
                                     required
-                                >
-                                    <option value="" disabled>Select category</option>
-                                    <option value="Preventive">Preventive</option>
-                                    <option value="Restorative">Restorative</option>
-                                    <option value="Cosmetic">Cosmetic</option>
-                                    <option value="Endodontic">Endodontic</option>
-                                    <option value="Periodontic">Periodontic</option>
-                                    <option value="Orthodontic">Orthodontic</option>
-                                    <option value="Surgery">Surgery</option>
-                                    <option value="Diagnostic">Diagnostic</option>
-                                    <option value="General">General</option>
-                                    <option value="Other">Other</option>
-                                </select>
+                                    className="h-11 rounded-xl bg-white/60 border-gray-200/60 focus:bg-white transition-all shadow-sm focus-visible:ring-cyan-500/20 px-4"
+                                />
                             </div>
                         </div>
 
@@ -351,34 +336,19 @@ export function TreatmentsClient({ initialTreatments, clinicId }: TreatmentsClie
                             />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="standardCost" className="text-gray-700 font-semibold text-[13px]">Standard Cost (₹) *</Label>
-                                <Input
-                                    id="standardCost"
-                                    type="number"
-                                    placeholder="5000"
-                                    value={formData.standardCost}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, standardCost: e.target.value })
-                                    }
-                                    required
-                                    className="h-11 rounded-xl bg-white/60 border-gray-200/60 focus:bg-white transition-all shadow-sm focus-visible:ring-cyan-500/20 px-4"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="duration" className="text-gray-700 font-semibold text-[13px]">Duration (minutes)</Label>
-                                <Input
-                                    id="duration"
-                                    type="number"
-                                    placeholder="30"
-                                    value={formData.duration}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, duration: e.target.value })
-                                    }
-                                    className="h-11 rounded-xl bg-white/60 border-gray-200/60 focus:bg-white transition-all shadow-sm focus-visible:ring-cyan-500/20 px-4"
-                                />
-                            </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="standardCost" className="text-gray-700 font-semibold text-[13px]">Standard Cost (₹) *</Label>
+                            <Input
+                                id="standardCost"
+                                type="number"
+                                placeholder="5000"
+                                value={formData.standardCost}
+                                onChange={(e) =>
+                                    setFormData({ ...formData, standardCost: e.target.value })
+                                }
+                                required
+                                className="h-11 rounded-xl bg-white/60 border-gray-200/60 focus:bg-white transition-all shadow-sm focus-visible:ring-cyan-500/20 px-4"
+                            />
                         </div>
 
                         <div className="p-4 sm:p-6 bg-gray-50/50 border-t border-gray-100/50 flex flex-col-reverse sm:flex-row justify-end gap-3 rounded-b-[24px] -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 mt-6">

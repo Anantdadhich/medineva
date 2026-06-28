@@ -15,6 +15,9 @@ export async function updateClinicSettings(clinicId: string, userId: string, dat
     currency: string
     defaultAppointmentDuration: number
     invoicePrefix?: string
+    logoUrl?: string
+    invoiceFooter?: string
+    taxId?: string
 }) {
     const user = await getCurrentUser()
     if (!user || !user.hasAccess || user.clinicId !== clinicId || user.id !== userId) {
@@ -59,16 +62,22 @@ export async function updateClinicSettings(clinicId: string, userId: string, dat
                 currency: data.currency,
                 defaultAppointmentDuration: data.defaultAppointmentDuration,
                 invoicePrefix: data.invoicePrefix || "INV",
+                logoUrl: data.logoUrl || null,
+                invoiceFooter: data.invoiceFooter || null,
+                taxId: data.taxId || null,
             },
             update: {
                 timezone: data.timezone,
                 currency: data.currency,
                 defaultAppointmentDuration: data.defaultAppointmentDuration,
                 invoicePrefix: data.invoicePrefix || "INV",
+                logoUrl: data.logoUrl || null,
+                invoiceFooter: data.invoiceFooter || null,
+                taxId: data.taxId || null,
             }
         })
     } catch (error) {
-        console.log("ClinicSettings table not yet created, skipping settings update")
+        console.log("ClinicSettings table not yet created, skipping settings update", error)
     }
 
     revalidatePath("/settings")

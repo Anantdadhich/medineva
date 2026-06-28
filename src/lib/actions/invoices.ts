@@ -38,6 +38,16 @@ function serializeInvoice(invoice: any) {
         }))
     }
 
+    if (invoice.clinic && invoice.clinic.clinicSettings) {
+        serialized.clinic = {
+            ...invoice.clinic,
+            clinicSettings: {
+                ...invoice.clinic.clinicSettings,
+                taxRate: safeNumber(invoice.clinic.clinicSettings.taxRate),
+            }
+        }
+    }
+
     return serialized
 }
 
@@ -92,7 +102,11 @@ export async function getInvoiceById(id: string) {
         include: {
             patient: true,
             appointment: true,
-            clinic: true,
+            clinic: {
+                include: {
+                    clinicSettings: true,
+                },
+            },
             items: {
                 include: {
                     clinicalRecord: {

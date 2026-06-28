@@ -93,6 +93,11 @@ interface InvoiceDetailClientProps {
             address?: string
             phone?: string
             email?: string
+            clinicSettings?: {
+                logoUrl?: string | null
+                taxId?: string | null
+                invoiceFooter?: string | null
+            } | null
         }
     }
     clinicId: string
@@ -866,9 +871,19 @@ export function InvoiceDetailClient({ invoice, clinicId }: InvoiceDetailClientPr
                 {/* Header */}
                 <div className="flex justify-between items-start border-b border-slate-200 pb-5 mb-8">
                     <div>
+                        {invoice.clinic?.clinicSettings?.logoUrl && (
+                            <img
+                                src={invoice.clinic?.clinicSettings?.logoUrl}
+                                alt="Clinic Logo"
+                                className="max-h-12 max-w-[180px] mb-3 object-contain"
+                            />
+                        )}
                         <h2 className="text-xl font-bold text-slate-900 uppercase tracking-wide">{invoice.clinic?.name || "Smile Science Dentistry"}</h2>
                         <p className="text-slate-500 max-w-[350px] mt-1">{invoice.clinic?.address || "ELECTRONICS CITY, 5th Floor, 224, 3rd Cross Road, Neeladri Nagar, Electronic City Phase I, Electronic City, Bengaluru, Karnataka 560100"}</p>
                         <p className="text-slate-500 mt-1">{invoice.clinic?.phone || "+91 98765 43210"} • {invoice.clinic?.email || "comacksclient@gmail.com"}</p>
+                        {invoice.clinic?.clinicSettings?.taxId && (
+                            <p className="text-slate-500 mt-1 font-semibold">Tax ID / GSTIN: {invoice.clinic?.clinicSettings?.taxId}</p>
+                        )}
                     </div>
                     <div className="text-right">
                         <h1 className="text-2xl font-bold text-slate-300 tracking-wider mb-2">INVOICE</h1>
@@ -960,8 +975,11 @@ export function InvoiceDetailClient({ invoice, clinicId }: InvoiceDetailClientPr
                 </div>
 
                 {/* Footer Message */}
-                <div className="border-t border-slate-150 pt-5 text-center text-slate-400 text-[11px]">
-                    Thank you for choosing {invoice.clinic?.name || "Smile Science Dentistry"}.
+                <div className="border-t border-slate-150 pt-5 text-center text-slate-400 text-[11px] space-y-1">
+                    {invoice.clinic?.clinicSettings?.invoiceFooter && (
+                        <p className="text-slate-600 font-medium whitespace-pre-line mb-1.5">{invoice.clinic?.clinicSettings?.invoiceFooter}</p>
+                    )}
+                    <p>Thank you for choosing {invoice.clinic?.name || "Smile Science Dentistry"}.</p>
                 </div>
             </div>
         </>
